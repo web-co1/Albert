@@ -9,6 +9,9 @@ const dropdownBackBtn = document.querySelectorAll(".dropdown__back-btn")
 const pricingSection = document.querySelector(".pricing");
 const monthlyToggle = document.getElementById("monthly-toggle");
 const annualToggle = document.getElementById("annual-toggle");
+const employersNumberInput = document.getElementById("number");
+const emailBlock = document.querySelector(".for-email");
+const phoneBlock = document.querySelector(".for-phone");
 
 // navigation menu start here
 menuBtn.addEventListener("click", function(){
@@ -40,20 +43,30 @@ dropdownBackBtn.forEach(function(button){
 
 // faqs accordions start here
 if(faqAccordion){
+    let currentAccordion = null;
+
     faqAccordion.forEach(function(accordion) {
         accordion.addEventListener("click", function() {
             const accordionBody = this.querySelector(".accordion__body");
-
-            if(accordionBody.style.maxHeight) {
+    
+            if (currentAccordion && currentAccordion !== accordion) {
+                const currentBody = currentAccordion.querySelector(".accordion__body");
+                currentBody.style.maxHeight = null; // Close it
+                currentAccordion.classList.remove("accordion--expanded"); // Remove expanded class
+            }
+    
+            if (accordionBody.style.maxHeight) {
                 accordionBody.style.maxHeight = null;
+                currentAccordion = null;
+            } else {
+                accordionBody.style.maxHeight = accordionBody.scrollHeight + "px"; 
+                currentAccordion = accordion; 
             }
-            else {
-                accordionBody.style.maxHeight = accordionBody.scrollHeight + "px";
-            }
-
+    
             this.classList.toggle("accordion--expanded");
-        })
-    })
+        });
+    });
+    
 }
 // faqs accordions end here
 
@@ -71,6 +84,18 @@ if(monthlyToggle){
     })
 }
 // Pricing toggle ends here 
+
+// contact form fields start here 
+employersNumberInput.addEventListener("input", function(){
+    if(employersNumberInput.value){
+        emailBlock.style.display = "block"
+        phoneBlock.style.display = "block"
+    }
+    else {
+        emailBlock.style.display = "none"
+        phoneBlock.style.display = "none"
+    }
+})
 
 
 // pricing table starts here

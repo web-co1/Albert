@@ -30,6 +30,13 @@
     --color-light-blue-gray: #E5E7F0;
     --color-light-gray-4: #F0F1F0;
     --color-transparent-white: rgba(255, 255, 255, 0.10);
+    --color-custom-primary: #2E65F3;
+    --color-custom-primary-2: #295de5;
+    --color-custom-light: #E6E7F0;
+    --color-light-transparent: rgba(0, 21, 128, 0.04);
+    --color-light-transparent-2: rgba(0, 17, 102, 0.1);
+    --color-white-transparent: rgba(255, 255, 255, 70%);
+    --color-white-transparent-2: rgba(255, 255, 255, 80%);
 }
 
 
@@ -148,11 +155,7 @@ body {
     font-weight: 600;
     background-color: transparent;
     text-align: center;
-    transition: all .3s ease;
-}
-.btn:hover {
-    background-color: var(--primary-color);
-    color: #fff;
+    transition: background .2s ease;
 }
 .btn.sm {
     font-size: 14px;
@@ -170,15 +173,8 @@ body {
     line-height: 20px;
     padding: 13px 81px;
 }
-.btn--primary {
-    background-color: var(--primary-color);
-    color: var(--white-color);
-}
-.btn--primary:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background-color: transparent;
-}
+
+
 .btn--purple {
     background-color: var(--color-purple);
     color: var(--white-color);
@@ -199,6 +195,7 @@ body {
     box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.04);
     background-color: var(--white-color);
     text-align: center;
+    transition: all .3s ease;
 }
 .submit-btn {
     font-size: 16px;
@@ -213,9 +210,6 @@ body {
     text-wrap: nowrap;
     text-align: center;
     transition: opacity .3s ease;
-}
-.submit-btn:hover {
-    opacity: .8;
 }
 .success-btn {
     box-shadow: 0px 2px 4px -2px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.04);
@@ -243,6 +237,59 @@ body {
 .btn-icon {
     margin-left: 10px;
 }
+
+
+
+/* -- buttons states -- */
+.btn--primary {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+.btn--primary:hover {
+    background-color: var(--color-custom-primary);
+}
+.btn--primary:focus {
+    background: var(--color-custom-primary-2);
+}
+.btn--primary:disabled {
+    background-color: var(--color-custom-light);
+}
+.btn--primary:focus-visible {
+    outline: 2px solid var(--color-purple);
+    outline-offset: 2px;
+}
+
+.btn--outline:hover {
+ background-color: var(--color-light-transparent);
+}
+.btn--outline:focus {
+    background: var(--color-light-transparent-2);
+}
+.btn--outline:disabled {
+    background-color: var(--color-custom-light);
+}
+.btn--outline:focus-visible {
+    outline: 2px solid var(--color-purple);
+    outline-offset: 2px;
+}
+
+.btn-light:hover {
+    background-color: var(--color-white-transparent);
+}
+.btn-light:focus {
+    background: var(--color-white-transparent-2);
+}
+.btn-light:disabled {
+    opacity: .12;
+    pointer-events: none;
+}
+.btn-light:focus-visible {
+    outline: 2px solid var(--white-color);
+    outline-offset: 3px;
+}
+
+
+
 
 
 /* ----- global components ----- */
@@ -503,6 +550,9 @@ body {
 .accordion--expanded .accordion__icon {
     transform: rotate(45deg);
 }
+.accordion--expanded .accordion__body {
+    max-height: auto;
+}
 .accordion--expanded .accordion__body--inner {
     opacity: 1;
     transition: opacity .4s ease .2s;
@@ -632,6 +682,9 @@ input:focus + label, input:not(:placeholder-shown) + label {
     margin-top: 8px;
     font-size: 16px;
     line-height: 24px;
+}
+.for-email,.for-phone {
+    display: none;
 }
 
 

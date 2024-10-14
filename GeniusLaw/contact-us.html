@@ -202,8 +202,8 @@
                             <li><a href="pricing.html" class="nav-link">Pricing</a></li>
                         </ul>
                         <ul class="site-header__nav--block site-header__nav--btns">
-                            <li><a href="" class="btn btn--primary sm">Log in</a></li>
-                            <li><a href="" class="btn sm">Sign up</a></li>
+                            <li><a href="" class="btn btn--outline sm">Log in</a></li>
+                            <li><a href="" class="btn btn--primary sm">Sign up</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -253,12 +253,20 @@
                                 <label for="Firm name">Firm name</label>
                             </div>
                             <div class="form__group">
-                                <input type="tel" id="phone" name="Number of Emplyees" class="form-control" placeholder="" required>
+                                <input type="number" id="number" name="Number of Emplyees" class="form-control" placeholder="" required>
                                 <label for="Number of Emplyees">Number of Emplyees</label>
+                            </div>
+                            <div class="form__group for-email">
+                                <input type="email" id="email" name="Email Address" class="form-control" placeholder="" required>
+                                <label for="Email Address">Email Address</label>
+                            </div>
+                            <div class="form__group for-phone">
+                                <input type="tel" id="phone" name="Phone Number" class="form-control" placeholder="" required>
+                                <label for="Phone Number">Phone Number</label>
                             </div>
                         </div>
                         <div class="contact-form__btn-wrap">
-                            <button type="submit" class="submit-btn">Start Free Trial</button>
+                            <button type="submit" class="submit-btn btn--primary">Start Free Trial</button>
                         </div>
                     </form>
                     <div class="contact-form__cap">
@@ -271,8 +279,6 @@
         </div>
     </section>
     <!-- ./hero ends here -->
-
-
 
     <footer class="site-footer">
         <div class="container">
