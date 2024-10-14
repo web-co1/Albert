@@ -12,6 +12,11 @@ const annualToggle = document.getElementById("annual-toggle");
 const employersNumberInput = document.getElementById("number");
 const emailBlock = document.querySelector(".for-email");
 const phoneBlock = document.querySelector(".for-phone");
+const table = document.querySelector(".pricing__table--wrapper");
+const pricingTable = document.querySelectorAll(".pricing__table--block");
+const showMoreRows = document.getElementById("show-features");
+const minimiseRows = document.getElementById("hide-features");
+
 
 // navigation menu start here
 menuBtn.addEventListener("click", function(){
@@ -51,8 +56,8 @@ if(faqAccordion){
     
             if (currentAccordion && currentAccordion !== accordion) {
                 const currentBody = currentAccordion.querySelector(".accordion__body");
-                currentBody.style.maxHeight = null; // Close it
-                currentAccordion.classList.remove("accordion--expanded"); // Remove expanded class
+                currentBody.style.maxHeight = null;
+                currentAccordion.classList.remove("accordion--expanded");
             }
     
             if (accordionBody.style.maxHeight) {
@@ -85,23 +90,71 @@ if(monthlyToggle){
 }
 // Pricing toggle ends here 
 
+
 // contact form fields start here 
-employersNumberInput.addEventListener("input", function(){
-    if(employersNumberInput.value){
-        emailBlock.style.display = "block"
-        phoneBlock.style.display = "block"
-    }
-    else {
-        emailBlock.style.display = "none"
-        phoneBlock.style.display = "none"
-    }
-})
+if(employersNumberInput){
+    employersNumberInput.addEventListener("input", function(){
+        if(employersNumberInput.value){
+            emailBlock.style.display = "block"
+            phoneBlock.style.display = "block"
+        }
+        else {
+            emailBlock.style.display = "none"
+            phoneBlock.style.display = "none"
+        }
+    })
+}
 
 
 // pricing table starts here
-// const tbody = document.querySelectorAll(".tb-slice tr");
-// const tbodyRow = [...tbody].slice(0, 5);
-// const tbodyHtml = tbodyRow.map(row => row.outerHTML).join('');
-// const tbodyElement = document.querySelector(".tb-slice");
-// tbodyElement.innerHTML = tbodyHtml;
+
+
+
+function pricingMinimiseTable(){
+    document.querySelector(".pricing__btn-wrap").style.marginTop = "-50px";
+    minimiseRows.style.display = "none";
+    showMoreRows.style.display = "inline-block";
+    document.querySelector(".table-overlay").style.display = "block";
+    const tbodyRows = document.querySelectorAll(".tb-slice tr");
+
+    tbodyRows.forEach((row, index) => {
+        if (index < 6) {
+            row.style.display = "table-row";
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    const pricingTableBlock = Array.from(pricingTable);
+    pricingTableBlock.forEach(block => {
+        block.style.display = "none";
+    });
+
+    if (pricingTableBlock.length > 0) {
+        pricingTableBlock[0].style.display = "block";
+    }
+}
+pricingMinimiseTable();
+
+function pricingAllTable(){
+    document.querySelector(".pricing__btn-wrap").style.marginTop = "0px";
+    minimiseRows.style.display = "inline-block";
+    showMoreRows.style.display = "none";
+    document.querySelector(".table-overlay").style.display = "none";
+    const tbodyRows = document.querySelectorAll(".tb-slice tr");
+
+    tbodyRows.forEach((row, index) => {
+            row.style.display = "table-row";
+    });
+
+    const pricingTableBlock = Array.from(pricingTable);
+    pricingTableBlock.forEach(block => {
+        block.style.display = "block";
+    });
+}
+
+
+ showMoreRows.addEventListener("click", pricingAllTable)
+ minimiseRows.addEventListener("click", pricingMinimiseTable)
+
 // pricing table ends here
