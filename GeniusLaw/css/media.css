@@ -555,6 +555,9 @@
     .pricing__table--wrapper {
         display: none;
     }
+    .plan__features {
+        display: block;
+    }
 
     /* --- features starts here ---  */
     .features {

@@ -511,6 +511,39 @@ body {
     display: flex;
     flex-direction: column;
 }
+.plan__features {
+    margin-top: 24px;
+    display: none;
+}
+.plan__features-btn {
+    color: var(--primary-color);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+.plan__list {
+    display: none;
+}
+.plan__list-item {
+    font-size: 16px;
+    line-height: 24px;
+    margin-top: 10px;
+    padding-left: 18px;
+    background-image: url(../assets/check.svg);
+    background-repeat: no-repeat;
+    background-position: left center;
+}
+.show-features .plan__list {
+    display: block;
+}
+.show-features .plan__features-btn img {
+    transform: rotate(-180deg);
+    transition: transform .3s ease;
+}
 
 
 /* accordions */

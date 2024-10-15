@@ -16,6 +16,7 @@ const table = document.querySelector(".pricing__table--wrapper");
 const pricingTable = document.querySelectorAll(".pricing__table--block");
 const showMoreRows = document.getElementById("show-features");
 const minimiseRows = document.getElementById("hide-features");
+const featureButtons = document.querySelectorAll('.plan__features-btn');
 
 
 // navigation menu start here
@@ -109,7 +110,7 @@ if(employersNumberInput){
 // pricing table starts here
 
 
-
+if(table){
 function pricingMinimiseTable(){
     document.querySelector(".pricing__btn-wrap").style.marginTop = "-50px";
     minimiseRows.style.display = "none";
@@ -157,4 +158,24 @@ function pricingAllTable(){
  showMoreRows.addEventListener("click", pricingAllTable)
  minimiseRows.addEventListener("click", pricingMinimiseTable)
 
-// pricing table ends here
+}
+
+if(featureButtons){
+ featureButtons.forEach(function(button) {
+        button.classList.remove("show-features"); 
+
+        button.addEventListener("mouseover", function() {
+            featureButtons.forEach(function(btn) {
+                btn.parentElement.classList.remove("show-features");
+            });
+            this.parentElement.classList.add("show-features");
+            this.querySelector("span").textContent = "Hide features";     
+        });
+        button.addEventListener("mouseout", function() {
+            this.parentElement.classList.remove("show-features");  
+            this.querySelector("span").textContent = "See features";     
+        });
+
+    });
+}
+
