@@ -787,21 +787,30 @@ input:focus + label, input:not(:placeholder-shown) + label {
 
 
 .home-hero {
-    padding-top: 151px;
-    padding-bottom: 228px;
     background-color: var(--color-half-gray);
     border-bottom: 1px solid var(--color-light-gray-3);
+    overflow: hidden;
 }
 .home-hero__row {
     display: grid;
     grid-template-columns: .55fr 1fr;
     gap: 30px;
 }
+.home-hero__col--first {
+    padding-top: 151px;
+    padding-bottom: 200px;
+}
 .home-hero__desc {
     margin-top: 24px;
 }
 .home-hero__form {
     margin-top: 32px;
+}
+.home-hero__img {
+    height: 100%;
+}
+.home-hero__img svg {
+    transform: translate3d(0px, 22px, 0px) !important;
 }
 
 

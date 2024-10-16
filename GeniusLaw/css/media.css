@@ -1,3 +1,20 @@
+
+/* --- laptop max 1200px --- */
+@media (max-width: 1500px) {
+    .home-hero {
+        height: calc(100vh - 80px);
+    }
+
+    .home-hero__col--first {
+        padding-top: 60px;
+        padding-bottom: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+
 /* --- desktop max 1200px --- */
 @media (max-width: 1200px) {
     .attorney__form-wrap {
@@ -136,8 +153,6 @@
         transform: none;
     }
 
-    
-
     /* menu open */
     .nav-open .site-header__col--right {
         transform: translateX(0%);
@@ -172,8 +187,20 @@
     .nav-open .menu-bar--middle {transform: translateX(50%);opacity: 0;}
 
     /* --- hero starts here --- */
+    .home-hero {
+        padding-top: 60px;
+        padding-bottom: 0px;
+        height: auto;
+    }
     .hero__list {
         flex-direction: column;
+    }
+    .home-hero__col--first {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    .home-hero__row {
+        grid-template-columns: 1fr;
     }
 
     /* --- attorny starts here --- */
@@ -291,7 +318,6 @@
     /* --- hero starts here --- */
     .home-hero {
         padding-top: 40px;
-        padding-bottom: 40px;
     }
     .home-hero__desc {
         margin-top: 12px;
@@ -300,6 +326,9 @@
     .home-hero__row {
         grid-template-columns: 1fr;
         gap: 48px;
+    }
+    .home-hero__img {
+        transform: scale(1.15);
     }
     .hero {
         padding-top: 40px;

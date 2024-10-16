@@ -47,6 +47,19 @@ dropdownBackBtn.forEach(function(button){
 })
 // dropdown end her 
 
+
+// hero animation starts here 
+lottie.loadAnimation({
+    container: document.getElementById("lottie"),
+    render: 'svg',
+    loop: true,
+    autoplay: true,
+    path: 'assets/Genius_crop.json',
+})
+
+// hero animation starts here 
+
+
 // faqs accordions start here
 if(faqAccordion){
     let currentAccordion = null;
