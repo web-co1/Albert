@@ -13,6 +13,7 @@ const employersNumberInput = document.getElementById("number");
 const emailBlock = document.querySelector(".for-email");
 const phoneBlock = document.querySelector(".for-phone");
 const table = document.getElementById("pricing-table");
+const tableHead = document.getElementById("pricing-table-head");
 const pricingTable = document.querySelectorAll(".pricing__table--block");
 const showMoreRows = document.getElementById("show-features");
 const minimiseRows = document.getElementById("hide-features");
@@ -104,11 +105,18 @@ if(monthlyToggle){
         monthlyToggle.classList.remove("toggle--active")
     })
 
-    table.addEventListener("scroll", function(){
-        if (table.scrollTop > 20) {
-            alert()
+    window.addEventListener('scroll', function() {
+        var placeElement = document.getElementById('pricing-table');
+        var offset = placeElement.getBoundingClientRect().top + window.scrollY;
+        if (window.scrollY >= offset) {
+            tableHead.style.visibility = "visible";
+            tableHead.style.opacity = "1";
         }
-    })
+        else {
+            tableHead.style.visibility = "hidden"; 
+            tableHead.style.opacity = "1";
+        }
+    });
 }
 // Pricing toggle ends here 
 

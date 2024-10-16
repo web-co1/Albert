@@ -945,7 +945,6 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 
 .pricing__table--wrapper {
-    padding-top: 40px;
     padding-bottom: 134px;
 }
 .pricing__table--head {
@@ -955,6 +954,10 @@ input:focus + label, input:not(:placeholder-shown) + label {
     position: sticky;
     top: 80px;
     z-index: 5;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity .5s ease;
+    
 }
 .pricing__table--grid {
     display: flex;

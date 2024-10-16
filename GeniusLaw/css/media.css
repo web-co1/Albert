@@ -259,9 +259,16 @@
     }
 
     /* --- pricing starts here --- */
+    .pricing__hero {
+        padding-bottom: 108px;
+    }
     .pricing__row {
         grid-template-columns:1fr;
         gap: 40px;
+    }
+
+    .pricing__table--wrapper {
+        display: none;
     }
 
 
@@ -580,9 +587,6 @@
         margin-top: 24px;
         display: flex;
         flex-direction: column;
-    }
-    .pricing__table--wrapper {
-        display: none;
     }
     .plan__features {
         display: block;
