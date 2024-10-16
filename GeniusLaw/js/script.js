@@ -49,13 +49,15 @@ dropdownBackBtn.forEach(function(button){
 
 
 // hero animation starts here 
-lottie.loadAnimation({
-    container: document.getElementById("lottie"),
-    render: 'svg',
-    loop: true,
-    autoplay: true,
-    path: 'assets/Genius_crop.json',
-})
+if(document.getElementById("lottie")){
+    lottie.loadAnimation({
+        container: document.getElementById("lottie"),
+        render: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'assets/Genius_crop.json',
+    })
+}
 
 // hero animation starts here 
 
