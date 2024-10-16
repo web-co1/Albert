@@ -506,10 +506,14 @@ body {
     line-height: 24px;
     margin-top: 24px;
 }
+
 .plan__btn-wrap {
     margin-top: 63px;
     display: flex;
     flex-direction: column;
+}
+.plan__btn-wrap.mg-top {
+    margin-top: 16px;
 }
 .plan__features {
     margin-top: 24px;
@@ -722,67 +726,6 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 
 
-/* tables */
-.pricing__table--wrapper {
-    padding-top: 40px;
-    padding-bottom: 134px;
-}
-.pricing__table-desc {
-    margin-top: 16px;
-}
-.pricing__table--block {
-    margin-bottom: 64px;
-    position: relative;
-}
-.table-overlay {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 1.8%, rgba(255, 255, 255, 0.5) 51.68%, rgba(255, 255, 255, 0.85) 74.42%, rgba(255, 255, 255, 0.97) 91.75%);
-    position: absolute;
-    bottom: -17px;
-    width: 100%;
-    height: 83%;
-}
-.pricing__table {
-    width: 100%;
-    border-top: 1px solid var(--transparent-dark-blue);
-    margin-top: 32px;
-}
-.pricing__table--row {
-    border-bottom: 1px solid var(--transparent-dark-blue);
-}
-.pricing__table--row td:first-child {
-    width: 40%;
-    text-align: left;
-    font-size: 16px;
-    line-height: 36px;
-    font-weight: 500;
-    color: var(--color-dark-greenish-blue);
-}
-.pricing__table--row td {
-    width: 20%;
-    text-align: center;
-    padding: 16px;
-    font-size: 14px;
-    line-height: 21px;
-    vertical-align: middle;
-}
-.pricing__table--row td:nth-child(even){
-    background: var(--color-light-gray);
-}
-.pricing__table .fa-solid,.fa-regular {
-    font-size: 27px;
-    opacity: 0.65;
-    color: var(--color-blue);
-}
-.pricing__table .fa-window-minimize {
-    height: 10px;
-    overflow: hidden;
-    display: flex;
-    align-items: end;
-    justify-content: center;
-}
-
-
-
 /* ---- layout ---- */
 
 
@@ -980,6 +923,9 @@ input:focus + label, input:not(:placeholder-shown) + label {
     align-items: center;
     margin-top: 32px;
 }
+.pricing__toggle.mg-top {
+    margin-top: 16px;
+}
 .pricing__toggle-btn {
     padding: 12px 24px;
     border: none;
@@ -997,6 +943,104 @@ input:focus + label, input:not(:placeholder-shown) + label {
     margin-top: 40px;
     text-align: center;
 }
+
+.pricing__table--wrapper {
+    padding-top: 40px;
+    padding-bottom: 134px;
+}
+.pricing__table--head {
+    padding-top: 32px;
+    padding-bottom: 32px;
+    background-color: var(--white-color);
+    position: sticky;
+    top: 80px;
+    z-index: 5;
+}
+.pricing__table--grid {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+}
+.pricing__table--col  {
+    text-align: center;
+    width: 20%;;
+    padding: 0px 10px;
+}
+.pricing__table--col:first-child {
+    width: 40%;
+    text-align: left;
+    padding: 0;
+}
+.pricing__item {
+    display: flex;
+    font-size: 14px;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-dark-blue);
+    font-weight: 600;
+}
+.plan-price-wrap {
+    color: var(--color-dark-gray);
+}
+.plan-price {
+    color: var(--color-dark-blue);
+}
+.pricing__table-desc {
+    margin-top: 16px;
+}
+.pricing__table--block {
+    margin-bottom: 64px;
+    position: relative;
+}
+.table-overlay {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 1.8%, rgba(255, 255, 255, 0.5) 51.68%, rgba(255, 255, 255, 0.85) 74.42%, rgba(255, 255, 255, 0.97) 91.75%);
+    position: absolute;
+    bottom: -17px;
+    width: 100%;
+    height: 83%;
+}
+.pricing__table {
+    width: 100%;
+    border-top: 1px solid var(--transparent-dark-blue);
+    margin-top: 32px;
+}
+.pricing__table--row {
+    border-bottom: 1px solid var(--transparent-dark-blue);
+}
+.pricing__table--row td:first-child {
+    width: 40%;
+    text-align: left;
+    font-size: 16px;
+    line-height: 36px;
+    font-weight: 500;
+    color: var(--color-dark-greenish-blue);
+}
+.pricing__table--row td {
+    width: 20%;
+    text-align: center;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 21px;
+    vertical-align: middle;
+}
+.pricing__table--row td:nth-child(even){
+    background: var(--color-light-gray);
+}
+.pricing__table .fa-solid,.fa-regular {
+    font-size: 27px;
+    opacity: 0.65;
+    color: var(--color-blue);
+}
+.pricing__table .fa-window-minimize {
+    height: 10px;
+    overflow: hidden;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+}
+
+
+
 /* --- pricing end here --- */
 
 

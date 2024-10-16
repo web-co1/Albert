@@ -12,7 +12,7 @@ const annualToggle = document.getElementById("annual-toggle");
 const employersNumberInput = document.getElementById("number");
 const emailBlock = document.querySelector(".for-email");
 const phoneBlock = document.querySelector(".for-phone");
-const table = document.querySelector(".pricing__table--wrapper");
+const table = document.getElementById("pricing-table");
 const pricingTable = document.querySelectorAll(".pricing__table--block");
 const showMoreRows = document.getElementById("show-features");
 const minimiseRows = document.getElementById("hide-features");
@@ -103,6 +103,12 @@ if(monthlyToggle){
         this.classList.add("toggle--active")
         monthlyToggle.classList.remove("toggle--active")
     })
+
+    table.addEventListener("scroll", function(){
+        if (table.scrollTop > 20) {
+            alert()
+        }
+    })
 }
 // Pricing toggle ends here 
 
@@ -120,8 +126,6 @@ if(employersNumberInput){
         }
     })
 }
-
-
 // pricing table starts here
 
 
