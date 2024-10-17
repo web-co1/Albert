@@ -7,8 +7,11 @@ const dropdownBtn = document.querySelectorAll(".site-header__dropbtn")
 const dropdown = document.querySelectorAll(".dropdown__inner");
 const dropdownBackBtn = document.querySelectorAll(".dropdown__back-btn")
 const pricingSection = document.querySelector(".pricing");
+const pricingToggle = document.querySelectorAll(".pricing__toggle-btn");
 const monthlyToggle = document.getElementById("monthly-toggle");
 const annualToggle = document.getElementById("annual-toggle");
+const $monthlyToggle2 = document.getElementById("monthly-toggle2");
+const $annualToggle2 = document.getElementById("annual-toggle2");
 const employersNumberInput = document.getElementById("number");
 const emailBlock = document.querySelector(".for-email");
 const phoneBlock = document.querySelector(".for-phone");
@@ -96,6 +99,8 @@ if(faqAccordion){
 // Pricing toggle start here 
 if(monthlyToggle){
     monthlyToggle.classList.add("toggle--active")
+    $monthlyToggle2.classList.add("toggle--active")
+
     monthlyToggle.addEventListener("click", function(){
         this.classList.add("toggle--active")
         annualToggle.classList.remove("toggle--active")
@@ -104,7 +109,17 @@ if(monthlyToggle){
         this.classList.add("toggle--active")
         monthlyToggle.classList.remove("toggle--active")
     })
-
+// for sticky bar on table
+    $monthlyToggle2.addEventListener("click", function(){
+        this.classList.add("toggle--active")
+        $annualToggle2.classList.remove("toggle--active")
+    })
+    $annualToggle2.addEventListener("click", function(){
+        this.classList.add("toggle--active")
+        $monthlyToggle2.classList.remove("toggle--active")
+    })
+    
+    
     window.addEventListener('scroll', function() {
         var placeElement = document.getElementById('pricing-table');
         var offset = placeElement.getBoundingClientRect().top + window.scrollY;
@@ -116,7 +131,7 @@ if(monthlyToggle){
             tableHead.style.visibility = "hidden"; 
             tableHead.style.opacity = "1";
         }
-    });
+    });  
 }
 // Pricing toggle ends here 
 
