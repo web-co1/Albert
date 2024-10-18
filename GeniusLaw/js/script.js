@@ -98,6 +98,7 @@ if(faqAccordion){
 
 // Pricing toggle start here 
 if(monthlyToggle){
+
     monthlyToggle.classList.add("toggle--active")
     $monthlyToggle2.classList.add("toggle--active")
 
@@ -109,16 +110,17 @@ if(monthlyToggle){
         this.classList.add("toggle--active")
         monthlyToggle.classList.remove("toggle--active")
     })
+
 // for sticky bar on table
     $monthlyToggle2.addEventListener("click", function(){
         this.classList.add("toggle--active")
         $annualToggle2.classList.remove("toggle--active")
     })
+    
     $annualToggle2.addEventListener("click", function(){
         this.classList.add("toggle--active")
         $monthlyToggle2.classList.remove("toggle--active")
     })
-    
     
     window.addEventListener('scroll', function() {
         var placeElement = document.getElementById('pricing-table');
@@ -135,7 +137,6 @@ if(monthlyToggle){
 }
 // Pricing toggle ends here 
 
-
 // contact form fields start here 
 if(employersNumberInput){
     employersNumberInput.addEventListener("input", function(){
@@ -149,61 +150,60 @@ if(employersNumberInput){
         }
     })
 }
+
 // pricing table starts here
-
-
 if(table){
-function pricingMinimiseTable(){
-    document.querySelector(".pricing__btn-wrap").style.marginTop = "-50px";
-    minimiseRows.style.display = "none";
-    showMoreRows.style.display = "inline-block";
-    document.querySelector(".table-overlay").style.display = "block";
-    const tbodyRows = document.querySelectorAll(".tb-slice tr");
+    function pricingMinimiseTable(){
+        document.querySelector(".pricing__btn-wrap").style.marginTop = "-50px";
+        minimiseRows.style.display = "none";
+        showMoreRows.style.display = "inline-block";
+        document.querySelector(".table-overlay").style.display = "block";
+        const tbodyRows = document.querySelectorAll(".tb-slice tr");
 
-    tbodyRows.forEach((row, index) => {
-        if (index < 6) {
-            row.style.display = "table-row";
-        } else {
-            row.style.display = "none";
+        tbodyRows.forEach((row, index) => {
+            if (index < 6) {
+                row.style.display = "table-row";
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        const pricingTableBlock = Array.from(pricingTable);
+        pricingTableBlock.forEach(block => {
+            block.style.display = "none";
+        });
+
+        if (pricingTableBlock.length > 0) {
+            pricingTableBlock[0].style.display = "block";
         }
-    });
-
-    const pricingTableBlock = Array.from(pricingTable);
-    pricingTableBlock.forEach(block => {
-        block.style.display = "none";
-    });
-
-    if (pricingTableBlock.length > 0) {
-        pricingTableBlock[0].style.display = "block";
     }
-}
-pricingMinimiseTable();
+    pricingMinimiseTable();
 
-function pricingAllTable(){
-    document.querySelector(".pricing__btn-wrap").style.marginTop = "0px";
-    minimiseRows.style.display = "inline-block";
-    showMoreRows.style.display = "none";
-    document.querySelector(".table-overlay").style.display = "none";
-    const tbodyRows = document.querySelectorAll(".tb-slice tr");
+    function pricingAllTable(){
+        document.querySelector(".pricing__btn-wrap").style.marginTop = "0px";
+        minimiseRows.style.display = "inline-block";
+        showMoreRows.style.display = "none";
+        document.querySelector(".table-overlay").style.display = "none";
+        const tbodyRows = document.querySelectorAll(".tb-slice tr");
 
-    tbodyRows.forEach((row, index) => {
-            row.style.display = "table-row";
-    });
+        tbodyRows.forEach((row, index) => {
+                row.style.display = "table-row";
+        });
 
-    const pricingTableBlock = Array.from(pricingTable);
-    pricingTableBlock.forEach(block => {
-        block.style.display = "block";
-    });
-}
+        const pricingTableBlock = Array.from(pricingTable);
+        pricingTableBlock.forEach(block => {
+            block.style.display = "block";
+        });
+    }
 
 
- showMoreRows.addEventListener("click", pricingAllTable)
- minimiseRows.addEventListener("click", pricingMinimiseTable)
+    showMoreRows.addEventListener("click", pricingAllTable)
+    minimiseRows.addEventListener("click", pricingMinimiseTable)
 
 }
 
 if(featureButtons){
- featureButtons.forEach(function(button) {
+    featureButtons.forEach(function(button) {
         button.classList.remove("show-features"); 
 
         button.addEventListener("mouseover", function() {
@@ -220,4 +220,3 @@ if(featureButtons){
 
     });
 }
-

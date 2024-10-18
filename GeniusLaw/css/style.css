@@ -8,6 +8,7 @@
     --color-light-gray: #F5F5F4;
     --color-dark-blue: #1A1F3C;
     --color-black: #000;
+    --color-black-transparent-50: rgba(0, 0, 0, 0.50); 
     --color-half-gray: #FAFAF8;
     --transparent-dark-blue: rgba(0, 17, 102, 0.10);
     --color-primary-transparent: rgba(48, 111, 241, 0.10);
@@ -597,6 +598,28 @@ body {
 }
 
 
+/* popup */
+.popup {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    z-index: 9999;
+    top: 0;
+    display: flex;
+    align-items: center;
+    background-color: var(--color-black-transparent-50);
+}
+.popup__content {
+    text-align: center;
+}
+.popup__close {
+    position: absolute;
+    top: 15px;
+    right: 22px;
+    cursor: pointer;
+    font-size: 30px;
+    color: var(--color-black);
+}
 /* cta */
 .cta {
     padding: 80px 0px;
@@ -691,6 +714,7 @@ input:focus + label, input:not(:placeholder-shown) + label {
     background-color: var(--white-color);
     padding: 32px;
     border-radius: 12px;
+    position: relative;
 }
 .contact-form__row {
     display: grid;
@@ -751,9 +775,13 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 .home-hero__img {
     height: 100%;
+    transform: scale(1.14);
+    overflow: hidden;
+    position: relative;
+    right: -70px;
 }
 .home-hero__img svg {
-    transform: translate3d(0px, 22px, 0px) !important;
+    transform: translate3d(0px, -30px, 0px) !important;
 }
 
 
