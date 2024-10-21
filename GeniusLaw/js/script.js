@@ -228,14 +228,17 @@ if(popup) {
     popupOpenBtn.forEach(function(button){
         button.addEventListener("click", function(){
             popup.style.display = "flex";
+            document.body.style.overflow = "hidden";
         })
     })
     popupCloseBtn.addEventListener("click", function(){
         popup.style.display = "none";
+        document.body.style.overflow = "visible";
     })
     window.addEventListener("click", function(e){
         if(e.target === popup) {
             popup.style.display = "none";
+            document.body.style.overflow = "visible";
         }
     })
 }
