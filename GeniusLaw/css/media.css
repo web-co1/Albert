@@ -603,6 +603,29 @@
         display: block;
     }
 
+    /* --- popup starts here --- */
+    .popup {
+        height: 100vh;
+        overflow-y: scroll;
+        align-items: flex-start;
+    }
+    .popup__inner {
+        border-radius: 0px;
+        padding: 64px 28px;
+    }
+    .popup__inner .display-heading {
+        font-size: 36px;
+        line-height: 44px;
+        letter-spacing: 0px;
+    }
+    .popup__list {
+        align-items: flex-start;
+        gap:25px;
+        margin: 32px auto 64px;
+        flex-direction: column;
+    }
+
+
     /* --- features starts here ---  */
     .features {
         padding: 64px 0px;
