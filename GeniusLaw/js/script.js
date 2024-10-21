@@ -224,16 +224,18 @@ if(featureButtons){
 }
 
 // popup starts here
-popupOpenBtn.forEach(function(button){
-    button.addEventListener("click", function(){
-        popup.style.display = "flex";
+if(popup) {
+    popupOpenBtn.forEach(function(button){
+        button.addEventListener("click", function(){
+            popup.style.display = "flex";
+        })
     })
-})
-popupCloseBtn.addEventListener("click", function(){
-    popup.style.display = "none";
-})
-window.addEventListener("click", function(e){
-    if(e.target === popup) {
+    popupCloseBtn.addEventListener("click", function(){
         popup.style.display = "none";
-    }
-})
+    })
+    window.addEventListener("click", function(e){
+        if(e.target === popup) {
+            popup.style.display = "none";
+        }
+    })
+}
