@@ -21,6 +21,9 @@ const pricingTable = document.querySelectorAll(".pricing__table--block");
 const showMoreRows = document.getElementById("show-features");
 const minimiseRows = document.getElementById("hide-features");
 const featureButtons = document.querySelectorAll('.plan__features-btn');
+const popup = document.getElementById("popup");
+const popupOpenBtn = document.querySelectorAll(".popup-btn");
+const popupCloseBtn = document.getElementById("close-popup");
 
 
 // navigation menu start here
@@ -98,7 +101,6 @@ if(faqAccordion){
 
 // Pricing toggle start here 
 if(monthlyToggle){
-
     monthlyToggle.classList.add("toggle--active")
     $monthlyToggle2.classList.add("toggle--active")
 
@@ -116,7 +118,7 @@ if(monthlyToggle){
         this.classList.add("toggle--active")
         $annualToggle2.classList.remove("toggle--active")
     })
-    
+
     $annualToggle2.addEventListener("click", function(){
         this.classList.add("toggle--active")
         $monthlyToggle2.classList.remove("toggle--active")
@@ -220,3 +222,18 @@ if(featureButtons){
 
     });
 }
+
+// popup starts here
+popupOpenBtn.forEach(function(button){
+    button.addEventListener("click", function(){
+        popup.style.display = "flex";
+    })
+})
+popupCloseBtn.addEventListener("click", function(){
+    popup.style.display = "none";
+})
+window.addEventListener("click", function(e){
+    if(e.target === popup) {
+        popup.style.display = "none";
+    }
+})
