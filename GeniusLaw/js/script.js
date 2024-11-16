@@ -82,8 +82,8 @@ if(faqAccordion){
                 currentBody.style.maxHeight = null;
                 currentAccordion.classList.remove("accordion--expanded");
             }
-    
-            if (accordionBody.style.maxHeight) {
+
+            else if (accordionBody.style.maxHeight) {
                 accordionBody.style.maxHeight = null;
                 currentAccordion = null;
             } else {
@@ -92,6 +92,7 @@ if(faqAccordion){
             }
     
             this.classList.toggle("accordion--expanded");
+            
         });
     });
     
