@@ -24,6 +24,7 @@ const featureButtons = document.querySelectorAll('.plan__features-btn');
 const popup = document.getElementById("popup");
 const popupOpenBtn = document.querySelectorAll(".popup-btn");
 const popupCloseBtn = document.getElementById("close-popup");
+const counter = document.querySelector(".hrs")
 
 
 // navigation menu start here
@@ -65,8 +66,57 @@ if(document.getElementById("lottie")){
         path: 'assets/Genius_crop.json',
     })
 }
-
 // hero animation starts here 
+
+
+// counter starts here
+if(counter) {
+    new PureCounter({
+        selector: '.hrs',
+        start: 0, 			         
+        end: 10,
+        duration: 1, 
+        delay: 10, 	
+        once: true, 
+        repeat: false, 
+        decimals: 0, 	
+        legacy: true,    
+        filesizing: false, 
+        currency: false, 
+        separator: false, 
+    });
+
+    new PureCounter({
+        selector: '.accuracy',	
+        start: 0, 
+        end: 98, 	
+        duration: 1, 
+        delay: 10, 	
+        once: true, 	
+        repeat: false, 
+        decimals: 0, 	
+        legacy: true,   
+        filesizing: false, 	
+        currency: false, 	
+        separator: false, 	
+    });
+
+    new PureCounter({
+        selector: '.turnaround',
+        start: 0,
+        end: 5, 	
+        duration: 1,
+        delay: 10, 	
+        once: true, 
+        repeat: false,
+        decimals: 0, 	
+        legacy: true,  
+        filesizing: false, 	
+        currency: false, 	
+        separator: false, 	
+    });
+}
+// counter ends here
 
 
 // faqs accordions start here
@@ -140,6 +190,7 @@ if(monthlyToggle){
 }
 // Pricing toggle ends here 
 
+
 // contact form fields start here 
 if(employersNumberInput){
     employersNumberInput.addEventListener("input", function(){
@@ -153,6 +204,7 @@ if(employersNumberInput){
         }
     })
 }
+
 
 // pricing table starts here
 if(table){

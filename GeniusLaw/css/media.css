@@ -23,9 +23,17 @@
 
 /* --- desktop max 1200px --- */
 @media (max-width: 1200px) {
+   .w-auto {
+    width: 100%;
+    max-width: 100%;
+   }
     .attorney__form-wrap {
         width: 100%;
     }
+    .footer__cta-desc {
+        max-width: 100%;
+    }
+    
 }
 
 /* --- tablet max 991px --- */
