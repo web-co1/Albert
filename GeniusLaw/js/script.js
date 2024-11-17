@@ -133,18 +133,19 @@ if(faqAccordion){
                 currentAccordion.classList.remove("accordion--expanded");
             }
 
-            else if (accordionBody.style.maxHeight) {
+            if (accordionBody.style.maxHeight) {
                 accordionBody.style.maxHeight = null;
                 currentAccordion = null;
             } else {
                 accordionBody.style.maxHeight = accordionBody.scrollHeight + "px"; 
                 currentAccordion = accordion; 
+                
             }
-    
             this.classList.toggle("accordion--expanded");
             
         });
     });
+    
     
 }
 // faqs accordions end here
