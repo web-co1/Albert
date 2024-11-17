@@ -36,6 +36,7 @@
     --color-custom-primary: #2E65F3;
     --color-custom-primary-2: #295de5;
     --color-custom-light: #E6E7F0;
+    --color-custom-grey: #585D78;
     --color-light-transparent: rgba(0, 21, 128, 0.04);
     --color-light-transparent-2: rgba(0, 17, 102, 0.1);
     --color-white-transparent: rgba(255, 255, 255, 70%);
@@ -110,6 +111,9 @@ body {
 .w-auto {
     width: auto !important;
 }
+.display-block {
+    display: block;
+}
 .subtitle {
     font-size: 16px;
     line-height: 24px;
@@ -148,7 +152,7 @@ body {
     line-height: 19px;
     font-weight: 500;
     position: absolute;
-    top: 0;
+    top: -14px;
     right: 13px;
 }
 .badge-sm {
@@ -525,13 +529,15 @@ body {
     bottom: 8px;
 }
 .plan__benefits {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 12px;
+    line-height: 16px;
     margin-top: 24px;
+    list-style: disc;
+    padding-left: 12px;
 }
 
 .plan__btn-wrap {
-    margin-top: 63px;
+    margin-top: 35px;
     display: flex;
     flex-direction: column;
 }
@@ -1007,7 +1013,6 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 .pricing__hero--desc {
     margin-top: 24px;
-    width: 80%;
 }
 .pricing__toggle {
     background-color: var(--color-light-gray);
@@ -1019,6 +1024,12 @@ input:focus + label, input:not(:placeholder-shown) + label {
     justify-content: space-between;
     align-items: center;
     margin-top: 32px;
+}
+.pricing__tag-line {
+    font-size: 12px;
+    line-height: 18px;
+    color:var(--color-custom-grey);
+    margin-top: 12px;
 }
 .pricing__toggle.mg-top {
     margin-top: 16px;
@@ -1087,6 +1098,10 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 .pricing__table-desc {
     margin-top: 16px;
+    font-size: 14px;
+    width: 375px;
+    max-width: 100%;
+    line-height: 19px;
 }
 .pricing__table--block {
     margin-bottom: 64px;
@@ -1110,9 +1125,9 @@ input:focus + label, input:not(:placeholder-shown) + label {
 .pricing__table--row td:first-child {
     width: 40%;
     text-align: left;
-    font-size: 16px;
-    line-height: 36px;
-    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
     color: var(--color-dark-greenish-blue);
 }
 .pricing__table--row td {
@@ -1167,13 +1182,17 @@ input:focus + label, input:not(:placeholder-shown) + label {
     gap: 32px;
 }
 .features__title {
-    font-size: 24px;
-    line-height: 36px;
-    font-weight: 500;
+    font-size: 14px;
+    line-height: 19px;
+    font-weight: 600;
     margin-top: 24px;
-    width: 180px;
     color: var(--color-dark-greenish-blue);
     text-transform: capitalize;
+}
+.features__desc {
+    font-size: 14px;
+    line-height: 19px;
+    margin-top: 8px;
 }
 /* --- features end here --- */
 
