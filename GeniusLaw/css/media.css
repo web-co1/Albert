@@ -108,10 +108,10 @@
         width: 100%;
     }
     .site-header .nav-link,.dropdown-link {
-        padding: 24px 8px;
+        padding: 20px 8px;
         border-bottom: 1px solid var(--color-light-blue);
-        font-size: 20px;
-        line-height: 30px;
+        font-size: 18px;
+        line-height: 26px;
     }
     .dropdown__inner {
         margin: 0px;
@@ -244,10 +244,7 @@
     .services__item-cap {
         padding: 25px;
     }
-    .services__sm-desc {
-        font-size: 16px;
-        line-height: 26px;
-    }
+    
     .services__img-wrap {
         height: auto;
     }
@@ -299,36 +296,34 @@
     }
 }
 
+
 /* --- landscape max 768px --- */
 @media (max-width: 768px) {
     
     /* --- typography starts here --- */
-    body {
-        font-size: 18px;
-        line-height: 28px;
-    }
+    
     .display-heading {
-        font-size: 48px;
-        line-height: 52px;
-        letter-spacing: -0.96px;
+        font-size: 42px;
+        line-height: 50px;
     }
     .sec-heading {
         font-size: 24px;
         line-height: 28px;
     }
     .sec-subheading {
-        font-size: 20px;
-        line-height: 30px;
+        font-size: 18px;
+        line-height: 24px;
     }
     .display-block {
         display: inline-block;
     }
+    
     /* --- buttons starts here --- */
     .btn {
         width: 100%;
     }
     .btn-light {
-        font-size: 16px;
+        font-size: 14px;
         line-height: 20px;
         display: block;
         width: 100%;
@@ -337,6 +332,11 @@
 
     .breadcrumbs {
         display: flex;
+    }
+    .subtitle {
+        font-size: 14px;
+        line-height: 19px;
+        margin-bottom: 8px;
     }
     /* --- hero starts here --- */
     .home-hero {
@@ -375,6 +375,9 @@
     }
     .hero__list-icon {
         width: 30px;
+    }
+    .home-hero__form {
+        width: 100%;
     }
     .newsletter-form__inner {
         flex-direction: column;
@@ -419,6 +422,7 @@
     }
     .attorney__desc {
         margin-top: 12px;
+        width: 100%;
     }
     .attorney__form-wrap {
         margin-top: 24px;
@@ -476,10 +480,6 @@
     .services__item-cap {
         padding: 40px;
     }
-    .services__sm-desc {
-        font-size: 18px;
-        line-height: 30px;
-    }
 
     /* --- faqs starts here --- */
     .faqs {
@@ -506,8 +506,8 @@
         margin-bottom: 16px;
     }
     .accordion__title {
-        font-size: 18px;
-        line-height: 27px;
+        font-size: 16px;
+        line-height: 24px;
     }
 
     /* --- automation starts here --- */
@@ -529,6 +529,8 @@
     .automation__desc {
         margin-top: 12px;
         width: 100%;
+        font-size: 14px;
+        line-height: 21px;
     }
     .automation__btn-wrap {
         margin-top: 24px;
@@ -581,7 +583,7 @@
     .pricing__hero--desc {
         margin-top: 12px;
         width: 58%;
-        font-size: 20px;
+        font-size: 18px;
     }
     .pricing__toggle {
         width: 100%;
@@ -653,16 +655,17 @@
         padding: 16px 24px;
     }
     .features__icon {
-        width: 28px;
         border-radius: 8px;
         overflow: hidden;
         margin: auto;
     }
     .features__title {
-        font-size: 20px;
-        line-height: 30px;
         margin-top: 8px;
         width: 100%;
+    }
+    .services__title  {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     /* --- footer starts here --- */
@@ -703,7 +706,7 @@
         border-top: 1px solid var(--color-light);
     }
     .footer_list-item {
-        margin-bottom: 12px;
+        margin-bottom: 4px;
     }
     .footer__btm {
         padding-top: 37px;
@@ -711,7 +714,7 @@
         border-top: 1px solid var(--color-light);
         flex-direction: column;
         gap: 16px;
-        font-size: 16px;
+        font-size: 15px;
         line-height: 28px;
         text-align: center;
     }
@@ -724,7 +727,7 @@
 @media (max-width: 580px) {
 
     .pricing__hero--desc {
-        width: 68%;
+        width: 91%;
     }
 
 }    
