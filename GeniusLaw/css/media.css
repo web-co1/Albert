@@ -33,6 +33,9 @@
     .footer__cta-desc {
         max-width: 100%;
     }
+    .dropdown__inner {
+        margin-left: -100%;
+    }
     
 }
 
@@ -134,15 +137,6 @@
         gap: 32px;
     }
     
-    .dropdown__title {
-        font-weight: 400;
-        opacity: .9;
-    }
-    .dropdown__inner.__3-col .dropdown__title {
-        font-size: 20px;
-        line-height: 30px;
-
-    }
     .dropdown__link-desc {
         margin-top: 8px;
     }

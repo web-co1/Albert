@@ -393,7 +393,7 @@ body {
     border-radius: 12px;
     box-shadow: 0px 10px 15px 0px var(--color-semi-transparent-dark);
     position: absolute;
-    min-width: 670px;
+    min-width: 1000px;
     margin-left: -47%;
     top: 81px;
     visibility: hidden;
@@ -443,28 +443,29 @@ body {
     gap: 8px;
 }
 .dropdown__title {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 24px;
     font-weight: 600;
     color: var(--color-dark-blue);
 }
 .dropdown__link-desc {
-    margin-top: 16px;
     font-weight: 400;
     color: var(--color-dark-gray);
 }
 .dropdown__menu {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     margin-top: 24px;
 }
 .dropdown__menu--gap {
     gap: 24px;
 }
 .dropdown__menu-link {
-    color: var(--color-dark-gray);
+    color: var(--color-dark-greenish-blue);
     transition: all .3s cubic-bezier(.36,.19,.29,1);
+    font-size: 12px;
+    line-height: 16px;
     
 }
 .dropdown__menu-link:hover {
@@ -473,6 +474,12 @@ body {
 }
 .dropdown__menu-link:hover .dropdown__title {
     color: var(--color-blue);
+}
+.dropdown__link-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    margin-top: 8px;
 }
 
 
@@ -934,10 +941,14 @@ input:focus + label, input:not(:placeholder-shown) + label {
 }
 .attorney__desc {
     margin-top: 16px;
+    width: 90%;
 }
 .attorney__form-wrap {
     margin-top: 32px;
     width: 85%;
+}
+.attorney_img {
+    width: 100%;
 }
 /* --- attorney end here --- */
 
@@ -1368,6 +1379,8 @@ input:focus + label, input:not(:placeholder-shown) + label {
     border-left: 1px solid var(--color-light);
     padding-top: 13px;
     padding-bottom: 13px;
+    font-size: 14px;
+    line-height: 19px;
 }
 
 .footer__row {
