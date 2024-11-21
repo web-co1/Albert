@@ -867,7 +867,7 @@ input:focus + label, input:not(:placeholder-shown) + label {
     text-align: center;
 }
 .hero__inner.sm {
-    width: 749px;
+    width: 619px;
 }
 .hero__cap {
     text-align: center;
