@@ -785,6 +785,10 @@ input:focus + label, input:not(:placeholder-shown) + label {
 .form__group {
     position: relative;
     width: 100%;
+    transition: all .5s ease;
+}
+.for-email, .for-phone {
+    opacity: 0;
 }
 .contact-form__btn-wrap {
     margin-top: 32px;
@@ -1073,7 +1077,7 @@ input:focus + label, input:not(:placeholder-shown) + label {
     z-index: 5;
     visibility: hidden;
     opacity: 0;
-    transition: opacity .5s ease;
+    transition: all .3s ease;
     
 }
 .pricing__table--grid {

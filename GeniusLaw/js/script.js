@@ -181,11 +181,11 @@ if(monthlyToggle){
         var offset = placeElement.getBoundingClientRect().top + window.scrollY;
         if (window.scrollY >= offset) {
             tableHead.style.visibility = "visible";
-            tableHead.style.opacity = "1";
+                tableHead.style.opacity = "1";
         }
         else {
             tableHead.style.visibility = "hidden"; 
-            tableHead.style.opacity = "1";
+            tableHead.style.opacity = "0";
         }
     });  
 }
@@ -198,10 +198,17 @@ if(employersNumberInput){
         if(employersNumberInput.value){
             emailBlock.style.display = "block"
             phoneBlock.style.display = "block"
+            setTimeout(()=>{
+                emailBlock.style.opacity = "1"
+                phoneBlock.style.opacity = "1"
+            }, 100)
+            
         }
         else {
             emailBlock.style.display = "none"
+            emailBlock.style.opacity = "0"
             phoneBlock.style.display = "none"
+            phoneBlock.style.opacity = "0"
         }
     })
 }
