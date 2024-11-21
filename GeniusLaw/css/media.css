@@ -1,6 +1,18 @@
 
 /* --- laptop max 1200px --- */
 @media (max-width: 1500px) {
+    .dropdown__inner {
+        padding: 30px;
+    }
+    .dropdown__menu {
+        margin-top: 14px;
+    }
+    .dropdown__row.__2-col {
+        gap: 30px 69px;
+    }
+    .dropdown__menu {
+        gap: 6px;
+    }
     .home-hero {
         height: calc(100vh - 80px);
     }
