@@ -63,7 +63,7 @@ if(document.getElementById("lottie")){
         render: 'svg',
         loop: true,
         autoplay: true,
-        path: 'assets/Genius_crop.json',
+        path: 'assets/genius_crop_v3.json',
     })
 }
 // hero animation starts here 
