@@ -19,7 +19,6 @@ const table = document.getElementById("pricing-table");
 const tableHead = document.getElementById("pricing-table-head");
 const pricingTable = document.querySelectorAll(".pricing__table--block");
 const showMoreRows = document.getElementById("show-features");
-const minimiseRows = document.getElementById("hide-features");
 const featureButtons = document.querySelectorAll('.plan__features-btn');
 const popup = document.getElementById("popup");
 const popupOpenBtn = document.querySelectorAll(".popup-btn");
@@ -204,12 +203,6 @@ if(employersNumberInput){
             }, 100)
             
         }
-        else {
-            emailBlock.style.display = "none"
-            emailBlock.style.opacity = "0"
-            phoneBlock.style.display = "none"
-            phoneBlock.style.opacity = "0"
-        }
     })
 }
 
@@ -218,7 +211,6 @@ if(employersNumberInput){
 if(table){
     function pricingMinimiseTable(){
         document.querySelector(".pricing__btn-wrap").style.marginTop = "-50px";
-        minimiseRows.style.display = "none";
         showMoreRows.style.display = "inline-block";
         document.querySelector(".table-overlay").style.display = "block";
         const tbodyRows = document.querySelectorAll(".tb-slice tr");
@@ -244,7 +236,6 @@ if(table){
 
     function pricingAllTable(){
         document.querySelector(".pricing__btn-wrap").style.marginTop = "0px";
-        minimiseRows.style.display = "inline-block";
         showMoreRows.style.display = "none";
         document.querySelector(".table-overlay").style.display = "none";
         const tbodyRows = document.querySelectorAll(".tb-slice tr");
@@ -261,7 +252,6 @@ if(table){
 
 
     showMoreRows.addEventListener("click", pricingAllTable)
-    minimiseRows.addEventListener("click", pricingMinimiseTable)
 
 }
 
