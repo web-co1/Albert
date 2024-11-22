@@ -43,7 +43,7 @@
 
 
 /* --- desktop max 1200px --- */
-@media (max-width: 1200px) {
+@media (max-width: 1285px) {
    .w-auto {
     width: 100%;
     max-width: 100%;
@@ -57,7 +57,29 @@
     .dropdown__inner {
         margin-left: -100%;
     }
+    .popup__inner {
+        font-size: 14px;
+        line-height: 19px;
+        padding: 44px 38px;
+    }
     
+    .popup__list {
+        margin: 26px auto 40px;
+    }
+    .contact-form__row {
+        gap: 18px 24px;
+    }
+    .contact-form__desc {
+        font-size: 14px;
+    line-height: 20px;
+    }
+    .form-control {
+        font-size: 14px;
+        min-height: 42px;
+    }
+    label {
+        line-height: 20px;
+    }
 }
 
 /* --- tablet max 991px --- */
