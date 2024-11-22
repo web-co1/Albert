@@ -2,7 +2,9 @@
 /* --- laptop max 1200px --- */
 @media (max-width: 1500px) {
     .dropdown__inner {
-        padding: 30px;
+        padding: 23px;
+        min-width: 1110px;
+        margin-left: -72%;
     }
     .dropdown__menu {
         margin-top: 14px;
@@ -11,7 +13,14 @@
         gap: 30px 69px;
     }
     .dropdown__menu {
-        gap: 6px;
+        gap: 15px;
+    }
+    .dropdown__row.__2-col .dropdown__menu {
+        gap: 5px;
+    }
+    .dropdown__row.__2-col .dropdown__menu-link {
+        font-size: 11px;
+        line-height: 14px;
     }
     .home-hero {
         height: calc(100vh - 80px);
