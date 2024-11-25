@@ -255,22 +255,23 @@ if(table){
 
 }
 
+// pricing  cards  dropdown on mobile
 if(featureButtons){
     featureButtons.forEach(function(button) {
         button.classList.remove("show-features"); 
-
-        button.addEventListener("mouseover", function() {
-            featureButtons.forEach(function(btn) {
-                btn.parentElement.classList.remove("show-features");
-            });
-            this.parentElement.classList.add("show-features");
-            this.querySelector("span").textContent = "Hide features";     
+    
+        button.addEventListener("click", function() {
+            if (this.parentElement.classList.contains("show-features")) {
+                this.parentElement.classList.remove("show-features");
+                this.querySelector("span").textContent = "Show features";  
+            } else {
+                featureButtons.forEach(function(btn) {
+                    btn.parentElement.classList.remove("show-features");
+                });
+                this.parentElement.classList.add("show-features");
+                this.querySelector("span").textContent = "Hide features";  
+            }
         });
-        button.addEventListener("mouseout", function() {
-            this.parentElement.classList.remove("show-features");  
-            this.querySelector("span").textContent = "See features";     
-        });
-
     });
 }
 
