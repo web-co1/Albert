@@ -60,7 +60,10 @@
     .popup__inner {
         font-size: 14px;
         line-height: 19px;
-        padding: 44px 38px;
+        padding: 30px 38px;
+    }
+    .popup__inner .hero__desc {
+        margin: 16px auto 0px auto;
     }
     
     .popup__list {
@@ -79,6 +82,64 @@
     }
     label {
         line-height: 20px;
+    }
+}
+
+@media (max-width: 1100px) and (min-width: 991px){
+    .popup__inner {
+        width: 660px;
+        padding: 26px 38px;
+    }
+    .popup__inner .sec-heading {
+        font-size: 26px;
+        line-height: 40px;
+    }
+    .popup__inner .hero__desc {
+        margin: 6px auto 0px auto;
+        font-size: 12px;
+        line-height: 18px;
+    }
+    .popup__list {
+        margin: 20px auto 30px;
+    }
+    .popup__list-item {
+        font-size: 12px;
+        line-height: 14px;
+    }
+    .popup__list-icon {
+        width: 24px;
+    }
+    
+    .popup__inner .form-control {
+        font-size: 12px;
+        min-height: 34px;
+        padding: 5px 12px;
+    }
+    .popup__inner label {
+        line-height: 14px;
+        font-size: 12px;
+    }
+    .popup__inner .contact-form__row {
+        gap: 12px 19px;
+    }
+    .popup__inner .submit-btn {
+        font-size: 14px;
+        padding: 6px 34px;
+    }
+    .popup__inner .contact-form__btn-wrap {
+        margin-top: 14px;
+    }
+    .popup__inner .contact-form__cap {
+        text-align: left;
+        margin-top: 22px;
+    }
+    .popup__inner .contact-form__title {
+        font-size: 14px;
+        line-height: 18px;
+    }
+    .popup__inner .contact-form__desc {
+        font-size: 12px;
+        line-height: 16px;
     }
 }
 
