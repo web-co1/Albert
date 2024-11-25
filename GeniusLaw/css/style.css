@@ -931,7 +931,7 @@ input:focus + label, input:not(:placeholder-shown) + label {
 
 
 .practice-hero {
-    padding-top: 160px;
+    padding-top: 84px;
     padding-bottom: 160px;
     background-color: var(--color-half-gray);
 }
