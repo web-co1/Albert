@@ -829,7 +829,7 @@ input:focus + label, input:not(:placeholder-shown) + label {
     gap: 30px;
 }
 .home-hero__col--first {
-    padding-top: 151px;
+    padding-top: 84px;
     padding-bottom: 150px;
     align-items: flex-start;
 }
@@ -930,29 +930,31 @@ input:focus + label, input:not(:placeholder-shown) + label {
 /* --- hero component end here --- */
 
 
-.attorney-hero {
-    padding-top: 88px;
-    padding-bottom: 150px;
+.practice-hero {
+    padding-top: 160px;
+    padding-bottom: 160px;
     background-color: var(--color-half-gray);
 }
-.attorney__row  {
-    display: grid;
+.practice__row  {
+    display: flex;
     align-items: center;
-    grid-template-columns: 1fr .95fr;
     gap: 20px;
+    justify-content: space-between;
 }
-.attorney__desc {
+.practice__row .practice__col:first-child {
+    width: 579px;
+}
+.practice__desc {
     margin-top: 16px;
-    width: 90%;
 }
-.attorney__form-wrap {
+.practice__form-wrap {
     margin-top: 32px;
-    width: 85%;
+    width: 94%;
 }
-.attorney_img {
+.practice_img {
     width: 100%;
 }
-/* --- attorney end here --- */
+/* --- practice end here --- */
 
 
 .reason {

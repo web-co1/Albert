@@ -60,7 +60,7 @@
     width: 100%;
     max-width: 100%;
    }
-    .attorney__form-wrap {
+    .practice__form-wrap {
         width: 100%;
     }
     .footer__cta-desc {
@@ -95,6 +95,19 @@
     label {
         line-height: 20px;
     }
+    .practice-hero {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+    .practice__row  {
+        display: grid;
+        grid-template-columns: 1fr .95fr;
+        gap: 150px;
+    }
+    .practice__row .practice__col:first-child {
+        width: 100%;
+    }
+   
 }
 
 @media (max-width: 1100px) and (min-width: 991px){
@@ -332,9 +345,12 @@
     .home-hero__img svg {
         transform: translate3d(0px, 0px, 0px) !important;
     }
-    /* --- attorny starts here --- */
-    .attorney_img {
+    /* --- practice starts here --- */
+    .practice_img {
         width: 100%;
+    }
+    .practice__row {
+        gap: 30px;
     }
 
     /* --- reasons starts here --- */
@@ -525,22 +541,22 @@
     }
 
     /* attrony starts here --- */
-    .attorney-hero {
+    .practice-hero {
         padding-top: 64px;
         padding-bottom: 64px;
     }
-    .attorney__row {
+    .practice__row {
         grid-template-columns: 1fr;
         gap: 56px;
     }
-    .attorney-hero .subtitle{
+    .practice-hero .subtitle{
         display: flex;
     }
-    .attorney__desc {
+    .practice__desc {
         margin-top: 12px;
         width: 100%;
     }
-    .attorney__form-wrap {
+    .practice__form-wrap {
         margin-top: 24px;
     }
     
