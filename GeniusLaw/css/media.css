@@ -39,6 +39,18 @@
     .home-hero__img svg {
         transform: translate3d(0px, -40px, 0px) !important;
     }
+    .popup__inner {
+        padding: 40px 48px;
+    }
+    .popup__inner .hero__desc {
+        margin: 14px auto 0px auto;
+        font-size: 14px;
+        line-height: 20px;
+    }
+    .popup__inner .contact-form__desc {
+        font-size: 14px;
+        line-height: 20px;
+    }
 }
 
 
