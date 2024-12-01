@@ -37,7 +37,7 @@
                             </span>
                             <span class="btn-cap">
                                 <span>Call anytime</span>
-                                <span>833. GeniusLaw</span>
+                                <span class="txt-uppercase">833. GeniusLaw</span>
                             </span>
                         </span>
                     </a>
@@ -81,6 +81,28 @@
                                         </div>
                                         <p class="plan__price-wrap"><span class="plan__price">$39</span> per user/month</p>
                                         <p class="plan__desc">Cloud-based case management with end-to-end billing and online payments.</p>
+                                        
+                                        <div class="plan__features">
+                                            <div class="plan__features-btn">
+                                                <span data-content="Hide features">See features</span> <img src="assets/blue-arrow-down.svg" alt="">
+                                            </div>
+                                            <ul class="plan__list">
+                                                <li class="plan__list-item">Case Management</li>
+                                                <li class="plan__list-item">Contact Management</li>
+                                                <li class="plan__list-item">Legal Calendaring</li>
+                                                <li class="plan__list-item">Time Entry & Expense Tracking</li>
+                                                <li class="plan__list-item">Invoices</li>
+                                                <li class="plan__list-item">Trust Ledger & Reconciliation</li>
+                                                <li class="plan__list-item">Trust by Case</li>
+                                                <li class="plan__list-item">Multiple Bank Accounts</li>
+                                                <li class="plan__list-item">Online Payments</li>
+                                                <li class="plan__list-item">Lawpay Integration</li>
+                                                <li class="plan__list-item">Basic Financial Reporting</li>
+                                                <li class="plan__list-item">Unlimited Document Storage</li>
+                                                <li class="plan__list-item">Conflict Check Tracking</li>
+                                                <li class="plan__list-item">Client Portal</li>
+                                            </ul>
+                                        </div>
                                     </label>
                                 </div>
                             
@@ -93,6 +115,28 @@
                                         </div>
                                         <p class="plan__price-wrap"><span class="plan__price">$79</span> per user/month</p>
                                         <p class="plan__desc">Cloud-based case management with end-to-end billing and online payments.</p>
+
+                                        <div class="plan__features">
+                                            <div class="plan__features-btn">
+                                                <span data-content="Hide features">See features</span> <img src="assets/blue-arrow-down.svg" alt="">
+                                            </div>
+                                            <ul class="plan__list">
+                                                <li class="plan__list-item">Case Management</li>
+                                                <li class="plan__list-item">Contact Management</li>
+                                                <li class="plan__list-item">Legal Calendaring</li>
+                                                <li class="plan__list-item">Time Entry & Expense Tracking</li>
+                                                <li class="plan__list-item">Invoices</li>
+                                                <li class="plan__list-item">Trust Ledger & Reconciliation</li>
+                                                <li class="plan__list-item">Trust by Case</li>
+                                                <li class="plan__list-item">Multiple Bank Accounts</li>
+                                                <li class="plan__list-item">Online Payments</li>
+                                                <li class="plan__list-item">Lawpay Integration</li>
+                                                <li class="plan__list-item">Basic Financial Reporting</li>
+                                                <li class="plan__list-item">Unlimited Document Storage</li>
+                                                <li class="plan__list-item">Conflict Check Tracking</li>
+                                                <li class="plan__list-item">Client Portal</li>
+                                            </ul>
+                                        </div>
                                     </label>
                                     <span class="badge">Popular</span>
                                 </div>
@@ -106,6 +150,28 @@
                                         </div>
                                         <p class="plan__price-wrap"><span class="plan__price">$99</span> per user/month</p>
                                         <p class="plan__desc">Cloud-based case management with end-to-end billing and online payments.</p>
+
+                                        <div class="plan__features">
+                                            <div class="plan__features-btn">
+                                                <span data-content="Hide features">See features</span> <img src="assets/blue-arrow-down.svg" alt="">
+                                            </div>
+                                            <ul class="plan__list">
+                                                <li class="plan__list-item">Case Management</li>
+                                                <li class="plan__list-item">Contact Management</li>
+                                                <li class="plan__list-item">Legal Calendaring</li>
+                                                <li class="plan__list-item">Time Entry & Expense Tracking</li>
+                                                <li class="plan__list-item">Invoices</li>
+                                                <li class="plan__list-item">Trust Ledger & Reconciliation</li>
+                                                <li class="plan__list-item">Trust by Case</li>
+                                                <li class="plan__list-item">Multiple Bank Accounts</li>
+                                                <li class="plan__list-item">Online Payments</li>
+                                                <li class="plan__list-item">Lawpay Integration</li>
+                                                <li class="plan__list-item">Basic Financial Reporting</li>
+                                                <li class="plan__list-item">Unlimited Document Storage</li>
+                                                <li class="plan__list-item">Conflict Check Tracking</li>
+                                                <li class="plan__list-item">Client Portal</li>
+                                            </ul>
+                                        </div>
                                     </label>
                                 </div>
                                 
@@ -664,11 +730,91 @@
         <div class="container">
             <div class="detail__btm-row">
                 <a href="" class="link-btn">Without Membership for now</a>
-                <button class="btn">Continue</button>
+                <button class="btn" id="open-popup">Continue</button>
             </div>
         </div>
     </div>
     <!-- ./continue button ends here -->
+
+    <!-- ./payment popup -->
+    <section class="popup">
+        <div class="popup__inner">
+            <div class="popup__block">
+                <div class="popup__head">
+                    <h2 class="sec-heading">Payment details</h2>
+                    <div class="popup__cards-wrap">
+                        <h3 class="popup__cards-title">Your payment method</h3>
+                        <div class="popup__cards-row">
+                            <img src="assets/visa.svg" alt="visa">
+                            <img src="assets/payonner.svg" alt="mastercard">
+                            <img src="assets/america-exp.svg" alt="amex">
+                            <img src="assets/master-card.svg" alt="maestro">
+                            <img src="assets/union-pay.svg" alt="unionpay">
+                            <img src="assets/discover.svg" alt="discover">
+                        </div>
+                    </div>
+                    <div class="btn-block">
+                        <img src="assets/card.svg" alt="credit card icon">
+                        <span>Credit/Debit</span>
+                    </div>
+                </div>
+                <div class="popup__body">
+                    <form action="" autocomplete="on">
+                        <div class="form__group">
+                            <label class="input-label" for="name">Name on card</label>
+                            <input type="text" id="card-name" name="card-name" class="form-control" placeholder="" required>
+                        </div>
+                        <div class="form__group">
+                            <label class="input-label" for="card-number">4889 5080 3906 5149</label>
+                            <input type="text" id="card-number" name="card-number" class="form-control" placeholder="" required>
+                        </div>
+                        <div class="form__row">
+                            <div class="form__group">
+                                <label class="input-label" for="expiry-date">MM/YY</label>
+                                <input type="text" id="expiry-date" name="expiry-date" class="form-control" placeholder="" required>
+                            </div>
+                            <div class="form__group">
+                                <label class="input-label" for="cvv">CVC</label>
+                                <input type="text" id="cvv" name="cvv" class="form-control" placeholder="" required>
+                            </div>
+                        </div>
+                        <div class="popup__billing-block">
+                            <h3 class="popup__cards-title">Your payment method</h3>
+                            <div class="popup__billing-wrap">
+                                <div class="popup__billing-item active">
+                                    <span class="popup__billing-categ">Monthly</span>
+                                    <span class="popup__billing-price">$79.00 per month</span>
+                                </div>
+                                <div class="popup__billing-item">
+                                    <span class="popup__billing-categ">Annual</span>
+                                    <span class="popup__billing-price">$73.00 per month</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popup__btm">
+                            <div class="popup__total-price">
+                                <span>Total:</span>
+                                <span class="popup__plan-price">$79.00</span>
+                            </div>
+                            <p class="popup__desc">
+                                Renews annually. Cancel anytime.
+                                <br><br>
+                                By clicking below, you agree to our Terms of Servise, Privacy Policy, and automatic renewal. After the free trial ends on Fed 7, 2024, your subscription begins and you authorize GeniusLaw to charge $828.00 or the then current rate (plus any tax) each year until you cancel in your account settings.
+                            </p>
+                        </div>
+                        <div class="popup__btn-wrap">
+                            <button type="submit" id="submit-payment" class="btn btn--lg">Pay $79.00</button>
+                        </div>
+                        
+                      </form>
+                </div>
+            </div>
+            <button class="close-popup" id="close-popup">
+                <img src="assets/close.svg" alt="">
+            </button>
+        </div>
+    </section>
+
 
     <script src="js/script.js"></script>
 </body>

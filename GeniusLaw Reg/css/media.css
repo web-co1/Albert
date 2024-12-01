@@ -1,0 +1,225 @@
+/* --- laptop max 1200px --- */
+@media (max-width: 1500px) {
+    .detail-content {
+        padding-top: 120px;
+    }
+    .display-heading {
+        font-size: 40px;
+        line-height: 46px;
+    }
+    .sec-desc {
+        font-size: 16px;
+        line-height: 20px;
+        margin-top: 11px;
+    }
+    .form__group {
+        margin-bottom: 13px;
+    }
+    .detail__pp-top {
+        margin-top: 30px;
+    }
+    .pricing__table-wrap {
+        height: 30vh;
+    }
+    .plan__price {
+        font-size: 26px;
+        line-height: 30px;
+    }
+    .plan__desc {
+        font-size: 14px;
+        line-height: 22px;
+    }
+    .pricing__table-wrap {
+        height: 250px;
+    }
+    .pricing__table--row td {
+        padding: 14px;
+    }
+}
+
+/* 1280 */
+
+@media (max-width: 1280px) {
+    body {
+        font-size: 14px;
+        line-height: 20px;
+    }
+    .site-header {
+        padding: 16px 0px;
+    }
+    .detail-content {
+        padding-top: 100px;
+    }
+    .display-heading {
+        font-size: 30px;
+        line-height: 36px;
+    }
+    .sec-desc {
+        font-size: 14px;
+        line-height: 18px;
+    }
+    .detail__row {
+        gap: 80px;
+    }
+    .detail__form {
+        width: 545px;
+    }
+    .input-label {
+        font-size: 14px;
+        line-height: 24px;
+    }
+    .plan__desc {
+        font-size: 12px;
+        line-height: 18px;
+        margin-top: 18px;
+    }
+    .pricing__table-wrap {
+        height: 210px;
+    }
+    .pricing__table--row td {
+        padding: 10px;
+    }
+    
+}
+
+@media (max-width: 991px) {
+    .detail-content {
+        padding-top: 120px;
+        overflow-y: scroll;
+        padding-bottom: 100px;
+    }
+    .detail__form {
+        width: 445px;
+    }
+    .pricing__table--block {
+        display: none;
+    }
+    .pricing__cards-wrap {
+        grid-template-columns: 1fr;
+        gap: 38px;
+    }
+    .pricing__row {
+        grid-template-columns: 1fr;
+    }
+    .plan__features {
+        display: block;
+    }
+}
+
+
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+        line-height: 24px;
+    }
+    .display-heading {
+        font-size: 24px;
+        line-height: 28px;
+    }
+    .sec-desc {
+        margin-top: 8px;
+    }
+    .header__logo-wrap img {
+        width: 128px;
+    }
+    .detail-content {
+        padding-top: 107px;
+    }
+    .detail__list {
+        display: flex;
+        justify-content: space-between;
+    }
+    .detail__list-item {
+        padding-left: 0;
+        font-size: 12px;
+    }
+    .detail__list-item::before {
+        top: 28px;
+        left: 0;
+    }
+    .detail__list-item.current::before {
+        width: 12px;
+        height: 12px;
+        top: 28px;
+    }
+    .detail__list-item::after {
+        width: 100%;
+        height: 1.5px;
+        top: 33px;
+        left: 21px;
+    }
+    .detail__list-item:nth-child(1) {
+        width: 43%;
+    }
+    .detail__row {
+        gap: 20px;
+        grid-template-columns: 1fr;
+    }
+    .detail__form {
+        width: 100%;
+        margin-top: 24px;
+    }
+    .input-label {
+        font-size: 16px;
+    }
+    .detail__pp-top {
+        font-size: 16px;
+        line-height: 27px;
+    }
+    .detail__pp-desc {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 21px;
+    }
+    .detail__list-item.complete::after {
+        background: linear-gradient(90deg, rgba(225, 226, 227, 0) -4.39%, #694EFB 50.68%);
+    }
+}
+
+@media (max-width: 480px) {
+    .iconic-btn {
+        font-size: 14px;
+        line-height: 18px;
+    }
+    .badge {
+        display: none;
+    }
+    .detail-content {
+        padding-bottom: 180px;
+    }
+    .detail__list-item:nth-child(1), .detail__list-item:nth-child(2) {
+        width: 40%;
+    }
+    .detail__list-item {
+        font-size: 10px;
+    }
+    .detail__list-item::after {
+        left: 11px;
+    }
+    .detail__list-item::before {
+        outline: 8px solid #fff;
+        z-index: 10;
+    }
+    .pricing__toggle {
+        width: 100%;
+    }
+    .pricing__toggle-btn {
+        width: 100%;
+    }
+    .pricing__cards-wrap {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .plan__desc {
+        font-size: 14px;
+        line-height: 20px;
+    }
+    
+    .detail__btm-row {
+        flex-direction: column-reverse;
+    }
+    .detail__btm-row .btn{
+        width: 100%;
+        padding: 9px 20px;
+    }
+}
