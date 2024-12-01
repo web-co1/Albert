@@ -1,4 +1,4 @@
-/* --- laptop max 1200px --- */
+/* --- laptop max 1500px --- */
 @media (max-width: 1500px) {
     .detail-content {
         padding-top: 120px;
@@ -35,6 +35,25 @@
     .pricing__table--row td {
         padding: 14px;
     }
+
+    .popup__cards-row img {
+        width: 40px;
+    }
+    .btn-block {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    .popup__billing-block {
+        margin-top: 18px;
+    }
+    .popup__plan-price {
+        font-size: 26px;
+        line-height: 34px;
+    }
+
+    .popup__state {
+        padding-top: 65px;
+    }
 }
 
 /* 1280 */
@@ -43,6 +62,10 @@
     body {
         font-size: 14px;
         line-height: 20px;
+    }
+    .sec-heading {
+        font-size: 24px;
+        line-height: 34px;
     }
     .site-header {
         padding: 16px 0px;
@@ -78,6 +101,21 @@
     }
     .pricing__table--row td {
         padding: 10px;
+    }
+
+    .popup__cards-title {
+        font-size: 16px;
+        line-height: 22px;
+    }
+    .popup__state {
+        padding-top: 45px;
+    }
+    .popup__state-title {
+        font-size: 30px;
+        line-height: 40px;
+    }
+    .popup__state-desc {
+        width: 100%;
     }
     
 }
@@ -174,6 +212,10 @@
     .detail__list-item.complete::after {
         background: linear-gradient(90deg, rgba(225, 226, 227, 0) -4.39%, #694EFB 50.68%);
     }
+    .form__row {
+        flex-direction: column;
+        gap: 0;
+    }
 }
 
 @media (max-width: 480px) {
@@ -221,5 +263,55 @@
     .detail__btm-row .btn{
         width: 100%;
         padding: 9px 20px;
+    }
+
+    .popup__inner {
+        padding: 70px 16px 39px 16px;
+    }
+    .popup__cards-wrap {
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+    .popup__cards-row img {
+        width: 50px;
+    }
+    .btn-block {
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+    .popup__billing-item {
+        font-size: 14px;
+        line-height: 21px;
+        padding: 8px 20px;
+    }
+    .popup__btm {
+        margin-top: 32px;
+        padding-top: 16px;
+    }
+    .popup__total-price {
+        font-size: 16px;
+    }
+    .popup__plan-price {
+        font-size: 23px;
+        line-height: 30px;
+    }
+
+    .close-popup {
+        right: 16px;
+        left: auto;
+    }
+
+    .popup__state-cap {
+        width: 100%;
+        margin: auto auto auto auto;
+        padding-bottom: 40px;
+    }
+    .popup__state-title {
+        font-size: 24px;
+        line-height: 28px;
+    }
+    .popup__state-desc {
+        font-size: 14px;
+        line-height: 21px;
     }
 }

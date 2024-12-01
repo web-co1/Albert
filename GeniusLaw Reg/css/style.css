@@ -45,6 +45,7 @@
     --color-white-transparent: rgba(255, 255, 255, 70%);
     --color-white-transparent-2: rgba(255, 255, 255, 80%);
     --color-dark-blue-transparent: rgba(0, 13, 77, 0.45); 
+    --color-light-gray-3: rgba(0, 9, 51, 0.65); 
 }
 
 /* typography */
@@ -135,6 +136,19 @@ body {
     font-size: 16px;
     line-height: 24px;
     padding: 9px 20px;
+}
+.btn--outline {
+    font-size: 16px;
+    line-height: 24px;
+    padding: 9px 20px;
+    background-color: transparent;
+    border-color: var(--color-light-gray-3);
+    color: var(--color-light-gray-3);
+
+}
+.btn--outline:hover {
+    background-color: var(--color-light-gray-3);
+    color: var(--white-color);
 }
 .iconic-btn {
     color: var(--color-dark-greenish-blue);
@@ -258,6 +272,36 @@ input[type="radio"]:checked::after {
     border-radius: 100%;
 }
 
+/* -- form success and error start -- */
+.popup__state {
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 145px;
+}
+.popup__state-cap {
+    width: 90%;
+    text-align: center;
+    margin: 0px auto;
+    color: var(--color-dark-greenish-blue);
+}
+.popup__state-title {
+    font-size: 36px;
+    line-height: 43px;
+    margin-top: 24px;
+}
+.popup__state-desc {
+    width: 90%;
+    margin: 8px auto;
+}
+.popup__state-btn {
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+    gap: 16px;
+}
+
 /* -- checkout popup -- */
 
 .popup {
@@ -267,15 +311,17 @@ input[type="radio"]:checked::after {
     height: 100vh;
     width: 100%;
     z-index: 999;
-    display: none;s
+    display: none;
 }
 .popup__inner {
     width: 547px;
     max-width: 100%;
-    height: 100%;
+    height: 100vh;
+    overflow: scroll;
     margin-left: auto;
     background-color: var(--white-color);
     padding: 55px 32px 55px 24px;
+    position: relative;
 }
 .popup__cards-wrap {
     margin-top: 24px;
@@ -371,10 +417,13 @@ input[type="radio"]:checked::after {
     flex-direction: column;
 }
 .close-popup {
-    background: transparent;
+    background: var(--white-color);
     border: none;
     position: absolute;
     top: 16px;
+    border-radius: 100%;
+    padding: 5px;
+    left: 16px;
 }
 
 /* -- layout --*/

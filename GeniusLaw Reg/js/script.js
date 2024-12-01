@@ -6,15 +6,17 @@ const displayPopupBtn = document.getElementById("open-popup")
 const popupCloseBtn = document.getElementById("close-popup");
 const featureButtons = document.querySelectorAll('.plan__features-btn');
 
-monthlyToggle.classList.add("toggle--active")
-monthlyToggle.addEventListener("click", function(){
-    this.classList.add("toggle--active")
-    annualToggle.classList.remove("toggle--active")
-})
-annualToggle.addEventListener("click", function(){
-    this.classList.add("toggle--active")
-    monthlyToggle.classList.remove("toggle--active")
-})
+if(monthlyToggle){
+    monthlyToggle.classList.add("toggle--active")
+    monthlyToggle.addEventListener("click", function(){
+        this.classList.add("toggle--active")
+        annualToggle.classList.remove("toggle--active")
+    })
+    annualToggle.addEventListener("click", function(){
+        this.classList.add("toggle--active")
+        monthlyToggle.classList.remove("toggle--active")
+    })
+}
 
 // checkout popup starts here
 if(popupCloseBtn){
@@ -24,6 +26,11 @@ if(popupCloseBtn){
 
     popupCloseBtn.addEventListener("click", function(){
         popup.style.display = "none"
+    })
+    window.addEventListener("click", function(e){
+        if(e.target === popup) {
+            popup.style.display = "none"
+        }
     })
 }
 // checkout popup end here

@@ -739,6 +739,10 @@
     <!-- ./payment popup -->
     <section class="popup">
         <div class="popup__inner">
+            <button class="close-popup" id="close-popup">
+                <img src="assets/close.svg" alt="">
+            </button>
+            
             <div class="popup__block">
                 <div class="popup__head">
                     <h2 class="sec-heading">Payment details</h2>
@@ -809,9 +813,32 @@
                       </form>
                 </div>
             </div>
-            <button class="close-popup" id="close-popup">
-                <img src="assets/close.svg" alt="">
-            </button>
+            <!-- checkout form end here -->
+            
+            <div class="popup__state" >
+                <div class="popup__state-cap">
+                    <img src="assets/success.svg" alt="success icon">
+                    <h3 class="popup__state-title">Payment successfull</h3>
+                    <p class="popup__state-desc">You have successfully on Pro Subscription plan. Click Start to start your free 7 days trial.</p>
+                </div>
+                <div class="popup__state-btn">
+                    <a href="" class="btn btn--lg">Start</a>
+                </div>
+            </div>
+            <!-- form success state ends here -->
+
+            <div class="popup__state">
+                <div class="popup__state-cap">
+                    <img src="assets/error.svg" alt="error icon">
+                    <h3 class="popup__state-title">Payment was not successful</h3>
+                    <p class="popup__state-desc">Unfortunately, we have not received your payment for the service. Please check and make a payment as soon as possible. Thank you for being with us!</p>
+                </div>
+                <div class="popup__state-btn">
+                    <a href="" class="btn btn--outline">Back</a>
+                    <a href="" class="btn btn--lg">Repeat payment</a>
+                </div>
+            </div>
+            <!-- form error state ends here -->
         </div>
     </section>
 
