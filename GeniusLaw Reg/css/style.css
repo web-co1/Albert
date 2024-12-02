@@ -60,8 +60,8 @@ body {
 
 /* h1 */
 .display-heading {
-    font-size: 48px;
-    line-height: 57px;
+    font-size: 30px;
+    line-height: 39px;
     color: var(--color-black);
     text-transform: capitalize;
 }
