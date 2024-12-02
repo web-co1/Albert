@@ -72,6 +72,7 @@
     }
     .detail-content {
         padding-top: 100px;
+        overflow-y: scroll;
     }
     .display-heading {
         font-size: 30px;
@@ -100,7 +101,12 @@
         height: 210px;
     }
     .pricing__table--row td {
-        padding: 10px;
+        padding: 8px;
+        font-size: 12px;
+    }
+    .pricing__table--row td svg {
+        width: 22px;
+        height: 22px;
     }
 
     .popup__cards-title {

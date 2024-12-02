@@ -113,6 +113,11 @@ body {
 .txt-uppercase {
     text-transform: uppercase;
 }
+.int-blur {
+    filter: blur(3px);
+}
+
+
 /* --- buttons --- */
 
 .btn {
@@ -275,7 +280,7 @@ input[type="radio"]:checked::after {
 /* -- form success and error start -- */
 .popup__state {
     height: 100%;
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding-top: 145px;
