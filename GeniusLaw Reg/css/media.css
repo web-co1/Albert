@@ -1,6 +1,6 @@
 @media (max-width: 1500px) {
     .detail-content {
-        padding-top: 120px;
+        padding-top: 100px;
     }
     .sec-desc {
         font-size: 16px;
@@ -13,27 +13,31 @@
     .detail__pp-top {
         margin-top: 30px;
     }
+    
     .pricing__table-wrap {
-        height: 30vh;
+        height: 40vh;
     }
     .plan__price {
-        font-size: 26px;
+        font-size: 21px;
         line-height: 30px;
     }
     .plan__desc {
-        font-size: 14px;
-        line-height: 22px;
+        font-size: 12px;
+        line-height: 18px;
+        margin-top: 14px;
     }
-    .pricing__table-wrap {
-        height: 250px;
+    .pricing__plan label {
+        padding: 20px;
     }
     .pricing__table--row td {
-        padding: 11px;
+        padding: 14px;
+        font-size: 14px;
+        line-height: 18px;
     }
 
-    .popup__cards-row svg {
-        width: 26px;
-        height: 26px;
+    .pricing__table--row td svg {
+        width: 24px !important;
+        height: 24px !important;
     }
     .btn-block {
         padding: 12px 20px;
@@ -52,6 +56,15 @@
     }
 }
 
+@media (max-width: 1400px) {
+    .pricing__table-wrap {
+        height: 34vh;
+    }
+    .pricing__table--row td {
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+}
 
 @media (max-width: 1280px) {
     body {
