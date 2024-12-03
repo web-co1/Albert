@@ -633,7 +633,7 @@ input[type="radio"]:checked::after {
 }
 
 .pricing__table-wrap {
-    height: 41vh;
+    height: 43vh;
     overflow: scroll;
 }
 .pricing__table {
