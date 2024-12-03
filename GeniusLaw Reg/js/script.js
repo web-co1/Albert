@@ -2,9 +2,10 @@ const pricingToggle = document.querySelectorAll(".pricing__toggle-btn");
 const monthlyToggle = document.getElementById("monthly-toggle");
 const annualToggle = document.getElementById("annual-toggle");
 const popup = document.querySelector(".popup");
-const displayPopupBtn = document.getElementById("open-popup")
+const displayPopupBtn = document.getElementById("open-popup");
 const popupCloseBtn = document.getElementById("close-popup");
 const featureButtons = document.querySelectorAll('.plan__features-btn');
+const popupPriceToggle = document.querySelectorAll(".popup__billing-item");
 
 if(monthlyToggle){
     monthlyToggle.classList.add("toggle--active")
@@ -17,6 +18,7 @@ if(monthlyToggle){
         monthlyToggle.classList.remove("toggle--active")
     })
 }
+
 
 // checkout popup starts here
 if(popupCloseBtn){
@@ -34,6 +36,20 @@ if(popupCloseBtn){
     })
 }
 // checkout popup end here
+
+// checkout popup price toggle starts here
+if(popupPriceToggle){
+    popupPriceToggle[0].classList.add("toggle--active")
+    popupPriceToggle.forEach(function(toggle){
+        toggle.addEventListener("click", function(){
+            popupPriceToggle.forEach(function(toggle){
+                toggle.classList.remove("toggle--active")
+            })
+            this.classList.add("toggle--active")
+        })
+    })
+}
+// checkout popup price toggle ends here
 
 // pricing  cards  dropdown on mobile start
 if(featureButtons){

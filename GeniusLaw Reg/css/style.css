@@ -68,8 +68,8 @@ body {
 
 /* h2  */
 .sec-heading {
-    font-size: 36px;
-    line-height: 44px;
+    font-size: 30px;
+    line-height: 36px;
     font-weight: 400;
     color: var(--color-dark-greenish-blue);
 }
@@ -110,12 +110,16 @@ body {
     top: -14px;
     right: 8px;
 }
+.toggle--active {
+    background-color: var(--white-color) !important;
+}
 .txt-uppercase {
     text-transform: uppercase;
 }
 .int-blur {
     filter: blur(3px);
 }
+
 
 
 /* --- buttons --- */
@@ -280,7 +284,7 @@ input[type="radio"]:checked::after {
 /* -- form success and error start -- */
 .popup__state {
     height: 100%;
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: space-between;
     padding-top: 145px;
@@ -325,7 +329,7 @@ input[type="radio"]:checked::after {
     overflow: scroll;
     margin-left: auto;
     background-color: var(--white-color);
-    padding: 55px 32px 55px 24px;
+    padding: 60px 32px 55px 24px;
     position: relative;
 }
 .popup__cards-wrap {
@@ -431,10 +435,11 @@ input[type="radio"]:checked::after {
     left: 16px;
 }
 
+
 /* -- layout --*/
 
 .detail-content {
-    padding-top: 172px;
+    padding-top: 140px;
     height: 100vh;
     overflow: hidden;
 }
@@ -556,9 +561,7 @@ input[type="radio"]:checked::after {
     background: transparent;
     transition: background .3s ease;
 }
-.pricing__toggle-btn.toggle--active {
-    background-color: var(--white-color) !important;
-}
+
 .pricing__cards-wrap {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
