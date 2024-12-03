@@ -167,10 +167,12 @@
     .detail__list {
         display: flex;
         justify-content: space-between;
+        margin-top: 0;
     }
     .detail__list-item {
         padding-left: 0;
         font-size: 12px;
+        margin-bottom: 40px;
     }
     .detail__list-item::before {
         top: 28px;
