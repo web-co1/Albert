@@ -28,11 +28,12 @@
         height: 250px;
     }
     .pricing__table--row td {
-        padding: 14px;
+        padding: 11px;
     }
 
-    .popup__cards-row img {
-        width: 40px;
+    .popup__cards-row svg {
+        width: 26px;
+        height: 26px;
     }
     .btn-block {
         padding: 12px 20px;
