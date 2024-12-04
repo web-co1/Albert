@@ -23,20 +23,28 @@ if(monthlyToggle){
 // checkout popup starts here
 if(popup){
     displayPopupBtn.addEventListener("click", function(){
-        popup.style.right = "0";
+        popup.style.display = "block";
+       
         setTimeout(function(){
+            popup.querySelector(".popup__inner").style.transform = "translateX(0%)";
             popup.style.background=  "var(--color-dark-greenish-blu-25)";
         }, 300)
     })
 
     popupCloseBtn.addEventListener("click", function(){
-        popup.style.right = "-100%";
+        popup.querySelector(".popup__inner").style.transform = "translateX(0%)";
         popup.style.background=  "transparent";
+        setTimeout(function(){
+            popup.style.display = "none";
+        }, 300)
     })
     window.addEventListener("click", function(e){
         if(e.target === popup) {
-            popup.style.right = "-100%";
+            popup.querySelector(".popup__inner").style.transform = "translateX(100%)";
             popup.style.background=  "transparent";
+            setTimeout(function(){
+                popup.style.display = "none";
+            }, 300)
         }
     })
 }
