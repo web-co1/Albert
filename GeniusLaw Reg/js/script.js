@@ -26,7 +26,7 @@ if(popup){
         popup.style.right = "0";
         setTimeout(function(){
             popup.style.background=  "var(--color-dark-greenish-blu-25)";
-        }, 250)
+        }, 300)
     })
 
     popupCloseBtn.addEventListener("click", function(){
