@@ -32,7 +32,7 @@ if(popup){
     })
 
     popupCloseBtn.addEventListener("click", function(){
-        popup.querySelector(".popup__inner").style.transform = "translateX(0%)";
+        popup.querySelector(".popup__inner").style.transform = "translateX(100%)";
         popup.style.background=  "transparent";
         setTimeout(function(){
             popup.style.display = "none";
