@@ -21,17 +21,22 @@ if(monthlyToggle){
 
 
 // checkout popup starts here
-if(popupCloseBtn){
+if(popup){
     displayPopupBtn.addEventListener("click", function(){
-        popup.style.display = "block";
+        popup.style.right = "0";
+        setTimeout(function(){
+            popup.style.background=  "var(--color-dark-greenish-blu-25)";
+        }, 250)
     })
 
     popupCloseBtn.addEventListener("click", function(){
-        popup.style.display = "none"
+        popup.style.right = "-100%";
+        popup.style.background=  "transparent";
     })
     window.addEventListener("click", function(e){
         if(e.target === popup) {
-            popup.style.display = "none"
+            popup.style.right = "-100%";
+            popup.style.background=  "transparent";
         }
     })
 }
