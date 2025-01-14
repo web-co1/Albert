@@ -89,8 +89,8 @@ if(counter) {
         selector: '.accuracy',	
         start: 0, 
         end: 98, 	
-        duration: 1, 
-        delay: 10, 	
+        duration: 2, 
+        delay: 12, 	
         once: true, 	
         repeat: false, 
         decimals: 0, 	
@@ -105,7 +105,7 @@ if(counter) {
         start: 0,
         end: 5, 	
         duration: 1,
-        delay: 10, 	
+        delay: 14, 	
         once: true, 
         repeat: false,
         decimals: 0, 	
@@ -114,6 +114,32 @@ if(counter) {
         currency: false, 	
         separator: false, 	
     });
+
+   
+    function easeInOut(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    }
+    function animateCounter(selector, start, end, duration) {
+        const element = document.querySelector(selector);
+        const startTime = performance.now();
+
+        function updateCounter(time) {
+            const timeElapsed = (time - startTime) / 1000;  
+            const progress = Math.min(timeElapsed / duration, 1);
+            const easedProgress = easeInOut(progress);
+            const currentValue = Math.floor(start + (end - start) * easedProgress);
+            element.innerHTML = currentValue;
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        requestAnimationFrame(updateCounter);
+    }
+
+    animateCounter('.hrs', 0, 10, 1); 
+    animateCounter('.accuracy', 0, 98, 8); 
+    animateCounter('.turnaround', 0, 5, 1);  
+
 }
 // counter ends here
 
