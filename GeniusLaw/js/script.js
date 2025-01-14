@@ -136,7 +136,7 @@ if(counter) {
         requestAnimationFrame(updateCounter);
     }
 
-    animateCounter('.hrs', 0, 10, 3); 
+    animateCounter('.hrs', 0, 10, 6); 
     animateCounter('.accuracy', 0, 98, 8); 
     animateCounter('.turnaround', 0, 5, 3);  
 
