@@ -172,7 +172,9 @@
         padding-bottom: 40px;
         background-color: var(--white);
     }
-    
+    .hero_editable-block {
+        margin-top: 0px;
+    }
     .result_detail {
         background-color: transparent;
         padding: 0;
