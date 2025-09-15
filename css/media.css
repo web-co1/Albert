@@ -175,6 +175,9 @@
     .hero__row {
         display: block;
     }
+    .hero__col--left {
+        position: static;
+    }
     .hero__col {
         width: 100%;
     }

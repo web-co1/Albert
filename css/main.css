@@ -279,7 +279,7 @@ h1, h2, h3, h4, h5, h6 {
 /* -- header -- */
 .site-header {
     padding: 22px 0px;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
     z-index: 999;
 }
@@ -408,13 +408,16 @@ input[type="radio"]:checked::before {
 
 /* -- hero -- */
 .hero {
-    overflow: hidden;
     text-align: center;
     padding: 64px 0px 95px 0px;
 }
 .hero__row {
     display: flex;
     align-items: flex-start;
+}
+.hero__col--left {
+    position: sticky;
+    top: 100px;
 }
 .hero__col {
     width: 50%;
@@ -837,7 +840,7 @@ p.error-message__title {
 .card__controls {
     display: flex;
     align-items: center;
-    gap: 56px;
+    gap: 30px;
 }
 .card__icon {
     margin-left: 40px;
@@ -989,7 +992,7 @@ p.error-message__title {
 .comparison__row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 67px;
+    gap: 24px;
 }
 .comparison__item {
     display: flex;
@@ -999,7 +1002,7 @@ p.error-message__title {
 .comparison__item.before {
     color: var(--danger);
     border-right: 1px solid var(--grey-300);
-    padding-right: 67px;
+    padding-right: 24px;
 }
 .comparison__item.after {
     color: var(--success-700);
@@ -1050,7 +1053,7 @@ p.error-message__title {
 }
 
 .card__usage-right {
-    width: 20%;
+    width: 45%;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -1169,6 +1172,7 @@ p.error-message__title {
     background-color: var(--grey-200);
     width: 100%;
     max-width: 60%;
+    display: none;
 }
 
 
