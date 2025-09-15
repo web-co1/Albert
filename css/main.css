@@ -543,11 +543,19 @@ input:checked + .slider:before {
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     box-shadow: 0px 1px 2px 0px var(--grey-300);
-
+     position: relative;
 }
 .hero__content-editor:focus {
     outline-color: var(--grey-300) !important;
 }
+
+.hero__content-editor:empty::before {
+    content: attr(data-placeholder);
+    color: #999;
+    pointer-events: none;
+    position: absolute;
+}
+
 .char-counter {
     color: var(--grey-400);
     font-weight: 500;
