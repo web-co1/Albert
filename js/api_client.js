@@ -12,6 +12,7 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
     };
 
     try {
+        document.querySelector(".result").style.display = "block";
          loader.style.display = "block";
          errorMsg.style.display = "none";
          resultContainer.innerHTML = "";
@@ -96,7 +97,7 @@ function populateData(data){
 
       <div class="result_detail">
 
-        <div class="result__card advanced-link-analysis-card ${data.advanced_link_analysis.tier}">
+        <div class="result__card advanced-link-analysis-card tie-${data.advanced_link_analysis.tier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Advanced Link Analysis</h3>

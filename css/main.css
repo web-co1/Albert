@@ -412,9 +412,16 @@ input[type="radio"]:checked::before {
     text-align: center;
     padding: 64px 0px 95px 0px;
 }
+.hero__row {
+    display: flex;
+    align-items: flex-start;
+}
+.hero__col {
+    width: 50%;
+    margin: 0px auto;
+}
 .hero_editable-block {
     margin-top: 48px;
-    width: 768px;
     max-width: 100%;
     margin-right: auto;
     margin-left: auto;
@@ -670,6 +677,8 @@ input:checked + .slider:before {
 .result {
     text-align: left;
     margin-top: 30px;
+    display: none;
+    padding-left: 40px;
 }
 .error-message {
     border-radius: 10px;
@@ -1163,6 +1172,22 @@ p.error-message__title {
  background-color: var(--success-300);
  color: var(--success-700);
 }
+
+.tie-fair.evaluation-report-card .card__header {
+    background-color: var(--warning);
+    color: var(--white);
+}
+.tie-fair .card__header {
+    border-color: var(--warning);
+}
+.tie-fair .card__header-badge {
+    color: var(--warning);
+    background-color: var(--white);
+}
+.tie-fair .evaluation-insight {
+    background-color: var(--warning-300);
+}
+
 
 
 
