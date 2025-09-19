@@ -57,6 +57,8 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
 
         const data = await response.json();
         console.log("data is: ", data);
+        const selected = document.querySelector('input[name="social_media"]:checked').value;
+        data.platform = selected;
         populateData(data)
         
     } catch (error) {
@@ -114,11 +116,6 @@ function sanitizeHTML(dirtyHTML) {
     });
 }
 
-/**
- * Convert platform data-platform value to display-friendly name
- * @param {string} platform - The platform identifier
- * @returns {string} - Display-friendly platform name
- */
 function getPlatformDisplayName(platform) {
     const platformNames = {
         'x': 'X',
@@ -131,11 +128,6 @@ function getPlatformDisplayName(platform) {
     return platformNames[platform] || platform.charAt(0).toUpperCase() + platform.slice(1);
 }
 
-/**
- * Get platform-specific guideline for link security
- * @param {string} platform - The platform identifier
- * @returns {string} - Platform-specific guideline text
- */
 function getPlatformGuideline(platform) {
     const guidelines = {
         'x': "X automatically scans links for safety, but users remain cautious of shortened URLs",
@@ -147,6 +139,93 @@ function getPlatformGuideline(platform) {
     return guidelines[platform] || guidelines.general;
 }
 
+function getConfidenceLevel(score) {
+    if (score <= 0.2) return 'Very Low';
+    if (score <= 0.4) return 'Low';
+    if (score <= 0.6) return 'Moderate';
+    if (score <= 0.8) return 'High';
+    return 'Very High';
+}
+
+function getDetectionLevel(score) {
+    if (score <= 0.3) return 'Undetectable';
+    if (score <= 0.7) return 'Potentially Detectable';
+    return 'Likely Detectable';
+}
+
+function getScoreExplanation(score) {
+    if (score <= 0.2) return 'Writing patterns strongly suggest human authorship with natural variations';
+    if (score <= 0.4) return 'Mostly human-like patterns with some structured elements';
+    if (score <= 0.6) return 'Mixed signals - could be human or AI-assisted writing';
+    if (score <= 0.8) return 'Several patterns suggest AI assistance or generation';
+    return 'Strong indicators of AI generation with formal, structured language';
+}
+
+function getPatternExplanation(tier) {
+    const explanations = {
+        'good': 'Natural variations, personal voice, and conversational flow indicate human writing',
+        'fair': 'Some formal structures mixed with personal elements suggest hybrid authorship',
+        'poor': 'Consistent formal tone and perfect structure are typical AI characteristics'
+    };
+    return explanations[tier] || 'Unable to determine pattern characteristics';
+}
+
+function getRiskContext(riskLevel, factorCount) {
+    if (riskLevel === 'low') {
+        return factorCount === 0 ? 'No algorithmic concerns detected' : `${factorCount} minor concern${factorCount === 1 ? '' : 's'}`;
+    } else if (riskLevel === 'medium') {
+        return `${factorCount} moderate risk factor${factorCount === 1 ? '' : 's'} detected`;
+    } else {
+        return `${factorCount} significant concern${factorCount === 1 ? '' : 's'} found`;
+    }
+}
+
+function getStatusLabel(tier) {
+    const labels = {
+        'good': 'Professional',
+        'fair': 'Elevated',
+        'poor': 'Excessive'
+    };
+    return labels[tier] || 'Professional';
+}
+
+function getSummaryText(percentage, tier) {
+    if (tier === 'good') {
+        return `Your use of capitalization is balanced and appropriate at ${percentage}%`;
+    } else if (tier === 'fair') {
+        return `Capitalization usage is slightly elevated at ${percentage}% - consider reducing`;
+    } else {
+        return `High capitalization usage at ${percentage}% may trigger spam filters`;
+    }
+}
+
+function getContextText(tier) {
+    const contexts = {
+        'good': 'Professional capitalization usage',
+        'fair': 'Slightly elevated caps usage',
+        'poor': 'Excessive caps usage detected'
+    };
+    return contexts[tier] || 'Capitalization analysis complete';
+}
+
+function getRecommendation(tier) {
+    if (tier === 'fair') {
+        return 'Target: Under 5% for professional communication';
+    } else {
+        return 'Reduce caps usage to avoid spam detection';
+    }
+}
+
+function getTargetRange(platform) {
+    const ranges = {
+        'x': '0-15%',
+        'twitter': '0-15%',
+        'facebook': '0-10%',
+        'discord': '0-20%',
+        'general': '0-5%'
+    };
+    return ranges[platform] || '0-5%';
+}
 function populateData(data){
     const tier = data?.evaluation_report?.tier;
     const qualitativeLabels = { good: 'Excellent', fair: 'Good', poor: 'Needs Improvement' };
@@ -176,8 +255,58 @@ function populateData(data){
         (totalLinks === 0 ? 'No external links detected in your content.' :
             riskyLinks > 0 ? 'Some links detected security concerns.' : 'All links appear safe and trustworthy.');
 
+    // AI Linguistic
+    ai_linguistic_pattern_data = data?.ai_linguistic_pattern;
+    const value = ai_linguistic_pattern_data?.value !== undefined ? ai_linguistic_pattern_data?.value : ai_linguistic_pattern_data;
+    const scorePercentage = Math.round(value * 100);
+    const aiLinguisticTier = ai_linguistic_pattern_data?.tier || (value <= 0.3 ? 'good' : value <= 0.7 ? 'fair' : 'poor');
+    const aiLinguisticDetails = ai_linguistic_pattern_data.details || {};
+    const aiLinguisticLabel = aiLinguisticTier === 'good' ? 'Human-like' :
+        aiLinguisticTier === 'fair' ? 'Mixed Signals' : 'AI-like';
+
+    const aiLinguisticQuickInsight = ai_linguistic_pattern_data?.displayData?.quick_insight?.[contextMode] ||
+        aiLinguisticDetails?.quick_insight?.[contextMode] ||
+        (tier === 'good' ? 'Natural writing style builds authentic audience connection' :
+            'Consider personalizing content to reduce AI detection signals');
+
+    // AI Shadowban
+    ai_shadowban_risk_data = data?.ai_shadowban_risk;
+    const shadowbanValue = ai_shadowban_risk_data.value !== undefined ? ai_shadowban_risk_data.value : ai_shadowban_risk_data;
+    const shadowbanVDetails = ai_shadowban_risk_data.details || {};
+    const shadowbanTier = ai_shadowban_risk_data.tier || (value === 'low' ? 'good' : value === 'medium' ? 'fair' : 'poor');
+    const shadowbanDisplayData = ai_shadowban_risk_data.display_data || {};
+    const shadowbanQualitativeLabel = shadowbanTier === 'good' ? 'Low Risk' :
+        shadowbanTier === 'fair' ? 'Medium Risk' : 'High Risk';
+    const aiAnalysisV2 = data.ai_analysis_v2 || {};
+    const riskFactors = aiAnalysisV2.risk_factors || [];
+    const executiveSummary = aiAnalysisV2.executive_summary || '';
+    const shadowbanQuickInsight = shadowbanDisplayData.quick_insight?.[contextMode] ||
+        shadowbanVDetails.quick_insight?.[contextMode] ||
+        (tier === 'good' ? 'Optimized content = better reach and engagement' :
+            'Content adjustments = improved algorithmic visibility');
+    const shadowbanCardSummary = shadowbanDisplayData.card_summary?.[tier]?.[contextMode] ||
+        shadowbanVDetails.card_summary?.[tier]?.[contextMode] ||
+        (tier === 'good' ? 'Your content shows low risk of algorithmic suppression.' :
+            tier === 'fair' ? 'Some content elements may reduce algorithmic reach.' :
+                'Multiple factors may trigger algorithmic suppression.');
+
+    // Caps Lock
+    capitalization_ratio_data = data?.capitalization_ratio;
+    const capitalizationRatioValue = capitalization_ratio_data.value !== undefined ? capitalization_ratio_data.value : capitalization_ratio_data;
+    const capitalizationPercentage = Math.round(capitalizationRatioValue * 100 * 10) / 10;
+    const capitalizationRatioDetails = capitalization_ratio_data.details || {};
+    const capitalizationRatioTier = capitalization_ratio_data.tier || (value <= 0.05 ? 'good' : value <= 0.15 ? 'fair' : 'poor');
+    const capitalizationRatioDisplayData = capitalization_ratio_data.display_data || {};
+    const capitalizationRatioLabel = getStatusLabel(capitalizationRatioTier);
+    const capitalizationRatioCardSummary = capitalizationRatioDisplayData.card_summary?.[tier]?.[contextMode] ||
+        capitalizationRatioDetails.card_summary?.[tier]?.[contextMode] ||
+        getSummaryText(capitalizationPercentage, capitalizationRatioTier);
+
+    const capitalizationRatioQuickInsight = capitalizationRatioDisplayData.quick_insight?.[contextMode] ||
+        capitalizationRatioDetails.quick_insight?.[contextMode] ||
+        getInsightText(tier, capitalizationPercentage);
     resultContainer.innerHTML = `
-      <div class="result__card evaluation-report-card tie-${tier}"> 
+      <div class="result__card evaluation-report-card tie-${capitalizationRatioTier}"> 
         <div class="card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
@@ -270,7 +399,7 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Level</div>
-                  <div class="metric-count">${totalLinks === 0 ? 'None' : tier === 'good' ? 'Low' : tier === 'fair' ? 'Medium' : 'High'}</div>
+                  <div class="metric-count">${totalLinks === 0 ? 'None' : linkTier === 'good' ? 'Low' : linkTier === 'fair' ? 'Medium' : 'High'}</div>
                 </div>
 
                 <div class="analysis-metric">
@@ -397,8 +526,8 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">AI Linguistic Pattern</h3>
               <div class="card__controls">
-                <span class="badge">AI-like</span>
-                <span class="card__value"><span>73%</span> AI Likelihood</span>
+                <span class="badge">${aiLinguisticLabel}</span>
+                <span class="card__value"><span>${scorePercentage}</span> AI Likelihood</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -407,11 +536,11 @@ function populateData(data){
                 <div class="info-block">
                   <span class="instances__label">Assessment:</span>
                   <div class="instances__list">
-                    <span class="instances__list-item">Score: 0.73</span>
-                    <span class="instances__list-item">Confidence: High</span>
+                    <span class="instances__list-item">Score: ${value.toFixed(2)}</span>
+                    <span class="instances__list-item">Confidence: ${getConfidenceLevel(value)}</span>
                   </div>
                 </div>
-                <span class="detection-level weight-500">Likely Detectable</span>
+                <span class="detection-level weight-500">${getDetectionLevel(value)}</span>
               </div>
               <div class="card__insight">
                 <div class="insight__icon">
@@ -421,7 +550,7 @@ function populateData(data){
                     <path d="M10.5424 6.02323L10.1427 6.42292C9.97108 6.21818 9.78173 6.02883 9.577 5.85723L9.97671 5.45752L10.3824 5.6175L10.5424 6.02323Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Consider personalizing content to reduce AI detection signals. Writing patterns strongly suggest AI generation.</span>
+                <span class="insight__text">${sanitizeHTML(aiLinguisticQuickInsight)}</span>
               </div>
             </div>
           </div>
@@ -433,22 +562,22 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">AI Likelihood</div>
-                  <div class="metric-count">73%</div>
+                  <div class="metric-count">${scorePercentage}%</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Writing Style</div>
-                  <div class="metric-count">AI-like</div>
+                  <div class="metric-count">${aiLinguisticLabel}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Confidence</div>
-                  <div class="metric-count">High</div>
+                  <div class="metric-count">${getConfidenceLevel(value)}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
@@ -462,11 +591,11 @@ function populateData(data){
                   <div class="link-analysis__head">
                     <span class="link-num">AI Detection Score</span>
                     <div class="risk-indicator">
-                      <span>0.73</span>
+                      <span>${value.toFixed(2)}</span>
                     </div>
                   </div>
                   <div class="link-analysis__links">
-                    <span class="link-url">Several patterns suggest AI assistance or generation</span>
+                    <span class="link-url">${getScoreExplanation(value)}</span>
                   </div>
                 </div>
 
@@ -474,11 +603,11 @@ function populateData(data){
                   <div class="link-analysis__head">
                     <span class="link-num">Linguistic Patterns</span>
                     <div class="risk-indicator">
-                      <span>AI-like</span>
+                      <span>${aiLinguisticLabel}</span>
                     </div>
                   </div>
                   <div class="link-analysis__links">
-                    <span class="link-url">Consistent formal tone and perfect structure are typical AI characteristics</span>
+                    <span class="link-url">  ${getPatternExplanation(aiLinguisticTier)}</span>
                   </div>
                 </div>
               </div>
@@ -490,8 +619,8 @@ function populateData(data){
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X users value authenticity - personal anecdotes and conversational tone perform better</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -569,8 +698,8 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">AI Shadowban Risk</h3>
               <div class="card__controls">
-                <span class="badge">Medium Risk</span>
-                <span class="card__value"><span>0</span> moderate risk factors</span>
+                <span class="badge">${shadowbanQualitativeLabel}</span>
+                <span class="card__value">${getRiskContext(shadowbanValue, riskFactors.length)}</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -581,34 +710,36 @@ function populateData(data){
                     <path d="M12.2667 8.93317C12.2667 8.71226 12.0876 8.53317 11.8667 8.53317H10.2667C10.0458 8.53317 9.8667 8.71226 9.8667 8.93317V12.5332H9.0667V3.8665C9.0667 3.47807 9.06585 3.22699 9.04097 3.04199C9.01765 2.86849 8.97999 2.81411 8.94954 2.78366C8.91909 2.75321 8.86471 2.71555 8.69121 2.69223C8.50621 2.66735 8.25513 2.6665 7.8667 2.6665C7.47826 2.6665 7.22718 2.66735 7.04218 2.69223C6.86868 2.71555 6.8143 2.75321 6.78385 2.78366C6.7534 2.81411 6.71574 2.86849 6.69242 3.04199C6.66754 3.22699 6.6667 3.47807 6.6667 3.8665V12.5332H5.8667V6.2665C5.8667 6.04559 5.68761 5.8665 5.4667 5.8665H3.8667C3.64578 5.8665 3.4667 6.04559 3.4667 6.2665V12.5332H2.6667H2.53336C2.31245 12.5332 2.13336 12.7123 2.13336 12.9332C2.13336 13.1541 2.31245 13.3332 2.53336 13.3332H13.2C13.4209 13.3332 13.6 13.1541 13.6 12.9332C13.6 12.7123 13.4209 12.5332 13.2 12.5332H13.0667H12.2667V8.93317Z" fill="currentColor"/>
                   </svg>
                 </div>
-                <span class="insight__text">Content adjustments = improved algorithmic visibility. Some content elements may reduce algorithmic reach.</span>
+                <span class="insight__text">${sanitizeHTML(shadowbanQuickInsight)}</span>
+                 <p class="score-summary">${executiveSummary ? sanitizeHTML(executiveSummary) : sanitizeHTML(shadowbanCardSummary)}</p>
+        </div>
               </div>
             </div>
           </div>
 
           <div class="card__body">
             <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">AI Detection Analysis</h4>
+              <h4 class="heading-style-h5 weight-500">Shadowban Risk Analysis</h4>
               <div class="analysis-overview">
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Level</div>
-                  <div class="metric-count">Medium</div>
+                  <div class="metric-count">${shadowbanValue.toUpperCase()}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Assessment</div>
-                  <div class="metric-count">Medium Risk</div>
+                  <div class="metric-count">${shadowbanQualitativeLabel}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Factors</div>
-                  <div class="metric-count">0</div>
+                  <div class="metric-count">${riskFactors.length}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
@@ -659,8 +790,8 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">Caps Lock Check</h3>
               <div class="card__controls">
-                <span class="badge">Elevated</span>
-                <span class="card__value"><span>7.2%</span> Caps Usage</span>
+                <span class="badge">${capitalizationRatioLabel}</span>
+                <span class="card__value"><span>${capitalizationPercentage}%</span> Caps Usage</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -669,21 +800,20 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 8.00033C13.3334 5.05481 10.9455 2.66699 8.00002 2.66699C5.0545 2.66699 2.66669 5.05481 2.66669 8.00033C2.66669 10.9458 5.0545 13.3337 8.00002 13.3337C10.9455 13.3337 13.3334 10.9458 13.3334 8.00033ZM8.00002 4.93366C8.22093 4.93366 8.40002 5.11274 8.40002 5.33366V8.53366C8.40002 8.75457 8.22093 8.93366 8.00002 8.93366C7.77911 8.93366 7.60002 8.75457 7.60002 8.53366V5.33366C7.60002 5.11274 7.77911 4.93366 8.00002 4.93366ZM8.00002 10.667C8.29457 10.667 8.53335 10.4282 8.53335 10.1337C8.53335 9.83911 8.29457 9.60033 8.00002 9.60033C7.70547 9.60033 7.46669 9.83911 7.46669 10.1337C7.46669 10.4282 7.70547 10.667 8.00002 10.667Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-500">Casual:</strong>
-                <span>Slightly elevated caps usage</span>
+                <strong class="weight-500">${StatusMapper.getLabel('professionalism', capitalizationRatioTier)}:</strong>
+                <span>${getContextText(capitalizationRatioTier)}</span>
               </div>
               <div class="info-block__wrapper">
+              
+               ${capitalizationPercentage > 5 ? `
                 <div class="usage_block">
                     <span class="weight-500">Current Level:</span>
                     <div class="card__usage-bars">
-                       <span class="bar bg-warning"></span>
-                      <span class="bar bg-warning"></span>
-                      <span class="bar bg-warning"></span>
-                      <span class="bar bg-warning"></span>
-                      <span class="bar bg-warning"></span>
+                        <div class="usage-fill tier-${capitalizationRatioTier}" style="width: ${Math.min(capitalizationPercentage * 2, 100)}%"></div>
                     </div>
-                    <span>Target: Under 5% for professional communication</span>
-                  </div>
+                    <span class="usage-recommendation">${getRecommendation(tier)}</span>
+                </div>
+            ` : ''}
               </div>
               <div class="card__insight">
                 <div class="insight__icon">
@@ -691,7 +821,7 @@ function populateData(data){
                     <path d="M3.20001 7.15539C3.20001 5.45001 3.20001 4.59732 3.40135 4.31046C3.6027 4.02359 4.40445 3.74915 6.00797 3.20026L6.31347 3.09569C7.14934 2.80956 7.56727 2.6665 8.00001 2.6665C8.43275 2.6665 8.85069 2.80956 9.68656 3.09569L9.99206 3.20026C11.5956 3.74915 12.3973 4.02359 12.5987 4.31046C12.8 4.59732 12.8 5.45001 12.8 7.15539C12.8 7.41298 12.8 7.69233 12.8 7.99523C12.8 11.0022 10.5392 12.4614 9.12078 13.081C8.73601 13.2491 8.54362 13.3332 8.00001 13.3332C7.45641 13.3332 7.26402 13.2491 6.87924 13.081C5.46079 12.4614 3.20001 11.0022 3.20001 7.99523C3.20001 7.69233 3.20001 7.41298 3.20001 7.15539Z" fill="currentColor"/>
                   </svg>
                 </div>
-                <span class="insight__text">Moderate caps usage - consider reducing for better readability. Capitalization usage is slightly elevated at 7.2% - consider reducing</span>
+                <span class="insight__text">${sanitizeHTML(capitalizationRatioQuickInsight)}</span>
               </div>
             </div>
           </div>
@@ -703,22 +833,22 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Current Usage:</div>
-                  <div class="metric-count">7.2%</div>
+                  <div class="metric-count">${capitalizationPercentage}%</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Status:</div>
-                  <div class="metric-count">Elevated</div>
+                  <div class="metric-count">${capitalizationRatioLabel}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Target Range:</div>
-                  <div class="metric-count">0-15%</div>
+                  <div class="metric-count">${getTargetRange(platform)}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
               </div>
             </div>
@@ -787,8 +917,8 @@ function populateData(data){
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X's algorithm reduces reach for posts with excessive caps usage</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
