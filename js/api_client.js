@@ -1,4 +1,5 @@
-const baseURL = "https://textscore.io";
+
+const baseURL = "http://localhost:5000";
 const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");
 let loader = document.querySelector(".loader");
@@ -70,14 +71,118 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
 }
 
 
+function getContext(tier) {
+    const contexts = {
+        'good': 'Professional quality content',
+        'fair': 'Good content with minor improvements needed',
+        'poor': 'Content requires significant improvement'
+    };
+    return contexts[tier] || 'Content evaluation completed';
+}
+
+
+function getInsightText(tier) {
+    if (tier === 'good') {
+        return 'Content meets high professional standards for communication';
+    } else if (tier === 'fair') {
+        return 'Content shows good quality with room for refinement';
+    } else {
+        return 'Content needs improvement to meet professional standards';
+    }
+}
+
+function sanitizeHTML(dirtyHTML) {
+    // Ensure DOMPurify is available
+    if (typeof DOMPurify === 'undefined') {
+        console.warn('DOMPurify not available. Falling back to text content only.');
+        // Create a temporary element to extract text content as fallback
+        const temp = document.createElement('div');
+        temp.innerHTML = dirtyHTML;
+        return temp.textContent || temp.innerText || '';
+    }
+
+    // Configure DOMPurify to allow safe HTML tags commonly used in text analysis
+    const allowedTags = ['p', 'br', 'strong', 'em', 'b', 'i', 'ul', 'li', 'blockquote', 'span', 'div'];
+    const allowedAttributes = ['class']; // Only allow class attributes for styling
+
+    return DOMPurify.sanitize(dirtyHTML, {
+        ALLOWED_TAGS: allowedTags,
+        ALLOWED_ATTR: allowedAttributes,
+        KEEP_CONTENT: true,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_DOM_IMPORT: false
+    });
+}
+
+/**
+ * Convert platform data-platform value to display-friendly name
+ * @param {string} platform - The platform identifier
+ * @returns {string} - Display-friendly platform name
+ */
+function getPlatformDisplayName(platform) {
+    const platformNames = {
+        'x': 'X',
+        'twitter': 'X',
+        'facebook': 'Facebook',
+        'medium': 'Medium',
+        'discord': 'Discord',
+        'general': 'General'
+    };
+    return platformNames[platform] || platform.charAt(0).toUpperCase() + platform.slice(1);
+}
+
+/**
+ * Get platform-specific guideline for link security
+ * @param {string} platform - The platform identifier
+ * @returns {string} - Platform-specific guideline text
+ */
+function getPlatformGuideline(platform) {
+    const guidelines = {
+        'x': "X automatically scans links for safety, but users remain cautious of shortened URLs",
+        'facebook': 'Facebook blocks many suspicious domains and warns users about potential risks',
+        'discord': 'Discord servers often have strict rules about external links and malware',
+        'general': 'Most platforms flag suspicious links, but user vigilance remains important'
+    };
+
+    return guidelines[platform] || guidelines.general;
+}
+
 function populateData(data){
+    const tier = data?.evaluation_report?.tier;
+    const qualitativeLabels = { good: 'Excellent', fair: 'Good', poor: 'Needs Improvement' };
+    const qualitativeLabel = qualitativeLabels[tier] || 'Unknown';
+    const contextText = getContext(tier);
+    const insightText = getInsightText(tier);
+    const evaluation_summary = data?.evaluation_summary
+    const summary = data?.evaluation_report?.summary
+    const displayData = data?.display_data || {};
+    const contextMode = data?.context_mode || 'creator';
+    const platform = data.platform || data.selected_platform || 'general';
+    const platformName = getPlatformDisplayName(platform);
+
+    // Advance Link Analysis
+    const details = data?.advanced_link_analysis?.details;
+    const totalLinks = details?.total_links || value || 0;
+    const riskyLinks = details?.risky_links || 0;
+    const linkTier = data?.advanced_link_analysis?.tier || (totalLinks === 0 ? 'fair' : riskyLinks > 2 ? 'poor' : riskyLinks > 0 ? 'fair' : 'good');
+    const linkQualitativeLabel = totalLinks === 0 ? 'No Links' : (riskyLinks > 0 ? 'Security Issues' : 'Safe Links');
+    const linkAnalysis = details.links_analysis || [];
+    const quickInsight = displayData.quick_insight?.[contextMode] ||
+        details.quick_insight?.[contextMode] ||
+        (totalLinks === 0 ? 'No links means no link-related security risks' :
+            riskyLinks > 0 ? 'Suspicious links = reduced user trust and engagement' : 'Trusted links enhance credibility and security');
+    const cardSummary = displayData.card_summary?.[tier]?.[contextMode] ||
+        details.card_summary?.[tier]?.[contextMode] ||
+        (totalLinks === 0 ? 'No external links detected in your content.' :
+            riskyLinks > 0 ? 'Some links detected security concerns.' : 'All links appear safe and trustworthy.');
+
     resultContainer.innerHTML = `
-      <div class="result__card evaluation-report-card tie-${data.evaluation_report.tier}"> 
+      <div class="result__card evaluation-report-card tie-${tier}"> 
         <div class="card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
             <div class="card__header-controls">
-              <span class="card__header-badge">Needs Improvement</span>
+              <span class="card__header-badge">${qualitativeLabel}</span>
             </div>
           </div>
         </div>
@@ -85,25 +190,32 @@ function populateData(data){
             <div class="card__body-inner">
               <div class="evaluation-indicator-unified">
                 <h2 class="heading-style-h1">${data.evaluation_report.score}</h2>
-                <span class="indicator-label">${data.evaluation_report.tier} Quality</span>
+                <span class="indicator-label">${qualitativeLabel} Quality</span>
               </div>
               <div class="evaluation-insight">
-                <h3 class="heading-style-h5">Content needs improvement to meet professional standards</h3>
-                <p class="evaluation-insight__desc">${data.evaluation_report.summary}</p>
+                <h3 class="heading-style-h5">${insightText}</h3>
+                <p class="evaluation-insight__desc score-summary">${data.evaluation_report.summary}</p>
+                
               </div>
             </div>
+               <div class="evaluation-indicator-unified">
+                <span class="indicator-label">Overall Score</span>
+                  <strong>${StatusMapper.getLabel('quality', tier)}:</strong>
+                    <span class="indicator-context">${contextText}</span>
+              </div>
         </div>
       </div>
 
       <div class="result_detail">
 
-        <div class="result__card advanced-link-analysis-card tie-${data.advanced_link_analysis.tier}">
+        <div class="result__card advanced-link-analysis-card tie-${linkTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Advanced Link Analysis</h3>
               <div class="card__controls">
-                <span class="badge">Security Issues</span>
-                <span class="card__value"><span>${data.advanced_link_analysis.details.risky_links}</span> Links Found</span>
+                <span class="badge">${linkQualitativeLabel}</span>
+                <span class="card__value">${totalLinks} ${totalLinks === 0 ? 'No Links' :
+        totalLinks === 1 ? 'Link Found' : 'Links Found'}</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -113,23 +225,31 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 8.00033C13.3334 5.05481 10.9455 2.66699 8.00002 2.66699C5.0545 2.66699 2.66669 5.05481 2.66669 8.00033C2.66669 10.9458 5.0545 13.3337 8.00002 13.3337C10.9455 13.3337 13.3334 10.9458 13.3334 8.00033ZM8.00002 4.93366C8.22093 4.93366 8.40002 5.11274 8.40002 5.33366V8.53366C8.40002 8.75457 8.22093 8.93366 8.00002 8.93366C7.77911 8.93366 7.60002 8.75457 7.60002 8.53366V5.33366C7.60002 5.11274 7.77911 4.93366 8.00002 4.93366ZM8.00002 10.667C8.29457 10.667 8.53335 10.4282 8.53335 10.1337C8.53335 9.83911 8.29457 9.60033 8.00002 9.60033C7.70547 9.60033 7.46669 9.83911 7.46669 10.1337C7.46669 10.4282 7.70547 10.667 8.00002 10.667Z" fill="currentColor"/>
                 </svg>
-                <strong>Caution:</strong>
-                <span>1 security concern</span>
+                <strong>${StatusMapper.getLabel('analysis', linkTier)}:</strong>
+                <span class="indicator-context">${totalLinks === 0 ?
+        'Content contains no external links' :
+        riskyLinks > 0 ?
+            `${riskyLinks} security concern${riskyLinks === 1 ? '' : 's'}` : 'All links verified safe'}</span>
               </div>
-              <div class="info-block">
-                <span class="instances__label">Detected:</span>
-                <div class="instances__list">
-                  <span class="instances__list-item">tinyurl.com</span>
-                  <span class="instances__list-item">tinyurl.com</span>
+              
+              
+                ${totalLinks > 0 && Array.isArray(linkAnalysis) && linkAnalysis.length > 0 ? `
+                <div class="info-block">
+                    <span class="instances-label">Detected:</span>
+                    <span class="instances-list">${linkAnalysis.slice(0, 3).map(link =>
+        `<code class="link-domain ${link.is_risky ? 'risky-domain' : 'safe-domain'}">${sanitizeHTML(link.domain)}</code>`
+    ).join(' ')}</span>
+                    ${linkAnalysis.length > 3 ? `<span class="more-instances">+${linkAnalysis.length - 3} more</span>` : ''}
                 </div>
-              </div>
+            ` : ''}
               <div class="card__insight">
                 <div class="insight__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" fill="none">
                     <path d="M0.200012 5.15587C0.200012 3.4505 0.200012 2.59781 0.401354 2.31094C0.602696 2.02408 1.40445 1.74964 3.00797 1.20075L3.31347 1.09617C4.14934 0.810053 4.56727 0.666992 5.00001 0.666992C5.43275 0.666992 5.85069 0.810053 6.68656 1.09617L6.99206 1.20075C8.59557 1.74964 9.39733 2.02408 9.59867 2.31094C9.80001 2.59781 9.80001 3.4505 9.80001 5.15587C9.80001 5.41347 9.80001 5.69281 9.80001 5.99572C9.80001 9.00269 7.53923 10.4619 6.12078 11.0815C5.73601 11.2496 5.54362 11.3337 5.00001 11.3337C4.45641 11.3337 4.26402 11.2496 3.87924 11.0815C2.46079 10.4619 0.200012 9.00269 0.200012 5.99572C0.200012 5.69281 0.200012 5.41347 0.200012 5.15587Z" fill="currentColor"/>
                   </svg>
                 </div>
-                <span class="insight__text">Suspicious links = reduced user trust and engagement. Some links detected security concerns.</span>
+                <span class="insight-text">${sanitizeHTML(quickInsight)}</span>
+                   <p class="score-summary">${sanitizeHTML(cardSummary)}</p>
               </div>
             </div>
           </div>
@@ -140,77 +260,75 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Total Links</div>
-                  <div class="metric-count">2</div>
+                  <div class="metric-count">${totalLinks}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Security Status</div>
-                  <div class="metric-count">1 Risk</div>
+                  <div class="metric-count">${totalLinks === 0 ? 'No Links' : riskyLinks === 0 ? 'All Safe' : `${riskyLinks} Risk${riskyLinks === 1 ? '' : 's'}`}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Level</div>
-                  <div class="metric-count">Medium</div>
+                  <div class="metric-count">${totalLinks === 0 ? 'None' : tier === 'good' ? 'Low' : tier === 'fair' ? 'Medium' : 'High'}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
             </div>
-
+            ${totalLinks > 0 && Array.isArray(linkAnalysis) && linkAnalysis.length > 0 ? `
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Detailed Link Analysis</h4>
               <div class="card__links-analysis">
-
-                <div class="analysis-metric">
-                  <div class="link-analysis__head">
-                    <span class="link-num">1 Link</span>
-                    <div class="risk-indicator">
-                      <span class="status-badge"></span>
-                      <span>Medium Risk</span>
-                    </div>
-                  </div>
-                  <div class="link-analysis__links">
-                    <span class="link-url">tinyurl.com</span>
-                  </div>
-                  <div class="link-analysis__factor-list">
-                    <span class="fector-label">Risk factors:</span>
-                    <span class="risk-factor">URL shortener service</span>
-                  </div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="link-analysis__head">
-                    <span class="link-num">2 Link</span>
-                    <div class="risk-indicator">
-                      <span class="status-badge"></span>
-                      <span>Low Risk</span>
-                    </div>
-                  </div>
-                  <div class="link-analysis__links">
-                    <span class="link-url">tinyurl.com</span>
-                  </div>
-                  <div class="link-analysis__factor-list">
-                    <span class="fector-label"></span>
-                    <span class="risk-factor">Success</span>
-                  </div>
-                </div>
-
-             
-
+                     ${linkAnalysis.map((link, index) => `
+                              <div class="analysis-metric">
+                                <div class="link-analysis__head">
+                                    <span class="link-num">${index + 1} Link</span>
+                                     <div class="risk-indicator">
+                                          <span class="status-badge"></span>
+                                          <span>${link.risk_level} Risk</span>
+                                     </div>
+                                      <div class="link-analysis__links">
+                                        <span class="link-url">${sanitizeHTML(link.domain)}</span>
+                                      </div>
+                                </div>
+                                ${link.risk_factors && link.risk_factors.length > 0 ? `
+                                      <div class="link-analysis__factor-list">
+                                        <span class="factors-label">Risk factors:</span>
+                                        <div class="factors-list">
+                                            ${link.risk_factors.map(factor =>
+        `<span class="risk-factor">${sanitizeHTML(factor)}</span>`
+    ).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
               </div>
             </div>
 
+            ` : `
+                <div class="details-section no-issues-found">
+                    <div class="safe-links-message">
+                        <span class="safe-icon">${totalLinks === 0 ? 'ℹ️' : '✅'}</span>
+                        <div class="safe-text">
+                            <h4>${totalLinks === 0 ? 'No External Links Found' : 'All Links Verified Safe'}</h4>
+                            <p>${totalLinks === 0 ? 'Your content does not contain any external links, which eliminates link-related security risks.' : 'No security concerns detected. All links appear legitimate and trustworthy.'}</p>
+                        </div>
+                    </div>
+                </div>
+            `}
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X automatically scans links for safety, but users remain cautious of shortened URLs</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -2182,4 +2300,22 @@ function populateData(data){
       </div>
     
     `;
+
+    const summaryElement = document.querySelector('.score-summary');
+    if (evaluation_summary && Array.isArray(evaluation_summary) && evaluation_summary.length > 0) {
+        // Create an unordered list from the evaluation_summary array
+        const observationsList = document.createElement('ul');
+        observationsList.className = 'key-observations-list';
+
+        evaluation_summary.forEach(observation => {
+            const listItem = document.createElement('li');
+            // Use innerHTML to preserve HTML formatting in observations
+            listItem.innerHTML = observation;
+            observationsList.appendChild(listItem);
+        });
+
+        summaryElement.appendChild(observationsList);
+    } else {
+        summaryElement.innerHTML = summary;
+    }
 }
