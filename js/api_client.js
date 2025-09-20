@@ -93,6 +93,27 @@ function getInsightText(tier) {
     }
 }
 
+
+function getComplexSentenceInsightText(tier, count) {
+    if (tier === 'good') {
+        return 'Shorter sentences = easier to read and better engagement';
+    } else if (tier === 'fair') {
+        return 'Consider breaking longer sentences for better readability';
+    } else {
+        return 'Long sentences = readers lose focus and skip content';
+    }
+}
+
+function getComplexSentenceSummaryText(count, tier) {
+    if (tier === 'good') {
+        return 'Your sentences are well-structured and easy to read';
+    } else if (tier === 'fair') {
+        return `${count} ${count === 1 ? 'sentence' : 'sentences'} may be challenging to read`;
+    } else {
+        return `${count} complex sentences detected - consider simplifying`;
+    }
+}
+
 function sanitizeHTML(dirtyHTML) {
     // Ensure DOMPurify is available
     if (typeof DOMPurify === 'undefined') {
@@ -208,6 +229,15 @@ function getContextText(tier) {
     return contexts[tier] || 'Capitalization analysis complete';
 }
 
+function getComplexSentenceContextText(tier) {
+    const contexts = {
+        'good': 'Easy to read and understand',
+        'fair': 'Some sentences may be challenging',
+        'poor': 'Multiple complex sentences detected'
+    };
+    return contexts[tier] || 'Sentence analysis complete';
+}
+
 function getRecommendation(tier) {
     if (tier === 'fair') {
         return 'Target: Under 5% for professional communication';
@@ -226,6 +256,293 @@ function getTargetRange(platform) {
     };
     return ranges[platform] || '0-5%';
 }
+
+function getQualityLabel(score) {
+    // Standardized assessment labels
+    if (score >= 70) return 'Excellent Quality';
+    if (score >= 40) return 'Needs Improvement';
+    return 'Poor Quality';
+}
+
+function createSummaryText(breakdown) {
+    if (!breakdown) return 'Content quality assessment completed';
+    
+    // Count actual contributing factors (merged and filtered)
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    // Count merged readability
+    const readabilityTotal = (breakdown.readability || 0) + (breakdown.readability_penalties || 0);
+    if (readabilityTotal > 0) positiveCount++;
+    else if (readabilityTotal < 0) negativeCount++;
+    
+    // Count merged sentiment
+    const sentimentTotal = (breakdown.sentiment || 0) + (breakdown.sentiment_extremity_penalties || 0);
+    if (sentimentTotal > 0) positiveCount++;
+    else if (sentimentTotal < 0) negativeCount++;
+    
+    // Count other non-zero metrics (excluding merged components and ignored metrics)
+    const IGNORED_METRICS = ['injection_penalties', 'gibberish_penalties', 'total_score'];
+    Object.entries(breakdown).forEach(([key, value]) => {
+        if (key === 'readability' || key === 'readability_penalties' ||
+            key === 'sentiment' || key === 'sentiment_extremity_penalties' ||
+            IGNORED_METRICS.includes(key) || value === 0) {
+            return;
+        }
+        if (value > 0) positiveCount++;
+        else if (value < 0) negativeCount++;
+    });
+    
+    if (positiveCount > 0 && negativeCount === 0) {
+        return `Strong performance across ${positiveCount} Positive Factors`;
+    } else if (positiveCount > 0 && negativeCount > 0) {
+        return `${positiveCount} Positive Factors, ${negativeCount} Issues Found`;
+    } else if (negativeCount > 0) {
+        return `${negativeCount} Issues Found`;
+    } else {
+        return 'Quality assessment completed';
+    }
+}
+
+
+function getContentQualityInsightText(tier, breakdown) {
+    if (breakdown.spam_penalties < 0) {
+        return 'Spammy language detected – remove forbidden keywords';
+    }
+    if (breakdown.readability_penalties < -15) {
+        return 'Readability is poor – simplify complex text';
+    }
+    // Existing tier-based logic remains unchanged.
+    if (tier === 'good') {
+        return 'Content demonstrates professional standards with strong clarity and structure';
+    } else if (tier === 'fair') {
+        return 'Content foundation is solid - focus on refinement for optimal impact';
+    } else {
+        return 'Content requires significant improvements across multiple quality factors';
+    }
+}
+
+
+function getContentQualityContext(tier) {
+    const contexts = {
+        'good': 'Excellent professional quality',
+        'fair': 'Quality needs improvement in key areas',
+        'poor': 'Multiple quality issues require attention'
+    };
+    return contexts[tier] || 'Content quality assessment';
+}
+
+
+function createFactorsPreview(breakdown) {
+    if (!breakdown) return '';
+    
+    // Use same counting logic as createSummaryText for consistency
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    // Count merged readability
+    const readabilityTotal = (breakdown.readability || 0) + (breakdown.readability_penalties || 0);
+    if (readabilityTotal > 0) positiveCount++;
+    else if (readabilityTotal < 0) negativeCount++;
+    
+    // Count merged sentiment
+    const sentimentTotal = (breakdown.sentiment || 0) + (breakdown.sentiment_extremity_penalties || 0);
+    if (sentimentTotal > 0) positiveCount++;
+    else if (sentimentTotal < 0) negativeCount++;
+    
+    // Count other non-zero metrics (excluding merged components and ignored metrics)
+    const IGNORED_METRICS = ['injection_penalties', 'gibberish_penalties', 'total_score'];
+    Object.entries(breakdown).forEach(([key, value]) => {
+        if (key === 'readability' || key === 'readability_penalties' ||
+            key === 'sentiment' || key === 'sentiment_extremity_penalties' ||
+            IGNORED_METRICS.includes(key) || value === 0) {
+            return;
+        }
+        if (value > 0) positiveCount++;
+        else if (value < 0) negativeCount++;
+    });
+    
+    if (positiveCount === 0 && negativeCount === 0) return '';
+    
+    return `
+        <div class="content-quality-factors-preview">
+            <span class="factors-label">Breakdown:</span>
+            <span class="factors-list">
+                ${positiveCount > 0 ? `<span class="factor-positive">✓ ${positiveCount}</span>` : ''}
+                ${negativeCount > 0 ? `<span class="factor-negative">⚠ ${negativeCount}</span>` : ''}
+            </span>
+        </div>
+    `;
+}
+
+function createQualityBreakdown(breakdown, score) {
+  if (!breakdown) return '<p>No detailed breakdown available</p>';
+
+  const IGNORED_METRICS = ['injection_penalties', 'gibberish_penalties', 'total_score'];
+
+  const mergedBreakdown = {};
+
+  // Merge readability
+  const readabilityTotal = (breakdown.readability || 0) + (breakdown.readability_penalties || 0);
+  if (readabilityTotal !== 0) mergedBreakdown.readability = readabilityTotal;
+
+  // Merge sentiment
+  const sentimentTotal = (breakdown.sentiment || 0) + (breakdown.sentiment_extremity_penalties || 0);
+  if (sentimentTotal !== 0) mergedBreakdown.sentiment = sentimentTotal;
+
+  // Add other non-merged
+  Object.entries(breakdown).forEach(([key, value]) => {
+    if (
+      key === 'readability' || key === 'readability_penalties' ||
+      key === 'sentiment' || key === 'sentiment_extremity_penalties' ||
+      IGNORED_METRICS.includes(key) || value === 0
+    ) {
+      return;
+    }
+    mergedBreakdown[key] = value;
+  });
+
+  // Convert to structured list
+  let factorEntries = Object.entries(mergedBreakdown).map(([key, value]) => {
+    const isPositive = value > 0;
+    const displayName = key.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').toLowerCase();
+    const formattedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+    return {
+      key,
+      value,
+      isPositive,
+      formattedName,
+      impactLabel: getFactorImpactLabelForMerged(key, value),
+      badge: isPositive ? 'Success' : 'Error'
+    };
+  });
+
+  // ✅ Sort here before HTML
+  factorEntries.sort((a, b) => {
+    if (a.isPositive && !b.isPositive) return -1; // positives first
+    if (!a.isPositive && b.isPositive) return 1;  // negatives after
+    return Math.abs(b.value) - Math.abs(a.value); // bigger absolute value first
+  });
+
+  const rowsHtml = factorEntries.map(f => `
+    <div class="quality__table-row">
+      <div class="quality__table-item first-col">
+        <span class="quality__title weight-700">${f.formattedName}</span>
+        <span class="quality__value weight-500">${f.value > 0 ? '+' : ''}${Math.round(f.value * 100) / 100}</span>
+      </div>
+      <div class="quality__table-item">
+        <span>${f.impactLabel}</span>
+      </div>
+      <div class="quality__table-item">
+        <span class="quality__badge">${f.badge}</span>
+      </div>
+    </div>
+  `).join('');
+
+  if (!rowsHtml) {
+    if (score >= 70) return '<p>All quality factors within normal range</p>';
+    if (score >= 40) return '<p>Quality factors detected - review recommended</p>';
+    return '<p>Quality analysis indicates multiple areas for improvement</p>';
+  }
+
+  return `
+    <div class="analysis-metric margin-top-sm">
+      <div class="quality__table">
+        ${rowsHtml}
+      </div>
+    </div>
+  `;
+}
+
+function getFactorImpactLabelForMerged(key, value) {
+  if (key === 'readability') return value < 0 ? 'Difficult to Read' : 'Clear and Accessible';
+  if (key === 'sentiment') return value < 0 ? 'Tone Issues Detected' : 'Positive Tone';
+  return value > 0 ? 'Positive Contribution to Quality' : 'Area Requiring Improvement';
+}
+
+
+function createImprovementGuidelines(breakdown, score) {
+  let guidelines = [];
+  
+  // Pick recommendations based on score
+  if (score >= 70) {
+    guidelines = [
+      'Continue maintaining professional standards',
+      'Consider minor refinements for optimal impact',
+      'Review content for consistency and flow',
+      'Ensure key messages are clearly emphasized'
+    ];
+  } else if (score >= 40) {
+    guidelines = [
+      'Improve clarity and conciseness',
+      'Strengthen professional tone',
+      'Review grammar and punctuation',
+      'Enhance content structure and flow',
+      'Simplify complex sentences'
+    ];
+  } else {
+    guidelines = [
+      'Rewrite for clarity and professionalism',
+      'Fix grammar and punctuation errors',
+      'Improve content structure and organization',
+      'Reduce complexity and improve readability',
+      'Remove spam-like elements and excessive formatting'
+    ];
+  }
+
+  const listItems = guidelines.map(guide => `<li>${guide}</li>`).join('');
+
+  return `
+    <div class="card__platform-guidance margin-top-sm">
+      <div class="analysis-metric">
+        <div class="platform-guidance__info">
+          <div>
+            ${getInfoIcon()}
+          </div>
+          <div>
+            <h5 class="heading-style-h6">Recommended Actions:</h5>
+            <ul class="platform-guidance__info-list">
+              ${listItems}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// SVG helper
+function getInfoIcon() {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <g clip-path="url(#clip0_8576_3928)">
+        <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
+      </g>
+      <defs>
+        <clipPath id="clip0_8576_3928">
+          <rect width="16" height="16" fill="white"/>
+        </clipPath>
+      </defs>
+    </svg>
+  `;
+}
+
+function getRiskCategoryIcon(category) {
+    const icons = {
+        'urgency': '⏰',
+        'financial': '💰',
+        'links': '🔗',
+        'link': '🔗',
+        'phishing': '🎣',
+        'social': '👥',
+        'phrase': '💬',
+        'hype': '🚀',
+        'general': '⚠️'
+    };
+    return icons[category] || '⚠️';
+}
+
 function populateData(data){
     const tier = data?.evaluation_report?.tier;
     const qualitativeLabels = { good: 'Excellent', fair: 'Good', poor: 'Needs Improvement' };
@@ -241,7 +558,7 @@ function populateData(data){
 
     // Advance Link Analysis
     const details = data?.advanced_link_analysis?.details;
-    const totalLinks = details?.total_links || value || 0;
+    const totalLinks = details?.total_links || 0;
     const riskyLinks = details?.risky_links || 0;
     const linkTier = data?.advanced_link_analysis?.tier || (totalLinks === 0 ? 'fair' : riskyLinks > 2 ? 'poor' : riskyLinks > 0 ? 'fair' : 'good');
     const linkQualitativeLabel = totalLinks === 0 ? 'No Links' : (riskyLinks > 0 ? 'Security Issues' : 'Safe Links');
@@ -260,7 +577,7 @@ function populateData(data){
     const value = ai_linguistic_pattern_data?.value !== undefined ? ai_linguistic_pattern_data?.value : ai_linguistic_pattern_data;
     const scorePercentage = Math.round(value * 100);
     const aiLinguisticTier = ai_linguistic_pattern_data?.tier || (value <= 0.3 ? 'good' : value <= 0.7 ? 'fair' : 'poor');
-    const aiLinguisticDetails = ai_linguistic_pattern_data.details || {};
+    const aiLinguisticDetails = ai_linguistic_pattern_data?.details || {};
     const aiLinguisticLabel = aiLinguisticTier === 'good' ? 'Human-like' :
         aiLinguisticTier === 'fair' ? 'Mixed Signals' : 'AI-like';
 
@@ -271,40 +588,143 @@ function populateData(data){
 
     // AI Shadowban
     ai_shadowban_risk_data = data?.ai_shadowban_risk;
-    const shadowbanValue = ai_shadowban_risk_data.value !== undefined ? ai_shadowban_risk_data.value : ai_shadowban_risk_data;
-    const shadowbanVDetails = ai_shadowban_risk_data.details || {};
-    const shadowbanTier = ai_shadowban_risk_data.tier || (value === 'low' ? 'good' : value === 'medium' ? 'fair' : 'poor');
-    const shadowbanDisplayData = ai_shadowban_risk_data.display_data || {};
+    const shadowbanValue = ai_shadowban_risk_data?.value !== undefined ? ai_shadowban_risk_data?.value : ai_shadowban_risk_data;
+    const shadowbanVDetails = ai_shadowban_risk_data?.details || {};
+    const shadowbanTier = ai_shadowban_risk_data?.tier || (value === 'low' ? 'good' : value === 'medium' ? 'fair' : 'poor');
+    const shadowbanDisplayData = ai_shadowban_risk_data?.display_data || {};
     const shadowbanQualitativeLabel = shadowbanTier === 'good' ? 'Low Risk' :
         shadowbanTier === 'fair' ? 'Medium Risk' : 'High Risk';
-    const aiAnalysisV2 = data.ai_analysis_v2 || {};
-    const riskFactors = aiAnalysisV2.risk_factors || [];
-    const executiveSummary = aiAnalysisV2.executive_summary || '';
-    const shadowbanQuickInsight = shadowbanDisplayData.quick_insight?.[contextMode] ||
+    const aiAnalysisV2 = data?.ai_analysis_v2 || {};
+    const riskFactors = aiAnalysisV2?.risk_factors || [];
+    const executiveSummary = aiAnalysisV2?.executive_summary || '';
+    const shadowbanQuickInsight = shadowbanDisplayData?.quick_insight?.[contextMode] ||
         shadowbanVDetails.quick_insight?.[contextMode] ||
         (tier === 'good' ? 'Optimized content = better reach and engagement' :
             'Content adjustments = improved algorithmic visibility');
-    const shadowbanCardSummary = shadowbanDisplayData.card_summary?.[tier]?.[contextMode] ||
+    const shadowbanCardSummary = shadowbanDisplayData?.card_summary?.[tier]?.[contextMode] ||
         shadowbanVDetails.card_summary?.[tier]?.[contextMode] ||
         (tier === 'good' ? 'Your content shows low risk of algorithmic suppression.' :
             tier === 'fair' ? 'Some content elements may reduce algorithmic reach.' :
                 'Multiple factors may trigger algorithmic suppression.');
 
-    // Caps Lock
-    capitalization_ratio_data = data?.capitalization_ratio;
-    const capitalizationRatioValue = capitalization_ratio_data.value !== undefined ? capitalization_ratio_data.value : capitalization_ratio_data;
-    const capitalizationPercentage = Math.round(capitalizationRatioValue * 100 * 10) / 10;
-    const capitalizationRatioDetails = capitalization_ratio_data.details || {};
-    const capitalizationRatioTier = capitalization_ratio_data.tier || (value <= 0.05 ? 'good' : value <= 0.15 ? 'fair' : 'poor');
-    const capitalizationRatioDisplayData = capitalization_ratio_data.display_data || {};
-    const capitalizationRatioLabel = getStatusLabel(capitalizationRatioTier);
-    const capitalizationRatioCardSummary = capitalizationRatioDisplayData.card_summary?.[tier]?.[contextMode] ||
-        capitalizationRatioDetails.card_summary?.[tier]?.[contextMode] ||
-        getSummaryText(capitalizationPercentage, capitalizationRatioTier);
+  // Caps Lock
+  const capitalization_ratio_data = data?.capitalization_ratio ?? {};
 
-    const capitalizationRatioQuickInsight = capitalizationRatioDisplayData.quick_insight?.[contextMode] ||
-        capitalizationRatioDetails.quick_insight?.[contextMode] ||
-        getInsightText(tier, capitalizationPercentage);
+  const capitalizationRatioValue =
+    capitalization_ratio_data?.value !== undefined
+      ? capitalization_ratio_data.value
+      : capitalization_ratio_data || 0;
+  const capitalizationPercentage = Math.round(capitalizationRatioValue * 100 * 10) / 10;
+
+  const capitalizationRatioDetails = capitalization_ratio_data.details || {};
+  const capitalizationRatioTier =
+    capitalization_ratio_data.tier ||
+    (capitalizationRatioValue <= 0.05
+      ? "good"
+      : capitalizationRatioValue <= 0.15
+      ? "fair"
+      : "poor");
+
+  const capitalizationRatioDisplayData = capitalization_ratio_data.display_data || {};
+  const capitalizationRatioLabel = getStatusLabel(capitalizationRatioTier);
+
+  const capitalizationRatioCardSummary =
+    capitalizationRatioDisplayData.card_summary?.[capitalizationRatioTier]?.[contextMode] ||
+    capitalizationRatioDetails.card_summary?.[capitalizationRatioTier]?.[contextMode] ||
+    getSummaryText(capitalizationPercentage, capitalizationRatioTier);
+
+  const capitalizationRatioQuickInsight =
+    capitalizationRatioDisplayData.quick_insight?.[contextMode] ||
+    capitalizationRatioDetails.quick_insight?.[contextMode] ||
+    getInsightText(capitalizationRatioTier, capitalizationPercentage);
+
+  // Complex Sentences
+  const complexSentencesData = data?.complex_sentences ?? {};
+  const complexSentencesValue =
+    complexSentencesData?.value !== undefined
+      ? complexSentencesData.value
+      : complexSentencesData || 0;
+  const sentenceCount = complexSentencesValue;
+  const complexSentencesDetails = complexSentencesData.details || {};
+  const complexSentencesInstances = data.complex_sentences_details?.instances || [];
+  const longestWordCount = complexSentencesInstances.length > 0 
+        ? Math.max(...complexSentencesInstances.map(i => i.word_count || 0))
+        : 0;
+    
+  const complexSentencesTier = complexSentencesData.tier || (complexSentencesValue === 0 ? 'good' : complexSentencesValue <= 2 ? 'fair' : 'poor');
+    const labels = {
+        'good': 'Clear',
+        'fair': 'Some Complexity', 
+        'poor': 'High Complexity'
+    };
+  const complexSentenceLabel = labels[complexSentencesTier] || 'Clear';
+
+  const complexSentenceQuickInsight = capitalizationRatioDisplayData?.quick_insight?.[contextMode] || 
+        complexSentencesDetails.quick_insight?.[contextMode] ||
+        getComplexSentenceInsightText(complexSentencesTier, sentenceCount);
+  
+const complexSentenceCardSummary = capitalizationRatioDisplayData?.card_summary?.[complexSentencesTier]?.[contextMode] || 
+        complexSentencesDetails.card_summary?.[complexSentencesTier]?.[contextMode] ||
+        getComplexSentenceSummaryText(sentenceCount, tier);
+
+// Content Quality
+const contentQualityData = data?.content_quality_score ?? {};
+const breakdown = data.content_quality_breakdown?.value
+                   || contentQualityData.details?.quality_breakdown
+                   || contentQualityData.details?.breakdown
+                   || data.quality_breakdown
+                   || data.breakdown
+const total = Number(breakdown.total_score);
+const contentQualityScore = Number.isFinite(total)
+                ? Math.round(total)
+                : Math.round(contentQualityData?.value || 0);
+const contentQualityTier = contentQualityScore >= 70 ? 'good' : contentQualityScore >= 40 ? 'fair' : 'poor';
+const contentQualityLabel = getQualityLabel(contentQualityScore);
+const summaryText = createSummaryText(breakdown);
+const contentQualityInsightText = getContentQualityInsightText(contentQualityTier, breakdown);
+const contentQualityContextText = getContentQualityContext(contentQualityTier);
+        // Use tier-based assessment for consistency
+const assessmentMap = {
+    'good': 'Excellent Quality',
+    'fair': 'Needs Improvement', 
+    'poor': 'Poor Quality'
+};
+
+const contentQualitAssessment = assessmentMap[contentQualityTier] || 'Unknown';
+
+// spam analysis
+
+const spamAnalysisData = data?.content_risk_score ?? {};
+const spamAnalysisValue = spamAnalysisData.value !== undefined ? spamAnalysisData.value : 0;
+const spamAnalysisTier = spamAnalysisValue <= 20 ? 'good' : spamAnalysisValue <= 50 ? 'fair' : 'poor';
+const spamAnalysisDisplayData = spamAnalysisData.display_data || {};
+if (spamAnalysisData.breakdown) {
+    data.content_risk_score_details = {
+        breakdown: spamAnalysisData.breakdown,
+        category_scores: spamAnalysisData.category_scores || {},
+        escalated: spamAnalysisData.escalated || false,
+        escalation_reason: spamAnalysisData.escalation_reason || null
+    };
+}
+const spamAnalysisLabel = spamAnalysisValue <= 20 ? 'Low Risk' : spamAnalysisValue <= 50 ? 'Medium Risk' : 'High Risk';
+const displayPercentage = Math.round(spamAnalysisValue);
+
+// Excessive Punctuation
+const puncuationData = data?.excessive_punctuation ?? {};
+const puncuationValue = puncuationData.value !== undefined ? puncuationData.value : metricObject;
+const puncuationDetails = puncuationData.details || {};
+const puncuationInstances = data.excessive_punctuation_details || [];
+const puncuationInstanceCount = puncuationInstances.length;
+const puncuationTier = puncuationValue ? 'poor' : 'good';
+const puncuationDisplayData = puncuationData.display_data || {};
+const puncuationLabel = puncuationValue ? 'Issues Found' : 'Clean';
+const punctuationSummary = puncuationDisplayData.card_summary?.[tier]?.[contextMode] || 
+  puncuationDetails.card_summary?.[tier]?.[contextMode] ||
+  (puncuationValue ? 'Multiple exclamation marks or question marks detected.' : 'No excessive punctuation detected.');
+const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] || 
+  puncuationDetails.quick_insight?.[contextMode] ||
+  (puncuationValue ? 'Too many !!! or ??? = spam filters block your message' : 'Clean punctuation maintains credibility');
+
     resultContainer.innerHTML = `
       <div class="result__card evaluation-report-card tie-${capitalizationRatioTier}"> 
         <div class="card__header">
@@ -536,7 +956,7 @@ function populateData(data){
                 <div class="info-block">
                   <span class="instances__label">Assessment:</span>
                   <div class="instances__list">
-                    <span class="instances__list-item">Score: ${value.toFixed(2)}</span>
+                    <span class="instances__list-item">Score: ${(value ?? 0).toFixed(2)}</span>
                     <span class="instances__list-item">Confidence: ${getConfidenceLevel(value)}</span>
                   </div>
                 </div>
@@ -591,7 +1011,7 @@ function populateData(data){
                   <div class="link-analysis__head">
                     <span class="link-num">AI Detection Score</span>
                     <div class="risk-indicator">
-                      <span>${value.toFixed(2)}</span>
+                      <span>${(value ?? 0).toFixed(2)}</span>
                     </div>
                   </div>
                   <div class="link-analysis__links">
@@ -724,7 +1144,7 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Level</div>
-                  <div class="metric-count">${shadowbanValue.toUpperCase()}</div>
+                  <div class="metric-count"> ${(shadowbanValue ?? "N/A").toUpperCase()}</div>
                 </div>
 
                 <div class="analysis-metric">
@@ -734,7 +1154,7 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Risk Factors</div>
-                  <div class="metric-count">${riskFactors.length}</div>
+                  <div class="metric-count">${(riskFactors ?? []).length}</div>
                 </div>
 
                 <div class="analysis-metric">
@@ -996,8 +1416,9 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">Complex Sentences</h3>
               <div class="card__controls">
-                <span class="badge">Clear</span>
-                <span class="card__value">Clean</span>
+                <span class="badge">${complexSentenceLabel}</span>
+                <span class="card__value"><span>${sentenceCount}</span> ${sentenceCount === 0 ? 'Clean' : 
+                        sentenceCount === 1 ? 'Sentence Found' : 'Sentences Found'}</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -1006,10 +1427,11 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 5.99984C11.3334 8.94536 8.94554 11.3332 6.00002 11.3332C3.0545 11.3332 0.666687 8.94536 0.666687 5.99984C0.666687 3.05432 3.0545 0.666504 6.00002 0.666504C8.94554 0.666504 11.3334 3.05432 11.3334 5.99984ZM8.14953 4.38366C8.30574 4.53987 8.30574 4.79314 8.14953 4.94935L5.48286 7.61601C5.32665 7.77222 5.07339 7.77222 4.91718 7.61601L3.85051 6.54935C3.6943 6.39314 3.6943 6.13987 3.85051 5.98366C4.00672 5.82745 4.25999 5.82745 4.4162 5.98366L5.20002 6.76748L6.39193 5.57557L7.58384 4.38366C7.74005 4.22745 7.99332 4.22745 8.14953 4.38366Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Easy to Read:</strong>
-                <span>Easy to read and understand</span>
+                <strong class="weight-500">${StatusMapper.getLabel('readability', complexSentencesTier)}:</strong>
+                <span>${getComplexSentenceContextText(complexSentencesTier)}</span>
               </div>
               <div class="card__insight">
+               ${sentenceCount > 0 ? `
                 <div class="insight__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M12.9034 3.0965C13.4767 3.66983 13.4767 4.59938 12.9034 5.17271L12.6391 5.437C12.5621 5.42034 12.4652 5.39498 12.3547 5.35666C12.0591 5.25409 11.6706 5.06025 11.3051 4.69477C10.9396 4.3293 10.7458 3.94076 10.6432 3.64512C10.6049 3.53467 10.5795 3.43775 10.5629 3.36079L10.8271 3.0965C11.4005 2.52317 12.33 2.52317 12.9034 3.0965Z" fill="#1C274C"/>
@@ -1017,61 +1439,88 @@ function populateData(data){
                     <path d="M12.5523 12.5521C13.3334 11.7711 13.3334 10.514 13.3334 7.99984C13.3334 7.1741 13.3334 6.48396 13.3057 5.90176L9.91253 9.29492C9.7252 9.48233 9.58446 9.62315 9.42607 9.74668C9.24013 9.89172 9.03893 10.0161 8.82605 10.1175C8.64473 10.2039 8.45583 10.2668 8.20442 10.3506L6.64078 10.8718C6.21105 11.015 5.73727 10.9032 5.41697 10.5829C5.09667 10.2626 4.98482 9.7888 5.12807 9.35907L5.64928 7.79543C5.73301 7.54402 5.79592 7.35513 5.88234 7.1738C5.9838 6.96092 6.10814 6.75973 6.25317 6.57379C6.37671 6.4154 6.51753 6.27465 6.70494 6.08732L10.0981 2.69417C9.51589 2.6665 8.82576 2.6665 8.00002 2.6665C5.48586 2.6665 4.22878 2.6665 3.44774 3.44755C2.66669 4.2286 2.66669 5.48568 2.66669 7.99984C2.66669 10.514 2.66669 11.7711 3.44774 12.5521C4.22878 13.3332 5.48586 13.3332 8.00002 13.3332C10.5142 13.3332 11.7713 13.3332 12.5523 12.5521Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Shorter sentences = easier to read and better engagement. Your sentences are well-structured and easy to read</span>
+                <span class="complexity-label">Longest:</span>
+                 <span class="complexity-list">${longestWordCount} words</span>
+                ${complexSentencesInstances.length > 1 ? `<span class="more-complexity">+${complexSentencesInstances.length - 1} more</span>` : ''}
+                 ` : ''}
               </div>
+
             </div>
           </div>
 
           <div class="card__body">
-
+            <div class="card__body-inner">
+                <div class="evaluation-insight">
+                  <span class="insight-icon">📝</span>
+                  <span class="insight-text">${sanitizeHTML(complexSentenceQuickInsight)}</span>
+                  <p class="evaluation-insight__desc score-summary">${sanitizeHTML(complexSentenceCardSummary)}</p>
+                </div>
+                
+            </div>
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Sentence Analysis</h4>
               <div class="analysis-overview">
 
                 <div class="analysis-metric">
                   <div class="metric-label">Detection Status:</div>
-                  <div class="metric-count">Clean</div>
+                  <div class="metric-count">${sentenceCount === 0 ? 'Clean' : 'Complex Found'}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Sentence Count:</div>
-                  <div class="metric-count">0</div>
+                  <div class="metric-count">${sentenceCount}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Longest:</div>
-                  <div class="metric-count">0</div>
+                  <div class="metric-count">${longestWordCount} words</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
               </div>
             </div>
-
-            <div class="card_detail-block">
-              <div class="card__result-message">
-                <div class="result-message__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6666 6.99992C13.6666 10.6818 10.6819 13.6666 6.99998 13.6666C3.31808 13.6666 0.333313 10.6818 0.333313 6.99992C0.333313 3.31802 3.31808 0.333252 6.99998 0.333252C10.6819 0.333252 13.6666 3.31802 13.6666 6.99992ZM9.68687 4.9797C9.88213 5.17496 9.88213 5.49154 9.68687 5.6868L6.35353 9.02014C6.15827 9.2154 5.84169 9.2154 5.64643 9.02014L4.31309 7.68681C4.11783 7.49154 4.11783 7.17496 4.31309 6.9797C4.50835 6.78444 4.82494 6.78444 5.0202 6.9797L5.99998 7.95948L7.48987 6.46959L8.97976 4.9797C9.17502 4.78444 9.4916 4.78444 9.68687 4.9797Z" fill="#187F48"/>
-                  </svg>
+  ${sentenceCount > 0 ? `
+                <div class="details-section sentences-breakdown-panel">
+                    <h4>Complexity Breakdown</h4>
+                    <div class="sentences-instances-list">
+                        ${complexSentencesInstances.map((instance, index) => `
+                            <div class="sentences-instance">
+                                <div class="instance-header">
+                                    <span class="instance-number">#${index + 1}</span>
+                                    <span class="instance-length">${instance.word_count} words</span>
+                                    <span class="instance-severity">${instance.severity || 'medium'}</span>
+                                </div>
+                                <div class="instance-meta">
+                                    <span class="complexity-indicator">📝 Complex sentence</span>
+                                    ${instance.word_count > 35 ? '<span class="severity-high">High complexity</span>' : ''}
+                                </div>
+                                <div class="instance-text">"${sanitizeHTML((instance.sentence || '').substring(0, 150))}${(instance.sentence || '').length > 150 ? '...' : ''}"</div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-                <div>
-                  <h5 class="heading-style-h5 weight-500">Sentence Structure is Clear</h5>
-                  <p class="result-message margin-top-sm">No complex sentences detected. Your text maintains excellent readability with appropriate sentence length.</p>
+            ` : `
+                <div class="details-section no-issues-found">
+                    <div class="clean-sentences-message">
+                        <span class="clean-icon">✅</span>
+                        <div class="clean-text">
+                            <h4>Sentence Structure is Clear</h4>
+                            <p>No complex sentences detected. Your text maintains excellent readability with appropriate sentence length.</p>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-
+            `}
              <!-- information -->
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X posts with 15-word sentences get 25% more engagement</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -1141,8 +1590,8 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">Content Quality</h3>
               <div class="card__controls">
-                <span class="badge">Poor Quality</span>
-                <span class="card__value">37/100 Quality Score</span>
+                <span class="badge">${contentQualityLabel}</span>
+                <span class="card__value">${contentQualityScore}/100 Quality Score</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -1151,16 +1600,10 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Poor Quality:</strong>
-                <span>Multiple quality issues require attention</span>
+                <strong class="weight-700">${StatusMapper.getLabel( 'quality', contentQualityTier,)}</strong>
+                <span>${contentQualityContextText}</span>
               </div>
-              <div class="quality-factors">
-                <span class="instances__label weight-500">Breakdown:</span>
-                <div class="factors-list">
-                  <span class="tag factor-positive">✓ 2</span>
-                  <span class="tag factor-negative">⚠ 6</span>
-                </div>
-              </div>
+              ${createFactorsPreview(breakdown)}
               <div class="card__insight">
                 <div class="insight__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1169,7 +1612,10 @@ function populateData(data){
                     <path d="M12.5523 12.5524C13.3334 11.7713 13.3334 10.5142 13.3334 8.00008C13.3334 7.17434 13.3334 6.48421 13.3057 5.902L9.91253 9.29516C9.7252 9.48258 9.58446 9.62339 9.42607 9.74693C9.24013 9.89196 9.03893 10.0163 8.82605 10.1178C8.64473 10.2042 8.45583 10.2671 8.20442 10.3508L6.64078 10.872C6.21105 11.0153 5.73727 10.9034 5.41697 10.5831C5.09667 10.2628 4.98482 9.78905 5.12807 9.35932L5.64928 7.79567C5.73301 7.54427 5.79592 7.35537 5.88234 7.17405C5.9838 6.96117 6.10814 6.75997 6.25317 6.57403C6.37671 6.41564 6.51753 6.27489 6.70494 6.08757L10.0981 2.69442C9.51589 2.66675 8.82576 2.66675 8.00002 2.66675C5.48586 2.66675 4.22878 2.66675 3.44774 3.4478C2.66669 4.22885 2.66669 5.48592 2.66669 8.00008C2.66669 10.5142 2.66669 11.7713 3.44774 12.5524C4.22878 13.3334 5.48586 13.3334 8.00002 13.3334C10.5142 13.3334 11.7713 13.3334 12.5523 12.5524Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Readability is poor – simplify complex text. 2 Positive Factors, 6 Issues Found</span>
+                <span class="insight__text">${contentQualityInsightText}</span>
+              </div>
+               <div class="card-context-row">
+                  <p class="score-summary">${summaryText}</p>
               </div>
             </div>
           </div>
@@ -1182,12 +1628,12 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Overall Score:</div>
-                  <div class="metric-count">37 / 100</div>
+                  <div class="metric-count">${contentQualityScore}/100</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Assessment:</div>
-                  <div class="metric-count">Poor Quality</div>
+                  <div class="metric-count">${contentQualitAssessment}</div>
                 </div>
 
               </div>
@@ -1195,181 +1641,14 @@ function populateData(data){
 
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Detailed Factor Analysis</h4>
-              <div class="analysis-metric margin-top-sm">
-                <div class="quality__table">
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Topic cohesion</span>
-                      <span class="quality__value weight-500">+15</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Topic cohesion</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Success</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Keyword density</span>
-                      <span class="quality__value weight-500">+10</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Positive Contribution to Quality</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Success</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Readability</span>
-                      <span class="quality__value weight-500">-30</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Difficult to Read</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Content risk penalties</span>
-                      <span class="quality__value weight-500">-30</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Area Requiring Improvement</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Link penalties</span>
-                      <span class="quality__value weight-500">-25</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Area Requiring Improvement</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Punctuation penalties</span>
-                      <span class="quality__value weight-500">-15</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Area Requiring Improvement</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Sentiment</span>
-                      <span class="quality__value weight-500">-10</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Tone Issues Detected</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-
-                  <div class="quality__table-row">
-                    <div class="quality__table-item first-col">
-                      <span class="quality__title weight-700">Risk penalties</span>
-                      <span class="quality__value weight-500">-10</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span>Area Requiring Improvement</span>
-                    </div>
-                    <div class="quality__table-item">
-                      <span class="quality__badge">Error</span>
-                    </div>
-                  </div>
-                  
-                </div>
-              </div>
+              ${createQualityBreakdown(breakdown, contentQualityScore)}
             </div>
 
              <!-- information -->
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Content Improvement Guidelines</h4>
-              <div class="card__platform-guidance margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="platform-guidance__info">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <g clip-path="url(#clip0_8576_3928)">
-                          <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_8576_3928">
-                            <rect width="16" height="16" fill="white"/>
-                          </clipPath>
-                        </defs>
-                      </svg>
-                    </div>
-
-                    <div>
-                      <h5 class="heading-style-h6">Recommended Actions:</h5>
-                      <ul class="platform-guidance__info-list">
-                        <li>Rewrite for clarity and professionalism</li>
-                        <li>Fix grammar and punctuation errors</li>
-                        <li>Improve content structure and organization</li>
-                        <li>Reduce complexity and improve readability</li>
-                        <li>Remove spam-like elements and excessive formatting</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                ${createImprovementGuidelines(breakdown, contentQualityScore)}
             </div>
-
-            <!-- comparison -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">How to Simplify Complex Sentences</h4>
-              <div class="card__comparison margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="comparison__row">
-                    <div class="comparison__item before">
-                      <div>
-                        <span class="comparison__label weight-700">Avoid</span>
-                        <span class="comparison__title">"This comprehensive solution, which has been developed over several years by our expert team, provides unprecedented value."</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Risky</span>
-                        <span class="comparison__title">"When you consider all the factors that contribute to success, including planning, execution, and follow-through, it becomes clear that preparation is key."</span>
-                      </div>
-                    </div>
-                    <div class="comparison__item after">
-                      <div>
-                        <span class="comparison__label weight-700">Use</span>
-                        <span class="example-text">"Our expert team developed this comprehensive solution over several years. It provides unprecedented value."</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Safe</span>
-                        <span class="comparison__title">"Success depends on planning, execution, and follow-through. Preparation is key."</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
         <!-- Content Quality ends here -->
@@ -1379,8 +1658,9 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">Spam Filter Analysis</h3>
               <div class="card__controls">
-                <span class="badge">High Risk</span>
-                <span class="card__value">100% Risk</span>
+                <span class="badge">${spamAnalysisLabel}</span>
+                <span class="card__value">${displayPercentage}% ${spamAnalysisLabel}</span>
+               
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -1389,8 +1669,17 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Let's enhance your content together:</strong>
-                <span>We'll help you reach your audience effectively</span>
+                <strong class="weight-700">${
+                        spamAnalysisValue === 0 ? 'Your content is well-crafted' :
+                        spamAnalysisValue <= 20 ? 'A few tweaks will help' :
+                        spamAnalysisValue <= 50 ? 'Some improvements needed' :
+                        'Let\'s enhance your content together'
+                    }</strong>
+                <span>${
+                        spamAnalysisValue === 0 ? 'Ready to share with confidence' :
+                        spamAnalysisValue <= 50 ? 'Small changes can make a big difference' :
+                        'We\'ll help you reach your audience effectively'
+                    }</span>
               </div>
             
               <div class="card__insight">
@@ -1399,7 +1688,10 @@ function populateData(data){
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2204 13.2204C13.371 13.0698 13.371 12.8257 13.2204 12.6751L11.2653 10.72C11.9939 9.86698 12.4338 8.75994 12.4338 7.55016C12.4338 4.85306 10.2473 2.66663 7.55022 2.66663C4.85312 2.66663 2.66669 4.85306 2.66669 7.55016C2.66669 10.2473 4.85312 12.4337 7.55022 12.4337C8.75997 12.4337 9.86699 11.9938 10.72 11.2653L12.6752 13.2204C12.8258 13.3709 13.0699 13.3709 13.2204 13.2204Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Platforms use filters to ensure content meets community standards. We help you navigate them successfully.</span>
+                <span class="insight__text">${
+                    sanitizeHTML(spamAnalysisDisplayData.quick_insight?.creator || 
+                    'Platforms use filters to ensure content meets community standards. We help you navigate them successfully.')
+                }</span>
               </div>
             </div>
           </div>
@@ -1412,125 +1704,68 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Sensitivity Score:</div>
-                  <div class="metric-count">100%</div>
+                  <div class="metric-count">${spamAnalysisValue}%</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Content Status:</div>
-                  <div class="metric-count">High Risk</div>
+                  <div class="metric-count">${spamAnalysisLabel}</div>
                 </div>
 
-                <div class="analysis-metric">
-                  <div class="metric-label">Priority:</div>
-                  <div class="metric-count">Needs Attention</div>
-                </div>
+                 ${data?.content_risk_score_details?.escalated ? `
+                           <div class="analysis-metric">
+                              <div class="metric-label">Priority:</div>
+                              <div class="metric-count">⚠️ Needs Attention</div>
+                          </div>
+                    ` : ''}
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
             </div>
 
+            
+
             <div class="card_detail-block">
+              ${data?.content_risk_score_details?.breakdown?.length > 0 ? `
               <h4 class="heading-style-h5 weight-500">Areas for Improvement:</h4>
               <div class="analysis-metric margin-top-sm">
-                <div class="risk-factors-list">
-                  <div class="risk-factors__item">
-                    <span class="risk-factors__title">Dangerous link that may harm your device or steal information</span>
-                    <span class="badge">+100</span>
-                    <span>link  Auto-escalated</span>
-                  </div>
-                  <div class="risk-factors__item">
-                    <span class="risk-factors__title">Shortened link that hides the real destination (e.g., 'bit.ly', 'tinyurl.com')</span>
-                    <span class="badge">+30</span>
-                    <span>link</span>
-                  </div>
-                </div>
-                <div>
-                  <div class="link-analysis__head">
-                    <span class="link-title">Risk Category Analysis</span>
-                    <div class="risk-indicator">
-                      <div class="status-badge"></div>
-                      <span>100</span>
+                    <div class="risk-factors-list">
+                      ${data.content_risk_score_details.breakdown.map(risk => `
+                                  <div class="risk-factors__item">
+                                      <span class="risk-icon">${getRiskCategoryIcon(risk.category)}</span>
+                                      <span class="risk-description">${sanitizeHTML(risk.description)}</span>
+                                      <span class="risk-weight">+${risk.weight}</span>
+                                      <div class="risk-factor-meta">
+                                          <span class="risk-category">${risk.category}</span>
+                                          ${risk.auto_escalate ? '<span class="escalation-trigger">⚡ Auto-escalated</span>' : ''}
+                                      </div>
+                                  </div>
+                              `).join('')}
                     </div>
-                  </div>
-                  <div class="link-analysis__links margin-xsmall">
-                    <span class="link-url">Link</span>
-                  </div>
-                </div>
               </div>
-            </div>
-
-             <!-- information -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
-              <div class="card__platform-guidance margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X automatically scans links for safety, but users remain cautious of shortened URLs</p>
-                  </div>
-                  <div class="platform-guidance__info">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <g clip-path="url(#clip0_8576_3928)">
-                          <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_8576_3928">
-                            <rect width="16" height="16" fill="white"/>
-                          </clipPath>
-                        </defs>
-                      </svg>
+              <h4 class="heading-style-h5 weight-500">Risk Category Analysis:</h4>
+              <div class="analysis-metric margin-top-sm">
+                    <div class="risk-factors-list">
+                    ${Object.entries(data.content_risk_score_details.category_scores || {})
+                            .filter(([_, score]) => score > 0)
+                            .map(([category, score]) => `
+                            <div class="risk-factors__item">
+                                    <span class="category-icon">${getRiskCategoryIcon(category)}</span>
+                                    <span class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                                      <div class="risk-factor-meta">
+                                    <span class="score-value">${score}</span>
+                                      </div>
+                                  </div>
+                            </div>
+                        `).join('')}
                     </div>
-
-                    <div>
-                      <h5 class="heading-style-h6">Link Security Best Practices:</h5>
-                      <ul class="platform-guidance__info-list">
-                        <li>Use well-known, reputable domains when possible</li>
-                        <li>Avoid URL shorteners in professional contexts</li>
-                        <li>Check domain spelling carefully for typos</li>
-                        <li>Be cautious with new or unusual top-level domains</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
               </div>
-            </div>
-
-            <!-- comparison -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">How to Simplify Complex Sentences</h4>
-              <div class="card__comparison margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="comparison__row">
-                    <div class="comparison__item before">
-                      <div>
-                        <span class="comparison__label weight-700">Avoid</span>
-                        <span class="comparison__title">"This comprehensive solution, which has been developed over several years by our expert team, provides unprecedented value."</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Risky</span>
-                        <span class="comparison__title">"When you consider all the factors that contribute to success, including planning, execution, and follow-through, it becomes clear that preparation is key."</span>
-                      </div>
-                    </div>
-                    <div class="comparison__item after">
-                      <div>
-                        <span class="comparison__label weight-700">Use</span>
-                        <span class="example-text">"Our expert team developed this comprehensive solution over several years. It provides unprecedented value."</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Safe</span>
-                        <span class="comparison__title">"Success depends on planning, execution, and follow-through. Preparation is key."</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+              ` : ''}
+            </div
           </div>
         </div>
         <!-- Spam Filter Analysis ends here -->
@@ -1540,8 +1775,9 @@ function populateData(data){
             <div class="card__header-row">
               <h3 class="heading-style-h5">Excessive Punctuation</h3>
               <div class="card__controls">
-                <span class="badge">Issues Found</span>
-                <span class="card__value">3 Instances Found</span>
+                <span class="badge">${puncuationLabel}</span>
+                <span class="card__value">${puncuationInstanceCount} ${puncuationInstanceCount === 0 ? 'Clean' : 
+                        puncuationInstanceCount === 1 ? 'Instance Found' : 'Instances Found'}</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -1550,15 +1786,17 @@ function populateData(data){
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 7.99996C13.3334 10.9455 10.9455 13.3333 8.00002 13.3333C5.0545 13.3333 2.66669 10.9455 2.66669 7.99996C2.66669 5.05444 5.0545 2.66663 8.00002 2.66663C10.9455 2.66663 13.3334 5.05444 13.3334 7.99996ZM6.38382 6.38377C6.54003 6.22756 6.7933 6.22756 6.94951 6.38377L8 7.43427L9.05049 6.38378C9.2067 6.22757 9.45996 6.22757 9.61617 6.38378C9.77238 6.53999 9.77238 6.79326 9.61617 6.94947L8.56569 7.99995L9.61616 9.05043C9.77237 9.20664 9.77237 9.4599 9.61616 9.61611C9.45995 9.77232 9.20669 9.77232 9.05048 9.61611L8 8.56564L6.94952 9.61612C6.79331 9.77233 6.54004 9.77233 6.38383 9.61612C6.22762 9.45991 6.22762 9.20665 6.38383 9.05044L7.43432 7.99995L6.38382 6.94946C6.22761 6.79325 6.22761 6.53998 6.38382 6.38377Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Warning:</strong>
-                <span>Let's polish your punctuation</span>
+                <strong class="weight-700">${StatusMapper.getLabel('analysis', puncuationTier)}:</strong>
+                <span>${puncuationValue ? 
+                        'Let\'s polish your punctuation' : 'Your punctuation looks professional'}</span>
               </div>
               <div class="quality-factors">
                 <span class="instances__label weight-500">Examples:</span>
                 <div class="factors-list">
-                  <span class="tag">!!!</span>
-                  <span class="tag">!!!</span>
-                  <span class="tag">!!!</span>
+                  <span class="tag">${puncuationInstances.slice(0, 3).map(i => 
+                        `<code class="instance-mark">${sanitizeHTML(i)}</code>`
+                    ).join(' ')}</span>
+                    ${puncuationInstances.length > 3 ? `<span class="more-instances">+${puncuationInstances.length - 3} more</span>` : ''}
                 </div>
               </div>
               <div class="card__insight">
@@ -1567,7 +1805,10 @@ function populateData(data){
                     <path d="M0.200012 5.15551C0.200012 3.45013 0.200012 2.59744 0.401354 2.31058C0.602696 2.02371 1.40445 1.74927 3.00797 1.20038L3.31347 1.09581C4.14934 0.809687 4.56727 0.666626 5.00001 0.666626C5.43275 0.666626 5.85069 0.809687 6.68656 1.09581L6.99206 1.20038C8.59557 1.74927 9.39733 2.02371 9.59867 2.31058C9.80001 2.59744 9.80001 3.45013 9.80001 5.15551C9.80001 5.4131 9.80001 5.69245 9.80001 5.99535C9.80001 9.00232 7.53923 10.4616 6.12078 11.0812C5.73601 11.2493 5.54362 11.3333 5.00001 11.3333C4.45641 11.3333 4.26402 11.2493 3.87924 11.0812C2.46079 10.4616 0.200012 9.00232 0.200012 5.99535C0.200012 5.69245 0.200012 5.4131 0.200012 5.15551Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Too many !!! or ??? = spam filters block your message. Multiple exclamation marks or question marks detected.</span>
+                <span class="insight__text">${sanitizeHTML(punctuationInsight)}</span>
+              </div>
+              <div class="card__insight">
+                <span class="insight__text">${sanitizeHTML(punctuationSummary)}</span>
               </div>
             </div>
           </div>
@@ -1580,72 +1821,59 @@ function populateData(data){
 
                 <div class="analysis-metric">
                   <div class="metric-label">Punctuation Status:</div>
-                  <div class="metric-count">Needs Review</div>
+                  <div class="metric-count">${puncuationValue ? 'Needs Review' : 'Looking Good'}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Instances Found:</div>
-                  <div class="metric-count">3</div>
+                  <div class="metric-count">${puncuationInstanceCount}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Impact Level:</div>
-                  <div class="metric-count">Moderate</div>
+                  <div class="metric-count">${puncuationInstanceCount === 0 ? 'None' : 
+                            puncuationInstanceCount <= 2 ? 'Minor' : 'Moderate'}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
             </div>
 
-           <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Detailed Link Analysis</h4>
-              <div class="margin-top-sm">
-
-                <div class="analysis-metric">
-                  <div class="link-analysis__head">
-                    <span class="link-num">1 Link</span>
-                    <div class="risk-indicator">
-                      <span>3 Marks</span>
+            
+                 ${puncuationInstanceCount > 0 ? `
+                     <div class="card_detail-block">
+                       <h4>${puncuationDisplayData.spam_signal_intro || puncuationDetails.spam_signal_intro || 'Punctuation Red Flags Found:'}</h4>
+                       <div class="margin-top-sm">
+                          ${puncuationInstances.map((instance, index) => `
+                            <div class="analysis-metric">
+                              <div class="link-analysis__head">
+                                <span class="instance-number">#${index + 1}</span>
+                                    <code class="instance-text">${sanitizeHTML(instance)}</code>
+                                    <span class="instance-length">${instance.length} marks</span>
+                              </div>
+                               <div class="instance-meta">
+                                    <span class="spam-indicator">🚨 Spam trigger</span>
+                                    ${instance.length > 5 ? '<span class="severity-high">High severity</span>' : ''}
+                                </div>
+                            </div>
+                          `).join('')}
+                       </div>
                     </div>
-                  </div>
-                  <div class="link-analysis__links">
-                    <span class="link-url">!!!</span>
-                  </div>
-                  <span class="spam-indicator">Spam Trigger</span>
-                </div>
-
-                <div class="analysis-metric margin-xsmall">
-                  <div class="link-analysis__head">
-                    <span class="link-num">2 Link</span>
-                    <div class="risk-indicator">
-                      <span>3 Marks</span>
+                ` : `
+                 <div class="details-section no-issues-found">
+                    <div class="clean-message">
+                        <span class="clean-icon">✅</span>
+                        <div class="clean-text">
+                            <h4>Punctuation Usage is Clean</h4>
+                            <p>No excessive punctuation detected. Your text maintains professional standards and avoids common spam triggers.</p>
+                        </div>
                     </div>
-                  </div>
-                  <div class="link-analysis__links">
-                    <span class="link-url">!!!</span>
-                  </div>
-                  <span class="spam-indicator">Spam Trigger</span>
                 </div>
-
-                <div class="analysis-metric margin-xsmall">
-                  <div class="link-analysis__head">
-                    <span class="link-num">3 Link</span>
-                    <div class="risk-indicator">
-                      <span>3 Marks</span>
-                    </div>
-                  </div>
-                  <div class="link-analysis__links">
-                    <span class="link-url">!!!</span>
-                  </div>
-                  <span class="spam-indicator">Spam Trigger</span>
-                </div>
-                
-              </div>
-            </div>
+            `}
 
              <!-- information -->
             <div class="card_detail-block">
