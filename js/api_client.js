@@ -3,7 +3,6 @@ const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");
 let loader = document.querySelector(".loader");
 
-alert()
 
 async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = false){
     const payload = {
