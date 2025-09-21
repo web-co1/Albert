@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:5000";
+const baseURL = "https://textscore.io/";
 const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");
 let loader = document.querySelector(".loader");
