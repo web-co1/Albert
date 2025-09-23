@@ -945,7 +945,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
     resultContainer.innerHTML = `
       ${data?.evaluation_report ? ` 
-    '<div class="result__card evaluation-report-card tie-${tier}"> 
+    <div class="result__card evaluation-report-card tie-${tier}"> 
         <div class="card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
@@ -966,15 +966,11 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 
               </div>
             </div>
-               <div class="evaluation-indicator-unified">
-                <span class="indicator-label">Overall Score</span>
-                  <strong>${StatusMapper.getLabel('quality', tier)}:</strong>
-                    <span class="indicator-context">${contextText}</span>
-              </div>
+              
         </div>
       </div>
      ` : ''}
-;
+
       <div class="result_detail">
       ${data?.advanced_link_analysis ? ` 
         <div class="result__card advanced-link-analysis-card tie-${linkTier}">
