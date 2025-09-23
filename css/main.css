@@ -1213,3 +1213,32 @@ p.error-message__title {
     transform: rotate(360deg);
   }
 }
+
+#summary-bar.summary-spam {
+    background: #fbeaea;       /* example fallback for poor-bg */
+    border: 1px solid #f5c2c7; /* fallback for poor-border */
+    border-top-color: #f00;    /* fallback for poor */
+    color: #842029;            /* fallback for poor-text */
+}
+
+#summary-bar.summary-spam .not-spam-button {
+    background: #f00;          /* fallback for --color-tier-poor */
+    color: #fff;               /* fallback for --color-text-inverse */
+    border: none;
+    padding: 4px 8px;          /* --space-sm, --space-md */
+    border-radius: 6px;        /* --border-radius-md */
+    font-size: 14px;           /* --font-size-body-sm */
+    font-weight: 500;          /* --font-weight-medium */
+    cursor: pointer;
+    transition: all 0.2s ease; /* --transition-all */
+    touch-action: manipulation;
+    min-height: 32px;          /* --size-lg */
+}
+
+#summary-bar.summary-spam {
+width: 100%;
+margin-top: 48px;
+border-radius: 10px;
+padding: 10px;
+border-top-width: 3px;
+}

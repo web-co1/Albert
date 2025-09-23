@@ -1,4 +1,6 @@
 const baseURL = "https://textscore.io/";
+
+
 const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");
 let loader = document.querySelector(".loader");
@@ -31,8 +33,9 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
         }else {
              errorMsg.style.display = "none";
         }
-
+        
      if (!response.ok) {
+        
             try {
                 const errorData = await response.json();
                 
@@ -57,9 +60,35 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
 
         const data = await response.json();
         console.log("data is: ", data);
-        const selected = document.querySelector('input[name="social_media"]:checked').value;
+      // Check for gibberish response
+        if (data.status === 'gibberish') {
+          const resultsGrid = document.getElementById('result');
+          const summaryBar = document.getElementById('summary-bar');
+          const selectedPlatform = document.querySelector('input[name="social_media"]:checked').value;
+          resultsGrid.innerHTML = '';
+          const messageElement = summaryBar.querySelector('.alert-message');
+          summaryBar.classList.add('summary-spam');
+        // Create custom content for gibberish detection
+        messageElement.innerHTML = `
+            <div class="gibberish-content">
+                <strong>🤖 Gibberish Detected!</strong>
+                <p>${data.message}</p>
+                <button id="not-spam-link" class="not-spam-button">
+                    Click here if this isn't gibberish
+                </button>
+            </div>
+        `;
+        
+        // Show the summary bar for gibberish
+        summaryBar.hidden = false;
+        }else {
+       const selected = document.querySelector('input[name="social_media"]:checked').value;
         data.platform = selected;
         populateData(data)
+        }
+
+        
+       
         
     } catch (error) {
          if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -1765,7 +1794,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                     </div>
               </div>
               ` : ''}
-            </div
+            </div>
           </div>
         </div>
         <!-- Spam Filter Analysis ends here -->
@@ -1790,15 +1819,17 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 <span>${puncuationValue ? 
                         'Let\'s polish your punctuation' : 'Your punctuation looks professional'}</span>
               </div>
-              <div class="quality-factors">
-                <span class="instances__label weight-500">Examples:</span>
-                <div class="factors-list">
-                  <span class="tag">${puncuationInstances.slice(0, 3).map(i => 
-                        `<code class="instance-mark">${sanitizeHTML(i)}</code>`
-                    ).join(' ')}</span>
-                    ${puncuationInstances.length > 3 ? `<span class="more-instances">+${puncuationInstances.length - 3} more</span>` : ''}
-                </div>
-              </div>
+               ${puncuationInstances > 0 ? `
+                  <div class="quality-factors">
+                    <span class="instances__label weight-500">Examples:</span>
+                    <div class="factors-list">
+                      <span class="tag">${puncuationInstances.slice(0, 3).map(i => 
+                            `<code class="instance-mark">${sanitizeHTML(i)}</code>`
+                        ).join(' ')}</span>
+                        ${puncuationInstances.length > 3 ? `<span class="more-instances">+${puncuationInstances.length - 3} more</span>` : ''}
+                    </div>
+                  </div>
+                ` : ''}
               <div class="card__insight">
                 <div class="insight__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" fill="none">
