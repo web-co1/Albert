@@ -185,6 +185,6 @@ analyzeButton.addEventListener("click", function(e){
     let editorText = editor.textContent.toString();
     let plateform = document.querySelector('[name="social_media"]:checked').value;
     let recaptchaSiteKey = "6LefJYcrAAAAAF7hmQfCgy73gHwy1HwSmW1bWZ_B";
-    analyzeText(editorText, recaptchaSiteKey, plateform, true);
+    analyzeText(editorText, recaptchaSiteKey, plateform, false);
 
 })
