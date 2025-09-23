@@ -86,10 +86,6 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
         data.platform = selected;
         populateData(data)
         }
-
-        
-       
-        
     } catch (error) {
          if (error instanceof TypeError && error.message.includes('fetch')) {
             throw new Error('Failed to connect to the API');
@@ -572,6 +568,73 @@ function getRiskCategoryIcon(category) {
     return icons[category] || '⚠️';
 }
 
+function getEducationLevel(gradeLevel) {
+    if (gradeLevel <= 6) return 'Elementary';
+    if (gradeLevel <= 8) return 'Middle School';
+    if (gradeLevel <= 12) return 'High School';
+    if (gradeLevel <= 16) return 'College';
+    return 'Graduate';
+}
+
+function getAudienceLevel(gradeLevel) {
+    if (gradeLevel <= 8) return 'General Public';
+    if (gradeLevel <= 12) return 'Educated Adults';
+    if (gradeLevel <= 16) return 'College Educated';
+    return 'Academic/Professional';
+}
+
+function getReadingEaseExplanation(easeScore) {
+    if (easeScore >= 90) return 'Very easy to read - accessible to most 5th graders';
+    if (easeScore >= 80) return 'Easy to read - accessible to most 6th graders';
+    if (easeScore >= 70) return 'Fairly easy to read - accessible to most 7th graders';
+    if (easeScore >= 60) return 'Standard reading level - accessible to most 8th-9th graders';
+    if (easeScore >= 50) return 'Fairly difficult - accessible to most high school students';
+    if (easeScore >= 30) return 'Difficult - accessible to most college students';
+    return 'Very difficult - accessible to college graduates and professionals';
+}
+
+function getGradeLevelExplanation(gradeLevel) {
+    if (gradeLevel <= 6) return 'Elementary school reading level - very accessible';
+    if (gradeLevel <= 8) return 'Middle school reading level - easily understood';
+    if (gradeLevel <= 10) return 'High school reading level - accessible to most adults';
+    if (gradeLevel <= 12) return 'Late high school reading level - standard for general content';
+    if (gradeLevel <= 16) return 'College reading level - may be challenging for some readers';
+    return 'Graduate school level - specialized audience required';
+}
+
+function getSentimentContext(score) {
+    if (score < -0.3) return 'May limit audience appeal';
+    if (score < 0.05) return 'Consider more positive framing';
+    if (score <= 0.6) return 'Optimal for engagement';
+    if (score <= 0.8) return 'Very enthusiastic tone';
+    return 'May seem overly promotional';
+}
+
+function getSentimentLabel(score) {
+    if (score < -0.3) return 'Very Negative';
+    if (score < 0.05) return 'Slightly Negative';
+    if (score <= 0.6) return 'Balanced Positive';
+    if (score <= 0.8) return 'Very Positive';
+    return 'Extremely Positive';
+}
+
+function getSentimentDescription(score) {
+    if (score < -0.3) return 'Strong negative emotions detected';
+    if (score < 0.05) return 'Cautious or reserved tone';
+    if (score <= 0.6) return 'Professional and engaging';
+    if (score <= 0.8) return 'Enthusiastic and optimistic';
+    return 'Overwhelming positivity';
+}
+
+function getAudienceAppeal(tier) {
+    const appeals = {
+        'good': 'High',
+        'fair': 'Moderate',
+        'poor': 'Limited'
+    };
+    return appeals[tier] || 'Unknown';
+}
+
 function populateData(data){
     const tier = data?.evaluation_report?.tier;
     const qualitativeLabels = { good: 'Excellent', fair: 'Good', poor: 'Needs Improvement' };
@@ -754,8 +817,135 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
   puncuationDetails.quick_insight?.[contextMode] ||
   (puncuationValue ? 'Too many !!! or ??? = spam filters block your message' : 'Clean punctuation maintains credibility');
 
+// flagged keywords
+    const flaggedKeyWordData = data?.forbidden_keywords ?? {};
+    const flaggedKeyWordValue = flaggedKeyWordData.value !== undefined ? flaggedKeyWordData.value : metricObject;
+    const flaggedKeyWordDetails = flaggedKeyWordData.details || {};
+
+    // Extract keywords list from additional data following backend structure
+    const keywords = flaggedKeyWordData.forbidden_keywords_details || [];
+
+    // Use the actual value (count) from backend, not complex fallback logic
+    const keywordCount = typeof flaggedKeyWordValue === 'number' ? flaggedKeyWordValue : keywords.length;
+
+    // Determine tier based on actual count - use backend tier if available, otherwise calculate
+    const flaggedKeywordTier = flaggedKeyWordData.tier || (keywordCount === 0 ? 'good' : keywordCount <= 2 ? 'fair' : 'poor');
+
+    // Get display data from glossary if available (loaded via backend)
+    const flaggedKeywordDisplayData = flaggedKeyWordData.display_data || {};
+    const flaggedKeywordGlossaryData = flaggedKeywordDisplayData || {};
+    const flaggedKeywordQuickInsight = flaggedKeywordGlossaryData?.quick_insight?.creator || 'Certain words = instant spam folder or shadowban';
+
+    // Determine qualitative labels and context
+    const flaggedKeywordQualitativeLabel = flaggedKeywordTier === 'good' ? 'Clean' : flaggedKeywordTier === 'fair' ? 'Caution' : 'Warning';
+    const flaggedKeywordContextMessage = flaggedKeywordTier === 'good' ? 'No restricted terms' :
+        flaggedKeywordTier === 'fair' ? 'Some keywords detected' :
+            'Multiple keywords found';
+
+    // Determine filter risk level
+    const filterRiskLevel = flaggedKeywordTier === 'good' ? 'Low' : flaggedKeywordTier === 'fair' ? 'Moderate' : 'High';
+
+    // passive voice
+    const passiveVoiceData = data?.passive_voice ?? {};
+    const passiveValue = passiveVoiceData.value !== undefined ? passiveVoiceData.value : passiveVoiceData;
+    const passiveVoiceDetails = passiveVoiceData.details || {};
+    const passiveDetails = data.passive_voice_details || {};
+    const passiveVoiceInstances = Array.isArray(passiveDetails.instances) ? passiveDetails.instances : [];
+    const passiveVoicePhrases = Array.isArray(passiveDetails.phrases) ? passiveDetails.phrases : [];
+    const passiveCount = Math.max(passiveValue || 0, passiveVoiceInstances.length, passiveVoicePhrases.length);
+
+    // Determine tier based on backend data - use backend tier if available
+    const passiveVoiceTier = passiveVoiceData.tier || (passiveCount >= 6 ? 'poor' : passiveCount >= 3 ? 'fair' : 'good');
+
+    // Get display data from glossary if available (loaded via backend)
+    const passiveVoicedisplayData = passiveVoiceData.display_data || {};
+    const passiveVoiceGlossaryData = passiveVoicedisplayData || {};
+
+    const passiveVoiceQualitativeLabel = passiveCount === 0 ? 'Active Voice' :
+        passiveCount <= 2 ? 'Mostly Active' :
+            passiveCount <= 5 ? 'Moderate Use' : 'Frequent Use';
+
+    // Context-aware messages - use safe access patterns
+    const passiveVoiceCardSummary = passiveVoicedisplayData.card_summary?.[tier]?.[contextMode] ||
+        passiveVoiceDetails.card_summary?.[tier]?.[contextMode] ||
+        (passiveCount === 0 ? 'Your writing uses active voice effectively.' :
+            passiveCount <= 2 ? 'Good balance of active voice with minimal passive constructions.' :
+                'Consider converting some passive constructions to active voice for stronger impact.');
+
+    const passiveVoiceQuickInsight = passiveVoicedisplayData.quick_insight?.[contextMode] ||
+        passiveVoiceDetails.quick_insight?.[contextMode] ||
+        (passiveCount === 0 ? 'Active voice = more engaging and direct communication' :
+            'Active voice creates stronger, more engaging content');
+    // readability
+    const readabilityData = data?.readability ?? {};
+
+    const ease = readabilityData.ease !== undefined ? readabilityData.ease : 0;
+    const grade = readabilityData.grade !== undefined ? readabilityData.grade : 0;
+    const readabilityTier = readabilityData.tier || (ease >= 60 ? 'good' : ease >= 30 ? 'fair' : 'poor');
+
+    // Calculate display values
+    const easeScore = Math.round(ease);
+    const gradeLevel = Math.round(grade);
+
+    // Get display data - readability might not have standard display_data structure
+    const readabilityDisplayData = readabilityData.display_data || {};
+    const readabilityGlossaryData = readabilityDisplayData || {};
+
+    // Build qualitative labels
+    const readabilityQualitativeLabel = readabilityTier === 'good' ? 'Easy to Read' :
+        readabilityTier === 'fair' ? 'Moderate' : 'Difficult';
+
+    // Get platform-specific information - MULTI-SOURCE DETECTION PATTERN
+
+    // Context-aware messages - use safe access patterns
+    const readabilityCardSummary = readabilityDisplayData.card_summary?.[readabilityTier]?.[contextMode] ||
+        (readabilityTier === 'good' ? 'Your content is accessible to most readers.' :
+            readabilityTier === 'fair' ? 'Readability could be improved for broader accessibility.' :
+                'Content may be challenging for many readers to understand.');
+
+    const readabilityQuickInsight = readabilityDisplayData.quick_insight?.[contextMode] ||
+        (readabilityTier === 'good' ? 'Easy reading = better engagement and reach' :
+            'Simpler language = wider audience and better retention');
+
+    //snetiment analysis
+    //snetiment analysis
+    const sentimentAnalysisData = data?.sentiment_compound_score ?? {};
+
+    // Handle both structured metric objects and simple values - DEFENSIVE PATTERN
+    const sentimentAnalysisValue = sentimentAnalysisData.value !== undefined ? sentimentAnalysisData.value : sentimentAnalysisData;
+    const sentimentAnalysisDetails = sentimentAnalysisData.details || {};
+    const sentimentScore = typeof sentimentAnalysisValue === 'number' ? sentimentAnalysisValue : 0.0;
+
+    // Convert sentiment score (-1 to 1) to percentage (0% to 100%)
+    const sentimentPercent = Math.round((sentimentScore + 1) * 50);
+
+    // Determine tier based on backend data - use backend tier if available
+    const sentimentAnalysisTier = sentimentAnalysisData.tier || getSentimentTier(sentimentScore);
+
+    // Get display data from glossary if available (loaded via backend)
+    const sentimentAnalysisDisplayData = sentimentAnalysisData.display_data || {};
+    const sentimentAnalysisGlossaryData = sentimentAnalysisDisplayData || {};
+
+
+    // Build qualitative labels
+    const sentimentAnalysisQualitativeLabel = sentimentAnalysisTier === 'good' ? 'Balanced' :
+        sentimentAnalysisTier === 'fair' ? 'Moderate' : 'Extreme';
+
+    // Context-aware messages - use safe access patterns
+    const sentimentAnalysisCardSummary = displayData.card_summary?.[sentimentAnalysisTier]?.[contextMode] ||
+        sentimentAnalysisDetails.card_summary?.[sentimentAnalysisTier]?.[contextMode] ||
+        (sentimentAnalysisTier === 'good' ? 'Your emotional tone is balanced and engaging.' :
+            sentimentAnalysisTier === 'fair' ? 'Tone is moderately emotional - consider slight adjustments.' :
+                'Very emotional tone detected - may impact audience reception.');
+
+    const sentimentAnalysisQuickInsight = displayData.quick_insight?.[contextMode] ||
+        sentimentAnalysisDetails.quick_insight?.[contextMode] ||
+        (sentimentAnalysisTier === 'good' ? 'Balanced tone = better engagement across audiences' :
+            'Extreme emotions can limit audience appeal');
+
     resultContainer.innerHTML = `
-      <div class="result__card evaluation-report-card tie-${capitalizationRatioTier}"> 
+      ${data?.evaluation_report ? ` 
+    '<div class="result__card evaluation-report-card tie-${capitalizationRatioTier}"> 
         <div class="card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
@@ -783,9 +973,10 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               </div>
         </div>
       </div>
-
+     ` : ''}
+;
       <div class="result_detail">
-
+      ${data?.advanced_link_analysis ? ` 
         <div class="result__card advanced-link-analysis-card tie-${linkTier}">
           <div class="card__header">
             <div class="card__header-row">
@@ -968,8 +1159,9 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
           </div>
         </div>
+        ` : ''}
         <!-- Advanced Link Analysis ends here -->
-
+      ${data?.ai_linguistic_pattern ? ` 
         <div class="result__card ai-pattern-analysis">
           <div class="card__header">
             <div class="card__header-row">
@@ -1140,8 +1332,9 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
           </div>
         </div>
+      ` : ''}
         <!-- AI Linguistic Pattern ends here -->
-
+     ${data?.ai_shadowban_risk ? `
         <div class="result__card ai-shadowban-risk-card">
           <div class="card__header">
             <div class="card__header-row">
@@ -1164,7 +1357,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         </div>
               </div>
             </div>
-          </div>
+          
 
           <div class="card__body">
             <div class="card_detail-block">
@@ -1233,7 +1426,9 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- AI Shadowban Risk ends here -->
-
+        ` : ''}
+       ${data?.capitalization_ratio ? `
+  
         <div class="result__card caps-lock-card">
           <div class="card__header">
             <div class="card__header-row">
@@ -1439,6 +1634,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- Caps Lock Check ends here -->
+         ` : ''}
 
         <div class="result__card complex-sentences-card tier-good">
           <div class="card__header">
@@ -1613,7 +1809,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- Complex Sentences ends here -->
-
+${data?.content_quality_score ? `
         <div class="result__card content-quality-card">
           <div class="card__header">
             <div class="card__header-row">
@@ -1681,463 +1877,480 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- Content Quality ends here -->
-
-        <div class="result__card content-risk-score-card ">
-          <div class="card__header">
-            <div class="card__header-row">
-              <h3 class="heading-style-h5">Spam Filter Analysis</h3>
-              <div class="card__controls">
-                <span class="badge">${spamAnalysisLabel}</span>
-                <span class="card__value">${displayPercentage}% ${spamAnalysisLabel}</span>
-               
-                <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
-              </div>
-            </div>
-            <div class="card_header-cap">
-              <div class="card__indicator-contenxt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
-                </svg>
-                <strong class="weight-700">${
-                        spamAnalysisValue === 0 ? 'Your content is well-crafted' :
-                        spamAnalysisValue <= 20 ? 'A few tweaks will help' :
-                        spamAnalysisValue <= 50 ? 'Some improvements needed' :
-                        'Let\'s enhance your content together'
-                    }</strong>
-                <span>${
-                        spamAnalysisValue === 0 ? 'Ready to share with confidence' :
-                        spamAnalysisValue <= 50 ? 'Small changes can make a big difference' :
-                        'We\'ll help you reach your audience effectively'
-                    }</span>
-              </div>
-            
-              <div class="card__insight">
-                <div class="insight__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2204 13.2204C13.371 13.0698 13.371 12.8257 13.2204 12.6751L11.2653 10.72C11.9939 9.86698 12.4338 8.75994 12.4338 7.55016C12.4338 4.85306 10.2473 2.66663 7.55022 2.66663C4.85312 2.66663 2.66669 4.85306 2.66669 7.55016C2.66669 10.2473 4.85312 12.4337 7.55022 12.4337C8.75997 12.4337 9.86699 11.9938 10.72 11.2653L12.6752 13.2204C12.8258 13.3709 13.0699 13.3709 13.2204 13.2204Z" fill="#1C274C"/>
-                  </svg>
-                </div>
-                <span class="insight__text">${
-                    sanitizeHTML(spamAnalysisDisplayData.quick_insight?.creator || 
-                    'Platforms use filters to ensure content meets community standards. We help you navigate them successfully.')
-                }</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card__body">
-
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Content Analysis Summary</h4>
-              <div class="analysis-overview">
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Sensitivity Score:</div>
-                  <div class="metric-count">${spamAnalysisValue}%</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Content Status:</div>
-                  <div class="metric-count">${spamAnalysisLabel}</div>
-                </div>
-
-                 ${data?.content_risk_score_details?.escalated ? `
-                           <div class="analysis-metric">
-                              <div class="metric-label">Priority:</div>
-                              <div class="metric-count">⚠️ Needs Attention</div>
-                          </div>
-                    ` : ''}
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Platform</div>
-                  <div class="metric-count">${platformName}</div>
-                </div>
-
-              </div>
-            </div>
-
-            
-
-            <div class="card_detail-block">
-              ${data?.content_risk_score_details?.breakdown?.length > 0 ? `
-              <h4 class="heading-style-h5 weight-500">Areas for Improvement:</h4>
-              <div class="analysis-metric margin-top-sm">
-                    <div class="risk-factors-list">
-                      ${data.content_risk_score_details.breakdown.map(risk => `
-                                  <div class="risk-factors__item">
-                                      <span class="risk-icon">${getRiskCategoryIcon(risk.category)}</span>
-                                      <span class="risk-description">${sanitizeHTML(risk.description)}</span>
-                                      <span class="risk-weight">+${risk.weight}</span>
-                                      <div class="risk-factor-meta">
-                                          <span class="risk-category">${risk.category}</span>
-                                          ${risk.auto_escalate ? '<span class="escalation-trigger">⚡ Auto-escalated</span>' : ''}
-                                      </div>
-                                  </div>
-                              `).join('')}
-                    </div>
-              </div>
-              <h4 class="heading-style-h5 weight-500">Risk Category Analysis:</h4>
-              <div class="analysis-metric margin-top-sm">
-                    <div class="risk-factors-list">
-                    ${Object.entries(data.content_risk_score_details.category_scores || {})
-                            .filter(([_, score]) => score > 0)
-                            .map(([category, score]) => `
-                            <div class="risk-factors__item">
-                                    <span class="category-icon">${getRiskCategoryIcon(category)}</span>
-                                    <span class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                                      <div class="risk-factor-meta">
-                                    <span class="score-value">${score}</span>
-                                      </div>
-                                  </div>
-                            </div>
-                        `).join('')}
-                    </div>
-              </div>
-              ` : ''}
-            </div>
-          </div>
-        </div>
-        <!-- Spam Filter Analysis ends here -->
-
-        <div class="result__card excessive-punctuation-card">
-          <div class="card__header">
-            <div class="card__header-row">
-              <h3 class="heading-style-h5">Excessive Punctuation</h3>
-              <div class="card__controls">
-                <span class="badge">${puncuationLabel}</span>
-                <span class="card__value">${puncuationInstanceCount} ${puncuationInstanceCount === 0 ? 'Clean' : 
-                        puncuationInstanceCount === 1 ? 'Instance Found' : 'Instances Found'}</span>
-                <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
-              </div>
-            </div>
-            <div class="card_header-cap">
-              <div class="card__indicator-contenxt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 7.99996C13.3334 10.9455 10.9455 13.3333 8.00002 13.3333C5.0545 13.3333 2.66669 10.9455 2.66669 7.99996C2.66669 5.05444 5.0545 2.66663 8.00002 2.66663C10.9455 2.66663 13.3334 5.05444 13.3334 7.99996ZM6.38382 6.38377C6.54003 6.22756 6.7933 6.22756 6.94951 6.38377L8 7.43427L9.05049 6.38378C9.2067 6.22757 9.45996 6.22757 9.61617 6.38378C9.77238 6.53999 9.77238 6.79326 9.61617 6.94947L8.56569 7.99995L9.61616 9.05043C9.77237 9.20664 9.77237 9.4599 9.61616 9.61611C9.45995 9.77232 9.20669 9.77232 9.05048 9.61611L8 8.56564L6.94952 9.61612C6.79331 9.77233 6.54004 9.77233 6.38383 9.61612C6.22762 9.45991 6.22762 9.20665 6.38383 9.05044L7.43432 7.99995L6.38382 6.94946C6.22761 6.79325 6.22761 6.53998 6.38382 6.38377Z" fill="currentColor"/>
-                </svg>
-                <strong class="weight-700">${StatusMapper.getLabel('analysis', puncuationTier)}:</strong>
-                <span>${puncuationValue ? 
-                        'Let\'s polish your punctuation' : 'Your punctuation looks professional'}</span>
-              </div>
-               ${puncuationInstances > 0 ? `
-                  <div class="quality-factors">
-                    <span class="instances__label weight-500">Examples:</span>
-                    <div class="factors-list">
-                      <span class="tag">${puncuationInstances.slice(0, 3).map(i => 
-                            `<code class="instance-mark">${sanitizeHTML(i)}</code>`
-                        ).join(' ')}</span>
-                        ${puncuationInstances.length > 3 ? `<span class="more-instances">+${puncuationInstances.length - 3} more</span>` : ''}
-                    </div>
+         ` : ''}
+        ${data?.content_risk_score ? `
+            <div class="result__card content-risk-score-card ">
+              <div class="card__header">
+                <div class="card__header-row">
+                  <h3 class="heading-style-h5">Spam Filter Analysis</h3>
+                  <div class="card__controls">
+                    <span class="badge">${spamAnalysisLabel}</span>
+                    <span class="card__value">${displayPercentage}% ${spamAnalysisLabel}</span>
+                   
+                    <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
                   </div>
-                ` : ''}
-              <div class="card__insight">
-                <div class="insight__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" fill="none">
-                    <path d="M0.200012 5.15551C0.200012 3.45013 0.200012 2.59744 0.401354 2.31058C0.602696 2.02371 1.40445 1.74927 3.00797 1.20038L3.31347 1.09581C4.14934 0.809687 4.56727 0.666626 5.00001 0.666626C5.43275 0.666626 5.85069 0.809687 6.68656 1.09581L6.99206 1.20038C8.59557 1.74927 9.39733 2.02371 9.59867 2.31058C9.80001 2.59744 9.80001 3.45013 9.80001 5.15551C9.80001 5.4131 9.80001 5.69245 9.80001 5.99535C9.80001 9.00232 7.53923 10.4616 6.12078 11.0812C5.73601 11.2493 5.54362 11.3333 5.00001 11.3333C4.45641 11.3333 4.26402 11.2493 3.87924 11.0812C2.46079 10.4616 0.200012 9.00232 0.200012 5.99535C0.200012 5.69245 0.200012 5.4131 0.200012 5.15551Z" fill="#1C274C"/>
-                  </svg>
                 </div>
-                <span class="insight__text">${sanitizeHTML(punctuationInsight)}</span>
-              </div>
-              <div class="card__insight">
-                <span class="insight__text">${sanitizeHTML(punctuationSummary)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card__body">
-
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Punctuation Analysis</h4>
-              <div class="analysis-overview">
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Punctuation Status:</div>
-                  <div class="metric-count">${puncuationValue ? 'Needs Review' : 'Looking Good'}</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Instances Found:</div>
-                  <div class="metric-count">${puncuationInstanceCount}</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Impact Level:</div>
-                  <div class="metric-count">${puncuationInstanceCount === 0 ? 'None' : 
-                            puncuationInstanceCount <= 2 ? 'Minor' : 'Moderate'}</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Platform</div>
-                  <div class="metric-count">${platformName}</div>
-                </div>
-
-              </div>
-            </div>
-
-            
-                 ${puncuationInstanceCount > 0 ? `
-                     <div class="card_detail-block">
-                       <h4>${puncuationDisplayData.spam_signal_intro || puncuationDetails.spam_signal_intro || 'Punctuation Red Flags Found:'}</h4>
-                       <div class="margin-top-sm">
-                          ${puncuationInstances.map((instance, index) => `
-                            <div class="analysis-metric">
-                              <div class="link-analysis__head">
-                                <span class="instance-number">#${index + 1}</span>
-                                    <code class="instance-text">${sanitizeHTML(instance)}</code>
-                                    <span class="instance-length">${instance.length} marks</span>
-                              </div>
-                               <div class="instance-meta">
-                                    <span class="spam-indicator">🚨 Spam trigger</span>
-                                    ${instance.length > 5 ? '<span class="severity-high">High severity</span>' : ''}
-                                </div>
-                            </div>
-                          `).join('')}
-                       </div>
+                <div class="card_header-cap">
+                  <div class="card__indicator-contenxt">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
+                    </svg>
+                    <strong class="weight-700">${
+                            spamAnalysisValue === 0 ? 'Your content is well-crafted' :
+                            spamAnalysisValue <= 20 ? 'A few tweaks will help' :
+                            spamAnalysisValue <= 50 ? 'Some improvements needed' :
+                            'Let\'s enhance your content together'
+                        }</strong>
+                    <span>${
+                            spamAnalysisValue === 0 ? 'Ready to share with confidence' :
+                            spamAnalysisValue <= 50 ? 'Small changes can make a big difference' :
+                            'We\'ll help you reach your audience effectively'
+                        }</span>
+                  </div>
+                
+                  <div class="card__insight">
+                    <div class="insight__icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.2204 13.2204C13.371 13.0698 13.371 12.8257 13.2204 12.6751L11.2653 10.72C11.9939 9.86698 12.4338 8.75994 12.4338 7.55016C12.4338 4.85306 10.2473 2.66663 7.55022 2.66663C4.85312 2.66663 2.66669 4.85306 2.66669 7.55016C2.66669 10.2473 4.85312 12.4337 7.55022 12.4337C8.75997 12.4337 9.86699 11.9938 10.72 11.2653L12.6752 13.2204C12.8258 13.3709 13.0699 13.3709 13.2204 13.2204Z" fill="#1C274C"/>
+                      </svg>
                     </div>
-                ` : `
-                 <div class="details-section no-issues-found">
-                    <div class="clean-message">
-                        <span class="clean-icon">✅</span>
-                        <div class="clean-text">
-                            <h4>Punctuation Usage is Clean</h4>
-                            <p>No excessive punctuation detected. Your text maintains professional standards and avoids common spam triggers.</p>
+                    <span class="insight__text">${
+                        sanitizeHTML(spamAnalysisDisplayData.quick_insight?.creator || 
+                        'Platforms use filters to ensure content meets community standards. We help you navigate them successfully.')
+                    }</span>
+                  </div>
+                </div>
+              </div>
+    
+              <div class="card__body">
+    
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">Content Analysis Summary</h4>
+                  <div class="analysis-overview">
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Sensitivity Score:</div>
+                      <div class="metric-count">${spamAnalysisValue}%</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Content Status:</div>
+                      <div class="metric-count">${spamAnalysisLabel}</div>
+                    </div>
+    
+                     ${data?.content_risk_score_details?.escalated ? `
+                               <div class="analysis-metric">
+                                  <div class="metric-label">Priority:</div>
+                                  <div class="metric-count">⚠️ Needs Attention</div>
+                              </div>
+                        ` : ''}
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Platform</div>
+                      <div class="metric-count">${platformName}</div>
+                    </div>
+    
+                  </div>
+                </div>
+    
+                
+    
+                <div class="card_detail-block">
+                  ${data?.content_risk_score_details?.breakdown?.length > 0 ? `
+                  <h4 class="heading-style-h5 weight-500">Areas for Improvement:</h4>
+                  <div class="analysis-metric margin-top-sm">
+                        <div class="risk-factors-list">
+                          ${data.content_risk_score_details.breakdown.map(risk => `
+                                      <div class="risk-factors__item">
+                                          <span class="risk-icon">${getRiskCategoryIcon(risk.category)}</span>
+                                          <span class="risk-description">${sanitizeHTML(risk.description)}</span>
+                                          <span class="risk-weight">+${risk.weight}</span>
+                                          <div class="risk-factor-meta">
+                                              <span class="risk-category">${risk.category}</span>
+                                              ${risk.auto_escalate ? '<span class="escalation-trigger">⚡ Auto-escalated</span>' : ''}
+                                          </div>
+                                      </div>
+                                  `).join('')}
+                        </div>
+                  </div>
+                  <h4 class="heading-style-h5 weight-500">Risk Category Analysis:</h4>
+                  <div class="analysis-metric margin-top-sm">
+                        <div class="risk-factors-list">
+                        ${Object.entries(data.content_risk_score_details.category_scores || {})
+                                .filter(([_, score]) => score > 0)
+                                .map(([category, score]) => `
+                                <div class="risk-factors__item">
+                                        <span class="category-icon">${getRiskCategoryIcon(category)}</span>
+                                        <span class="category-name">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                                          <div class="risk-factor-meta">
+                                        <span class="score-value">${score}</span>
+                                          </div>
+                                      </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                  </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+            <!-- Spam Filter Analysis ends here -->
+        ` : ''}
+        ${data?.excessive_punctuation ? `
+            <div class="result__card excessive-punctuation-card">
+              <div class="card__header">
+                <div class="card__header-row">
+                  <h3 class="heading-style-h5">Excessive Punctuation</h3>
+                  <div class="card__controls">
+                    <span class="badge">${puncuationLabel}</span>
+                    <span class="card__value">${puncuationInstanceCount} ${puncuationInstanceCount === 0 ? 'Clean' : 
+                            puncuationInstanceCount === 1 ? 'Instance Found' : 'Instances Found'}</span>
+                    <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
+                  </div>
+                </div>
+                <div class="card_header-cap">
+                  <div class="card__indicator-contenxt">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 7.99996C13.3334 10.9455 10.9455 13.3333 8.00002 13.3333C5.0545 13.3333 2.66669 10.9455 2.66669 7.99996C2.66669 5.05444 5.0545 2.66663 8.00002 2.66663C10.9455 2.66663 13.3334 5.05444 13.3334 7.99996ZM6.38382 6.38377C6.54003 6.22756 6.7933 6.22756 6.94951 6.38377L8 7.43427L9.05049 6.38378C9.2067 6.22757 9.45996 6.22757 9.61617 6.38378C9.77238 6.53999 9.77238 6.79326 9.61617 6.94947L8.56569 7.99995L9.61616 9.05043C9.77237 9.20664 9.77237 9.4599 9.61616 9.61611C9.45995 9.77232 9.20669 9.77232 9.05048 9.61611L8 8.56564L6.94952 9.61612C6.79331 9.77233 6.54004 9.77233 6.38383 9.61612C6.22762 9.45991 6.22762 9.20665 6.38383 9.05044L7.43432 7.99995L6.38382 6.94946C6.22761 6.79325 6.22761 6.53998 6.38382 6.38377Z" fill="currentColor"/>
+                    </svg>
+                    <strong class="weight-700">${StatusMapper.getLabel('analysis', puncuationTier)}:</strong>
+                    <span>${puncuationValue ? 
+                            'Let\'s polish your punctuation' : 'Your punctuation looks professional'}</span>
+                  </div>
+                   ${puncuationInstances > 0 ? `
+                      <div class="quality-factors">
+                        <span class="instances__label weight-500">Examples:</span>
+                        <div class="factors-list">
+                          <span class="tag">${puncuationInstances.slice(0, 3).map(i => 
+                                `<code class="instance-mark">${sanitizeHTML(i)}</code>`
+                            ).join(' ')}</span>
+                            ${puncuationInstances.length > 3 ? `<span class="more-instances">+${puncuationInstances.length - 3} more</span>` : ''}
+                        </div>
+                      </div>
+                    ` : ''}
+                  <div class="card__insight">
+                    <div class="insight__icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="12" viewBox="0 0 10 12" fill="none">
+                        <path d="M0.200012 5.15551C0.200012 3.45013 0.200012 2.59744 0.401354 2.31058C0.602696 2.02371 1.40445 1.74927 3.00797 1.20038L3.31347 1.09581C4.14934 0.809687 4.56727 0.666626 5.00001 0.666626C5.43275 0.666626 5.85069 0.809687 6.68656 1.09581L6.99206 1.20038C8.59557 1.74927 9.39733 2.02371 9.59867 2.31058C9.80001 2.59744 9.80001 3.45013 9.80001 5.15551C9.80001 5.4131 9.80001 5.69245 9.80001 5.99535C9.80001 9.00232 7.53923 10.4616 6.12078 11.0812C5.73601 11.2493 5.54362 11.3333 5.00001 11.3333C4.45641 11.3333 4.26402 11.2493 3.87924 11.0812C2.46079 10.4616 0.200012 9.00232 0.200012 5.99535C0.200012 5.69245 0.200012 5.4131 0.200012 5.15551Z" fill="#1C274C"/>
+                      </svg>
+                    </div>
+                    <span class="insight__text">${sanitizeHTML(punctuationInsight)}</span>
+                  </div>
+                  <div class="card__insight">
+                    <span class="insight__text">${sanitizeHTML(punctuationSummary)}</span>
+                  </div>
+                </div>
+              </div>
+    
+              <div class="card__body">
+    
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">Punctuation Analysis</h4>
+                  <div class="analysis-overview">
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Punctuation Status:</div>
+                      <div class="metric-count">${puncuationValue ? 'Needs Review' : 'Looking Good'}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Instances Found:</div>
+                      <div class="metric-count">${puncuationInstanceCount}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Impact Level:</div>
+                      <div class="metric-count">${puncuationInstanceCount === 0 ? 'None' : 
+                                puncuationInstanceCount <= 2 ? 'Minor' : 'Moderate'}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Platform</div>
+                      <div class="metric-count">${platformName}</div>
+                    </div>
+    
+                  </div>
+                </div>
+    
+                
+                     ${puncuationInstanceCount > 0 ? `
+                         <div class="card_detail-block">
+                           <h4>${puncuationDisplayData.spam_signal_intro || puncuationDetails.spam_signal_intro || 'Punctuation Red Flags Found:'}</h4>
+                           <div class="margin-top-sm">
+                              ${puncuationInstances.map((instance, index) => `
+                                <div class="analysis-metric">
+                                  <div class="link-analysis__head">
+                                    <span class="instance-number">#${index + 1}</span>
+                                        <code class="instance-text">${sanitizeHTML(instance)}</code>
+                                        <span class="instance-length">${instance.length} marks</span>
+                                  </div>
+                                   <div class="instance-meta">
+                                        <span class="spam-indicator">🚨 Spam trigger</span>
+                                        ${instance.length > 5 ? '<span class="severity-high">High severity</span>' : ''}
+                                    </div>
+                                </div>
+                              `).join('')}
+                           </div>
+                        </div>
+                    ` : `
+                     <div class="details-section no-issues-found">
+                        <div class="clean-message">
+                            <span class="clean-icon">✅</span>
+                            <div class="clean-text">
+                                <h4>Punctuation Usage is Clean</h4>
+                                <p>No excessive punctuation detected. Your text maintains professional standards and avoids common spam triggers.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `}
-
-             <!-- information -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
-              <div class="card__platform-guidance margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X's algorithm flags posts with excessive punctuation as low-quality</p>
+                `}
+    
+                 <!-- information -->
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
+                  <div class="card__platform-guidance margin-top-sm">
+                    <div class="analysis-metric">
+                      <div class="platform-guidance__head">
+                        <h5 class="heading-style-h5 weight-500">X</h5>
+                        <p class="platform-rule">X's algorithm flags posts with excessive punctuation as low-quality</p>
+                      </div>
+                      <div class="platform-guidance__info">
+                        <div>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <g clip-path="url(#clip0_8576_3928)">
+                              <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_8576_3928">
+                                <rect width="16" height="16" fill="white"/>
+                              </clipPath>
+                            </defs>
+                          </svg>
+                        </div>
+    
+                        <div>
+                          <h5 class="heading-style-h6">Best Practices:</h5>
+                          <ul class="platform-guidance__info-list">
+                            <li>Use single punctuation marks for emphasis</li>
+                            <li>Replace !!! with stronger word choices</li>
+                            <li>Avoid ??? - rephrase as clear questions</li>
+                            <li>Let your words create impact, not punctuation</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="platform-guidance__info">
-                    <div>
+                </div>
+    
+                <!-- comparison -->
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">How to Fix Excessive Punctuation</h4>
+                  <div class="card__comparison margin-top-sm">
+                    <div class="analysis-metric">
+                      <div class="comparison__row">
+                        <div class="comparison__item before">
+                          <div>
+                            <span class="comparison__label weight-700">Before</span>
+                            <span class="comparison__title">"This is AMAZING!!!"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">Before</span>
+                            <span class="comparison__title">"Really??? Are you sure???"</span>
+                          </div>
+                        </div>
+                        <div class="comparison__item after">
+                          <div>
+                            <span class="comparison__label weight-700">After</span>
+                            <span class="example-text">"This is truly remarkable"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">After</span>
+                            <span class="comparison__title">"Are you certain about this?"</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+    
+              </div>
+            </div>
+            <!-- Excessive Punctuation ends here -->
+        ` : ''}
+        ${data?.forbidden_keywords ? `
+            <div class="result__card forbidden-keywords-card tier-good">
+              <div class="card__header">
+                <div class="card__header-row">
+                  <h3 class="heading-style-h5">Potentially Flagged Keywords</h3>
+                  <div class="card__controls">
+                    <span class="badge">${flaggedKeywordTier === 'good' ? 'Low Risk' : flaggedKeywordTier === 'fair' ? 'Fair Risk' : 'High Risk'}</span>
+                    <span class="card__value">${keywordCount} ${StatusMapper.getLabel('analysis', flaggedKeywordTier)}</span>
+                    <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
+                  </div>
+                </div>
+                <div class="card_header-cap">
+                  <div class="card__indicator-contenxt">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 5.99984C11.3334 8.94536 8.94554 11.3332 6.00002 11.3332C3.0545 11.3332 0.666687 8.94536 0.666687 5.99984C0.666687 3.05432 3.0545 0.666504 6.00002 0.666504C8.94554 0.666504 11.3334 3.05432 11.3334 5.99984ZM8.14953 4.38366C8.30574 4.53987 8.30574 4.79314 8.14953 4.94935L5.48286 7.61601C5.32665 7.77222 5.07339 7.77222 4.91718 7.61601L3.85051 6.54935C3.6943 6.39314 3.6943 6.13987 3.85051 5.98366C4.00672 5.82745 4.25999 5.82745 4.4162 5.98366L5.20002 6.76748L6.39193 5.57557L7.58384 4.38366C7.74005 4.22745 7.99332 4.22745 8.14953 4.38366Z" fill="currentColor"/>
+                    </svg>
+                    <strong class="weight-700">${keywordCount === 0 ? 'Looking good!' :
+        keywordCount === 1 ? 'One suggestion' : 'A few suggestions'}</strong>
+                    <span>${keywordCount === 0 ? 'Your word choices work well' :
+        keywordCount === 1 ? 'Let\'s refine one word for better reach' :
+            'We\'ll help you find better alternatives'}</span>
+                  </div>
+                  <div class="card__insight">
+                    <div class="insight__icon">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <g clip-path="url(#clip0_8576_3928)">
-                          <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_8576_3928">
-                            <rect width="16" height="16" fill="white"/>
-                          </clipPath>
-                        </defs>
+                        <path d="M12.9034 3.0965C13.4767 3.66983 13.4767 4.59938 12.9034 5.17271L12.6391 5.437C12.5621 5.42034 12.4652 5.39498 12.3547 5.35666C12.0591 5.25409 11.6706 5.06025 11.3051 4.69477C10.9396 4.3293 10.7458 3.94076 10.6432 3.64512C10.6049 3.53467 10.5795 3.43775 10.5629 3.36079L10.8271 3.0965C11.4005 2.52317 12.33 2.52317 12.9034 3.0965Z" fill="#1C274C"/>
+                        <path d="M9.37606 8.70001C9.16058 8.91548 9.05285 9.02322 8.93406 9.11587C8.79393 9.22517 8.6423 9.31888 8.48188 9.39534C8.34588 9.46015 8.20134 9.50833 7.91225 9.60469L6.3878 10.1128C6.24554 10.1603 6.08869 10.1232 5.98266 10.0172C5.87662 9.91116 5.83959 9.75432 5.88701 9.61206L6.39516 8.08761C6.49153 7.79852 6.53971 7.65398 6.60452 7.51798C6.68098 7.35755 6.77468 7.20593 6.88398 7.0658C6.97664 6.94701 7.08437 6.83927 7.29985 6.6238L9.92176 4.00189C10.0624 4.37213 10.309 4.83004 10.7394 5.26046C11.1698 5.69087 11.6277 5.93742 11.998 6.0781L9.37606 8.70001Z" fill="#1C274C"/>
+                        <path d="M12.5523 12.5521C13.3334 11.7711 13.3334 10.514 13.3334 7.99984C13.3334 7.1741 13.3334 6.48396 13.3057 5.90176L9.91253 9.29492C9.7252 9.48233 9.58446 9.62315 9.42607 9.74668C9.24013 9.89172 9.03893 10.0161 8.82605 10.1175C8.64473 10.2039 8.45583 10.2668 8.20442 10.3506L6.64078 10.8718C6.21105 11.015 5.73727 10.9032 5.41697 10.5829C5.09667 10.2626 4.98482 9.7888 5.12807 9.35907L5.64928 7.79543C5.73301 7.54402 5.79592 7.35513 5.88234 7.1738C5.9838 6.96092 6.10814 6.75973 6.25317 6.57379C6.37671 6.4154 6.51753 6.27465 6.70494 6.08732L10.0981 2.69417C9.51589 2.6665 8.82576 2.6665 8.00002 2.6665C5.48586 2.6665 4.22878 2.6665 3.44774 3.44755C2.66669 4.2286 2.66669 5.48568 2.66669 7.99984C2.66669 10.514 2.66669 11.7711 3.44774 12.5521C4.22878 13.3332 5.48586 13.3332 8.00002 13.3332C10.5142 13.3332 11.7713 13.3332 12.5523 12.5521Z" fill="#1C274C"/>
                       </svg>
                     </div>
-
-                    <div>
-                      <h5 class="heading-style-h6">Best Practices:</h5>
-                      <ul class="platform-guidance__info-list">
-                        <li>Use single punctuation marks for emphasis</li>
-                        <li>Replace !!! with stronger word choices</li>
-                        <li>Avoid ??? - rephrase as clear questions</li>
-                        <li>Let your words create impact, not punctuation</li>
-                      </ul>
+                    <span class="insight__text">${flaggedKeywordQuickInsight}</span>
+                  </div>
+                </div>
+                 ${keywordCount > 0 && Array.isArray(keywords) && keywords.length > 0 ? `
+            <div class="keywords-instances-preview">
+                <span class="instances-label">Words to review:</span>
+                <span class="instances-list">${keywords.slice(0, 3).map(k =>
+        `<code class="keyword-pill">${sanitizeHTML(k)}</code>`
+    ).join(' ')}</span>
+                ${keywords.length > 3 ? `<span class="more-keywords">+${keywords.length - 3} more</span>` : ''}
+            </div>
+        ` : ''}
+              </div>
+    
+              <div class="card__body">
+    
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">Word Choice Analysis</h4>
+                  <div class="analysis-overview">
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Word Status:</div>
+                      <div class="metric-count">${keywordCount === 0 ? 'All Clear' : 'Review Suggested'}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Words to Review:</div>
+                      <div class="metric-count">${keywordCount}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Platform Impact:</div>
+                      <div class="metric-count">${filterRiskLevel}</div>
+                    </div>
+    
+                    <div class="analysis-metric">
+                      <div class="metric-label">Platform</div>
+                      <div class="metric-count">${platformName}</div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- comparison -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">How to Fix Excessive Punctuation</h4>
-              <div class="card__comparison margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="comparison__row">
-                    <div class="comparison__item before">
-                      <div>
-                        <span class="comparison__label weight-700">Before</span>
-                        <span class="comparison__title">"This is AMAZING!!!"</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Before</span>
-                        <span class="comparison__title">"Really??? Are you sure???"</span>
-                      </div>
-                    </div>
-                    <div class="comparison__item after">
-                      <div>
-                        <span class="comparison__label weight-700">After</span>
-                        <span class="example-text">"This is truly remarkable"</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">After</span>
-                        <span class="comparison__title">"Are you certain about this?"</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-        <!-- Excessive Punctuation ends here -->
-
-        <div class="result__card forbidden-keywords-card tier-good">
-          <div class="card__header">
-            <div class="card__header-row">
-              <h3 class="heading-style-h5">Potentially Flagged Keywords</h3>
-              <div class="card__controls">
-                <span class="badge">Low Risk</span>
-                <span class="card__value">Clean</span>
-                <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
-              </div>
-            </div>
-            <div class="card_header-cap">
-              <div class="card__indicator-contenxt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 5.99984C11.3334 8.94536 8.94554 11.3332 6.00002 11.3332C3.0545 11.3332 0.666687 8.94536 0.666687 5.99984C0.666687 3.05432 3.0545 0.666504 6.00002 0.666504C8.94554 0.666504 11.3334 3.05432 11.3334 5.99984ZM8.14953 4.38366C8.30574 4.53987 8.30574 4.79314 8.14953 4.94935L5.48286 7.61601C5.32665 7.77222 5.07339 7.77222 4.91718 7.61601L3.85051 6.54935C3.6943 6.39314 3.6943 6.13987 3.85051 5.98366C4.00672 5.82745 4.25999 5.82745 4.4162 5.98366L5.20002 6.76748L6.39193 5.57557L7.58384 4.38366C7.74005 4.22745 7.99332 4.22745 8.14953 4.38366Z" fill="currentColor"/>
-                </svg>
-                <strong class="weight-700">Looking good:</strong>
-                <span>Your word choices work well</span>
-              </div>
-              <div class="card__insight">
-                <div class="insight__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M12.9034 3.0965C13.4767 3.66983 13.4767 4.59938 12.9034 5.17271L12.6391 5.437C12.5621 5.42034 12.4652 5.39498 12.3547 5.35666C12.0591 5.25409 11.6706 5.06025 11.3051 4.69477C10.9396 4.3293 10.7458 3.94076 10.6432 3.64512C10.6049 3.53467 10.5795 3.43775 10.5629 3.36079L10.8271 3.0965C11.4005 2.52317 12.33 2.52317 12.9034 3.0965Z" fill="#1C274C"/>
-                    <path d="M9.37606 8.70001C9.16058 8.91548 9.05285 9.02322 8.93406 9.11587C8.79393 9.22517 8.6423 9.31888 8.48188 9.39534C8.34588 9.46015 8.20134 9.50833 7.91225 9.60469L6.3878 10.1128C6.24554 10.1603 6.08869 10.1232 5.98266 10.0172C5.87662 9.91116 5.83959 9.75432 5.88701 9.61206L6.39516 8.08761C6.49153 7.79852 6.53971 7.65398 6.60452 7.51798C6.68098 7.35755 6.77468 7.20593 6.88398 7.0658C6.97664 6.94701 7.08437 6.83927 7.29985 6.6238L9.92176 4.00189C10.0624 4.37213 10.309 4.83004 10.7394 5.26046C11.1698 5.69087 11.6277 5.93742 11.998 6.0781L9.37606 8.70001Z" fill="#1C274C"/>
-                    <path d="M12.5523 12.5521C13.3334 11.7711 13.3334 10.514 13.3334 7.99984C13.3334 7.1741 13.3334 6.48396 13.3057 5.90176L9.91253 9.29492C9.7252 9.48233 9.58446 9.62315 9.42607 9.74668C9.24013 9.89172 9.03893 10.0161 8.82605 10.1175C8.64473 10.2039 8.45583 10.2668 8.20442 10.3506L6.64078 10.8718C6.21105 11.015 5.73727 10.9032 5.41697 10.5829C5.09667 10.2626 4.98482 9.7888 5.12807 9.35907L5.64928 7.79543C5.73301 7.54402 5.79592 7.35513 5.88234 7.1738C5.9838 6.96092 6.10814 6.75973 6.25317 6.57379C6.37671 6.4154 6.51753 6.27465 6.70494 6.08732L10.0981 2.69417C9.51589 2.6665 8.82576 2.6665 8.00002 2.6665C5.48586 2.6665 4.22878 2.6665 3.44774 3.44755C2.66669 4.2286 2.66669 5.48568 2.66669 7.99984C2.66669 10.514 2.66669 11.7711 3.44774 12.5521C4.22878 13.3332 5.48586 13.3332 8.00002 13.3332C10.5142 13.3332 11.7713 13.3332 12.5523 12.5521Z" fill="#1C274C"/>
-                  </svg>
-                </div>
-                <span class="insight__text">Certain words = instant spam folder or shadowban</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card__body">
-
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Word Choice Analysis</h4>
-              <div class="analysis-overview">
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Word Status:</div>
-                  <div class="metric-count">All Clear</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Words to Review:</div>
-                  <div class="metric-count">0</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Platform Impact:</div>
-                  <div class="metric-count">Low</div>
-                </div>
-
-                <div class="analysis-metric">
-                  <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card_detail-block">
-              <div class="card__result-message">
-                <div class="result-message__icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6666 6.99992C13.6666 10.6818 10.6819 13.6666 6.99998 13.6666C3.31808 13.6666 0.333313 10.6818 0.333313 6.99992C0.333313 3.31802 3.31808 0.333252 6.99998 0.333252C10.6819 0.333252 13.6666 3.31802 13.6666 6.99992ZM9.68687 4.9797C9.88213 5.17496 9.88213 5.49154 9.68687 5.6868L6.35353 9.02014C6.15827 9.2154 5.84169 9.2154 5.64643 9.02014L4.31309 7.68681C4.11783 7.49154 4.11783 7.17496 4.31309 6.9797C4.50835 6.78444 4.82494 6.78444 5.0202 6.9797L5.99998 7.95948L7.48987 6.46959L8.97976 4.9797C9.17502 4.78444 9.4916 4.78444 9.68687 4.9797Z" fill="#187F48"/>
-                  </svg>
-                </div>
-                <div>
-                  <h5 class="heading-style-h5 weight-500">No Potentially Flagged Keywords Detected</h5>
-                  <p class="result-message margin-top-sm">Your content avoids problematic terms and maintains good standing with platform filters.</p>
-                </div>
-              </div>
-            </div>
-
-             <!-- information -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
-              <div class="card__platform-guidance margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">Platform filters vary by community standards</p>
-                  </div>
-                  <div class="platform-guidance__info">
-                    <div>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <g clip-path="url(#clip0_8576_3928)">
-                          <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_8576_3928">
-                            <rect width="16" height="16" fill="white"/>
-                          </clipPath>
-                        </defs>
+    
+                <div class="card_detail-block">
+                  <div class="card__result-message">
+                    <div class="result-message__icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6666 6.99992C13.6666 10.6818 10.6819 13.6666 6.99998 13.6666C3.31808 13.6666 0.333313 10.6818 0.333313 6.99992C0.333313 3.31802 3.31808 0.333252 6.99998 0.333252C10.6819 0.333252 13.6666 3.31802 13.6666 6.99992ZM9.68687 4.9797C9.88213 5.17496 9.88213 5.49154 9.68687 5.6868L6.35353 9.02014C6.15827 9.2154 5.84169 9.2154 5.64643 9.02014L4.31309 7.68681C4.11783 7.49154 4.11783 7.17496 4.31309 6.9797C4.50835 6.78444 4.82494 6.78444 5.0202 6.9797L5.99998 7.95948L7.48987 6.46959L8.97976 4.9797C9.17502 4.78444 9.4916 4.78444 9.68687 4.9797Z" fill="#187F48"/>
                       </svg>
                     </div>
-
                     <div>
-                      <h5 class="heading-style-h6">Common Filtered Categories:</h5>
-                      <ul class="platform-guidance__info-list">
-                        <li>Financial: guaranteed, free money, get rich</li>
-                        <li>Urgency: act now, limited time, don't miss</li>
-                        <li>Clickbait: click here, this one trick</li>
-                        <li>Medical: miracle cure, lose weight fast</li>
-                      </ul>
+                      <h5 class="heading-style-h5 weight-500">${keywordCount} Potentially Flagged Keywords Detected</h5>
+                      <p class="result-message margin-top-sm">Your content contains ${keywordCount} terms that may trigger platform filters. Consider reviewing your content for promotional language, urgency phrases, or financial claims.</p>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- comparison -->
-            <div class="card_detail-block">
-              <h4 class="heading-style-h5 weight-500">How to Replace Potentially Flagged Keywords</h4>
-              <div class="card__comparison margin-top-sm">
-                <div class="analysis-metric">
-                  <div class="comparison__row">
-                    <div class="comparison__item before">
-                      <div>
-                        <span class="comparison__label weight-700">Before</span>
-                        <span class="comparison__title">"Get free money guaranteed!"</span>
+    
+                 <!-- information -->
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">Platform-Specific Guidelines</h4>
+                  <div class="card__platform-guidance margin-top-sm">
+                    <div class="analysis-metric">
+                      <div class="platform-guidance__head">
+                        <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                        <p class="platform-rule">Platform filters vary by community standards</p>
                       </div>
-                      <div>
-                        <span class="comparison__label weight-700">Before</span>
-                        <span class="comparison__title">"Click here for limited time offer"</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">Before</span>
-                        <span class="comparison__title">"Act now - 100% risk-free"</span>
-                      </div>
-                    </div>
-                    <div class="comparison__item after">
-                      <div>
-                        <span class="comparison__label weight-700">After</span>
-                        <span class="example-text">"Earn income with our proven system"</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">After</span>
-                        <span class="comparison__title">"View our current promotion details"</span>
-                      </div>
-                      <div>
-                        <span class="comparison__label weight-700">After</span>
-                        <span class="comparison__title">"Available today with our satisfaction guarantee"</span>
+                      <div class="platform-guidance__info">
+                        <div>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <g clip-path="url(#clip0_8576_3928)">
+                              <path d="M8 1.5C6.71442 1.5 5.45772 1.88122 4.3888 2.59545C3.31988 3.30968 2.48676 4.32484 1.99479 5.51256C1.50282 6.70028 1.37409 8.00721 1.6249 9.26809C1.8757 10.529 2.49477 11.6872 3.40381 12.5962C4.31285 13.5052 5.47104 14.1243 6.73192 14.3751C7.99279 14.6259 9.29973 14.4972 10.4874 14.0052C11.6752 13.5132 12.6903 12.6801 13.4046 11.6112C14.1188 10.5423 14.5 9.28558 14.5 8C14.4982 6.27665 13.8128 4.62441 12.5942 3.40582C11.3756 2.18722 9.72335 1.50182 8 1.5ZM7.75 4.5C7.89834 4.5 8.04334 4.54399 8.16668 4.6264C8.29002 4.70881 8.38615 4.82594 8.44291 4.96299C8.49968 5.10003 8.51453 5.25083 8.48559 5.39632C8.45665 5.5418 8.38522 5.67544 8.28033 5.78033C8.17544 5.88522 8.04181 5.95665 7.89632 5.98559C7.75083 6.01453 7.60003 5.99968 7.46299 5.94291C7.32595 5.88614 7.20881 5.79001 7.1264 5.66668C7.04399 5.54334 7 5.39834 7 5.25C7 5.05109 7.07902 4.86032 7.21967 4.71967C7.36032 4.57902 7.55109 4.5 7.75 4.5ZM8.5 11.5C8.23479 11.5 7.98043 11.3946 7.7929 11.2071C7.60536 11.0196 7.5 10.7652 7.5 10.5V8C7.36739 8 7.24022 7.94732 7.14645 7.85355C7.05268 7.75979 7 7.63261 7 7.5C7 7.36739 7.05268 7.24021 7.14645 7.14645C7.24022 7.05268 7.36739 7 7.5 7C7.76522 7 8.01957 7.10536 8.20711 7.29289C8.39465 7.48043 8.5 7.73478 8.5 8V10.5C8.63261 10.5 8.75979 10.5527 8.85356 10.6464C8.94732 10.7402 9 10.8674 9 11C9 11.1326 8.94732 11.2598 8.85356 11.3536C8.75979 11.4473 8.63261 11.5 8.5 11.5Z" fill="#3C3D3D"/>
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_8576_3928">
+                                <rect width="16" height="16" fill="white"/>
+                              </clipPath>
+                            </defs>
+                          </svg>
+                        </div>
+    
+                        <div>
+                          <h5 class="heading-style-h6">Common Filtered Categories:</h5>
+                          <ul class="platform-guidance__info-list">
+                            <li>Financial: guaranteed, free money, get rich</li>
+                            <li>Urgency: act now, limited time, don't miss</li>
+                            <li>Clickbait: click here, this one trick</li>
+                            <li>Medical: miracle cure, lose weight fast</li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+    
+                <!-- comparison -->
+                <div class="card_detail-block">
+                  <h4 class="heading-style-h5 weight-500">How to Replace Potentially Flagged Keywords</h4>
+                  <div class="card__comparison margin-top-sm">
+                    <div class="analysis-metric">
+                      <div class="comparison__row">
+                        <div class="comparison__item before">
+                          <div>
+                            <span class="comparison__label weight-700">Before</span>
+                            <span class="comparison__title">"Get free money guaranteed!"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">Before</span>
+                            <span class="comparison__title">"Click here for limited time offer"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">Before</span>
+                            <span class="comparison__title">"Act now - 100% risk-free"</span>
+                          </div>
+                        </div>
+                        <div class="comparison__item after">
+                          <div>
+                            <span class="comparison__label weight-700">After</span>
+                            <span class="example-text">"Earn income with our proven system"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">After</span>
+                            <span class="comparison__title">"View our current promotion details"</span>
+                          </div>
+                          <div>
+                            <span class="comparison__label weight-700">After</span>
+                            <span class="comparison__title">"Available today with our satisfaction guarantee"</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+    
               </div>
             </div>
-
-          </div>
-        </div>
-        <!-- Potentially Flagged Keywords ends here -->
-
+            <!-- Potentially Flagged Keywords ends here -->
+           ` : ''}
+${data?.passive_voice ? `
         <div class="result__card passive-voice-card tier-good">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Passive Voice</h3>
               <div class="card__controls">
-                <span class="badge">Active Voice</span>
-                <span class="card__value">0 Active Voice</span>
+                <span class="badge">${passiveVoiceQualitativeLabel}</span>
+                <span class="card__value">${passiveCount} ${passiveCount === 0 ? 'Active Voice' :
+        passiveCount === 1 ? 'Construction Found' : 'Constructions Found'}</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -2146,16 +2359,26 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 7.99996C13.3334 10.9455 10.9455 13.3333 8.00002 13.3333C5.0545 13.3333 2.66669 10.9455 2.66669 7.99996C2.66669 5.05444 5.0545 2.66663 8.00002 2.66663C10.9455 2.66663 13.3334 5.05444 13.3334 7.99996ZM10.1495 6.38378C10.3057 6.53999 10.3057 6.79326 10.1495 6.94947L7.48286 9.61614C7.32665 9.77234 7.07339 9.77234 6.91718 9.61614L5.85051 8.54947C5.6943 8.39326 5.6943 8.13999 5.85051 7.98378C6.00672 7.82757 6.25999 7.82757 6.4162 7.98378L7.20002 8.76761L8.39193 7.5757L9.58384 6.38378C9.74005 6.22757 9.99332 6.22757 10.1495 6.38378Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Active Voice:</strong>
-                <span>Direct and engaging writing</span>
+                <strong class="weight-700">${passiveVoiceQualitativeLabel}:</strong>
+                <span>${passiveCount === 0 ?
+        'Direct and engaging writing' : 'Consider active alternatives'}</span>
               </div>
+               ${passiveCount > 0 && passiveVoicePhrases.length > 0 ? `
+                <div class="passive-instances-preview">
+                    <span class="instances-label">Detected:</span>
+                    <span class="instances-list">${passiveVoicePhrases.slice(0, 3).map(phrase =>
+        `<code class="passive-phrase">${sanitizeHTML(phrase)}</code>`
+    ).join(' ')}</span>
+                    ${passiveVoicePhrases.length > 3 ? `<span class="more-instances">+${passiveVoicePhrases.length - 3} more</span>` : ''}
+                </div>
+            ` : ''}
               <div class="card__insight">
                 <div class="insight__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M4.62375 6.88762L6.25689 4.678C7.31255 3.24971 7.84038 2.53556 8.33284 2.68647C8.8253 2.83739 8.8253 3.71329 8.8253 5.46509V5.63026C8.8253 6.2621 8.8253 6.57802 9.02719 6.77618L9.03787 6.78644C9.24411 6.98042 9.57292 6.98042 10.2305 6.98042C11.4139 6.98042 12.0056 6.98042 12.2056 7.33932C12.2089 7.34527 12.2121 7.35126 12.2153 7.35729C12.404 7.72175 12.0614 8.18527 11.3762 9.11232L9.7431 11.3219C8.68742 12.7502 8.15958 13.4644 7.66712 13.3134C7.17466 13.1625 7.17467 12.2866 7.1747 10.5348L7.1747 10.3697C7.17471 9.73785 7.17471 9.42192 6.97283 9.22376L6.96214 9.2135C6.7559 9.01952 6.42709 9.01952 5.76947 9.01952C4.58607 9.01952 3.99438 9.01952 3.7944 8.66061C3.79109 8.65467 3.78787 8.64868 3.78475 8.64265C3.59597 8.27819 3.93857 7.81467 4.62375 6.88762Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Active voice = more engaging and direct communication. Your writing uses active voice effectively.</span>
+                <span class="insight__text">${sanitizeHTML(passiveVoiceQuickInsight)}</span>
               </div>
             </div>
           </div>
@@ -2168,26 +2391,27 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
                 <div class="analysis-metric">
                   <div class="metric-label">Writing Style:</div>
-                  <div class="metric-count">Active Voice</div>
+                  <div class="metric-count">${passiveVoiceQualitativeLabel}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Passive Count:</div>
-                  <div class="metric-count">0</div>
+                  <div class="metric-count">${passiveCount}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Engagement:</div>
-                  <div class="metric-count">High</div>
+                  <div class="metric-count">${passiveCount === 0 ? 'High' :
+        passiveCount <= 2 ? 'Good' : 'Could Improve'}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
               </div>
             </div>
-
+            
             <div class="card_detail-block">
               <div class="card__result-message">
                 <div class="result-message__icon">
@@ -2208,8 +2432,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X's algorithm favors direct, engaging content - active voice performs better</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -2281,14 +2505,15 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- Passive Voice ends here -->
-
+  ` : ''}
+${data?.readability ? `
          <div class="result__card readability-card">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Readability</h3>
               <div class="card__controls">
-                <span class="badge">Difficult</span>
-                <span class="card__value"><span>11</span> Reading Ease</span>
+                <span class="badge">${readabilityQualitativeLabel}</span>
+                <span class="card__value"><span>${easeScore}</span> Reading Ease</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -2297,15 +2522,15 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Difficult to Read:</strong>
-                <span>Grade 14 level</span>
+                <strong class="weight-700">${StatusMapper.getLabel('readability', readabilityTier)}:</strong>
+                <span>Grade ${gradeLevel} level</span>
               </div>
               <div class="info-block quality-factors">
                 <span class="instances__label">Analysis:</span>
                 <div class="instances__list">
-                  <span class="instances__list-item">Ease: 11/100</span>
-                  <span class="instances__list-item">Grade: 14</span>
-                  <span class="instances__list-item">College</span>
+                  <span class="instances__list-item">Ease: ${easeScore}/100</span>
+                  <span class="instances__list-item">Grade: ${gradeLevel}</span>
+                  <span class="instances__list-item">${getEducationLevel(gradeLevel)}</span>
                 </div>
               </div>
                 
@@ -2316,7 +2541,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M6.40011 9.4759C6.56165 9.44028 6.71925 9.38281 6.86806 9.30348C7.40112 9.01933 8.08991 8.68988 8.66669 8.53768C9.13426 8.41429 9.74174 8.35106 10.2588 8.31872C10.8501 8.28174 11.3334 7.80232 11.3334 7.2098V1.23092C11.3334 0.658951 10.882 0.189439 10.3104 0.209351C9.7085 0.230318 8.95837 0.292701 8.40002 0.459856C7.91595 0.604773 7.35218 0.895451 6.89273 1.16135C6.73731 1.25131 6.57119 1.31738 6.40011 1.35928V9.4759ZM9.83046 3.78794C10.0448 3.73436 10.1751 3.51719 10.1215 3.30287C10.0679 3.08855 9.85075 2.95825 9.63643 3.01183L7.5031 3.54516C7.28878 3.59874 7.15848 3.81592 7.21206 4.03023C7.26564 4.24455 7.48281 4.37486 7.69713 4.32128L9.83046 3.78794ZM9.83046 5.92128C10.0448 5.8677 10.1751 5.65052 10.1215 5.43621C10.0679 5.22189 9.85075 5.09158 9.63643 5.14516L7.5031 5.6785C7.28878 5.73208 7.15848 5.94925 7.21206 6.16357C7.26564 6.37789 7.48281 6.50819 7.69713 6.45461L9.83046 5.92128Z" fill="currentColor"/>
                   </svg>
                 </div>
-                <span class="insight__text">Simpler language = wider audience and better retention. Content may be challenging for many readers to understand.</span>
+                <span class="insight__text">${sanitizeHTML(readabilityQuickInsight)}</span>
               </div>
             </div>
           </div>
@@ -2328,22 +2553,22 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
                 <div class="analysis-metric">
                   <div class="metric-label">Reading Ease:</div>
-                  <div class="metric-count">11 / 100</div>
+                  <div class="metric-count">${easeScore}/100</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Grade Level:</div>
-                  <div class="metric-count">14</div>
+                  <div class="metric-count">${gradeLevel}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Audience:</div>
-                  <div class="metric-count">College Educated</div>
+                  <div class="metric-count">${getAudienceLevel(gradeLevel)}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
@@ -2358,13 +2583,13 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                     <span class="link-num">Score</span>
                     <div class="risk-indicator">
                       <span class="status-badge"></span>
-                      <span>11 / 100</span>
+                      <span>${easeScore}/100</span>
                     </div>
                   </div>
                   <div class="link-analysis__links">
                     <span class="link-url">Flesch Reading Ease</span>
                   </div>
-                  <span class="spam-indicator">Very difficult - accessible to college graduates and professionals</span>
+                  <span class="spam-indicator">${getReadingEaseExplanation(easeScore)}</span>
                 </div>
 
                 <div class="analysis-metric">
@@ -2372,13 +2597,13 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                     <span class="link-num">Score</span>
                     <div class="risk-indicator">
                       <span class="status-badge"></span>
-                      <span>14</span>
+                      <span>${gradeLevel}</span>
                     </div>
                   </div>
                   <div class="link-analysis__links">
                     <span class="link-url">Grade Level</span>
                   </div>
-                  <span class="spam-indicator">College reading level - may be challenging for some readers</span>
+                  <span class="spam-indicator">${getGradeLevelExplanation(gradeLevel)}</span>
                 </div>
                 
               </div>
@@ -2390,8 +2615,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X performs best with grade 8-10 content - keep it accessible and engaging</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -2463,14 +2688,16 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
         </div>
         <!-- Readability ends here -->
+           ` : ''}
 
+ ${data?.sentiment_compound_score ? `
         <div class="result__card sentiment-compound-score-card ${data.sentiment_compound_score.tier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Sentiment Analysis</h3>
               <div class="card__controls">
-                <span class="badge">${data.sentiment_compound_score.details.qualitative_labels[data.sentiment_compound_score.tier]}</span>
-                <span class="card__value"><span>97%</span> Emotional Tone</span>
+                <span class="badge">${sentimentAnalysisQualitativeLabel}</span>
+                <span class="card__value"><span>${sentimentPercent}%</span> Emotional Tone</span>
                 <img src="./assets/images/arrow.svg" alt="arrow" class="card__icon">
               </div>
             </div>
@@ -2479,14 +2706,14 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
                 </svg>
-                <strong class="weight-700">Warning:</strong>
-                <span>May seem overly promotional</span>
+                <strong class="weight-700">${StatusMapper.getLabel('analysis', sentimentAnalysisTier)}:</strong>
+                <span>${getSentimentContext(sentimentScore)}</span>
               </div>
               <div class="info-block quality-factors">
                 <span class="instances__label">Tone:</span>
                 <div class="instances__list">
-                  <span class="instances__list-item">Extremely Positive Score: 0.95</span>
-                  <span class="instances__list-item">Overwhelming positivity</span>
+                  <span class="instances__list-item">>${getSentimentLabel(sentimentScore)}</span>
+                  <span class="instances__list-item">${getSentimentDescription(sentimentScore)}</span>
                 </div>
               </div>
                 
@@ -2500,8 +2727,11 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M5.99998 10.0443C8.23351 10.0443 10.0441 8.23363 10.0441 6.00009C10.0441 3.76656 8.23351 1.95593 5.99998 1.95593C3.76645 1.95593 1.95582 3.76656 1.95582 6.00009C1.95582 8.23363 3.76645 10.0443 5.99998 10.0443ZM4.3684 7.35408C4.49309 7.18586 4.73054 7.15057 4.89876 7.27526C5.21322 7.50834 5.59229 7.64304 5.99998 7.64304C6.40767 7.64304 6.78674 7.50834 7.1012 7.27526C7.26942 7.15057 7.50687 7.18586 7.63156 7.35408C7.75625 7.5223 7.72096 7.75975 7.55274 7.88444C7.1149 8.20898 6.57908 8.40132 5.99998 8.40132C5.42089 8.40132 4.88506 8.20898 4.44722 7.88444C4.279 7.75975 4.24371 7.5223 4.3684 7.35408ZM7.7693 5.14703C7.7693 5.51347 7.57126 5.81052 7.32697 5.81052C7.08268 5.81052 6.88464 5.51347 6.88464 5.14703C6.88464 4.78059 7.08268 4.48353 7.32697 4.48353C7.57126 4.48353 7.7693 4.78059 7.7693 5.14703ZM4.67299 5.81052C4.91728 5.81052 5.11532 5.51347 5.11532 5.14703C5.11532 4.78059 4.91728 4.48353 4.67299 4.48353C4.4287 4.48353 4.23066 4.78059 4.23066 5.14703C4.23066 5.51347 4.4287 5.81052 4.67299 5.81052Z" fill="#1C274C"/>
                   </svg>
                 </div>
-                <span class="insight__text">Extreme emotions can limit audience appeal. Very emotional tone detected - may impact audience reception.</span>
+                <span class="insight__text">${sanitizeHTML(sentimentAnalysisQuickInsight)}</span>
               </div>
+            </div>
+            <div class="card-context-row">
+                <p class="score-summary">${sanitizeHTML(sentimentAnalysisCardSummary)}</p>
             </div>
           </div>
 
@@ -2512,22 +2742,22 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
                 <div class="analysis-metric">
                   <div class="metric-label">Sentiment Score:</div>
-                  <div class="metric-count">0.95</div>
+                  <div class="metric-count">${sentimentScore.toFixed(2)}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Tone Balance:</div>
-                  <div class="metric-count">97%</div>
+                  <div class="metric-count">${sentimentPercent}%</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Audience Appeal:</div>
-                  <div class="metric-count">Limited</div>
+                  <div class="metric-count">${getAudienceAppeal(tier)}</div>
                 </div>
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">X</div>
+                  <div class="metric-count">${platformName}div>
                 </div>
 
               </div>
@@ -2612,8 +2842,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X audiences respond well to moderate positivity (0.2-0.5) - avoid extreme emotions</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -2687,7 +2917,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         <!-- Sentiment Analysis ends here -->
 
       </div>
-    
+    ` : ''}
     `;
 
     const summaryElement = document.querySelector('.score-summary');
