@@ -1242,3 +1242,7 @@ border-radius: 10px;
 padding: 10px;
 border-top-width: 3px;
 }
+
+.insight__text {
+    font-size: 14px;
+}

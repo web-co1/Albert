@@ -945,7 +945,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
     resultContainer.innerHTML = `
       ${data?.evaluation_report ? ` 
-    '<div class="result__card evaluation-report-card tie-${capitalizationRatioTier}"> 
+    '<div class="result__card evaluation-report-card tie-${tier}"> 
         <div class="card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
@@ -1162,7 +1162,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         ` : ''}
         <!-- Advanced Link Analysis ends here -->
       ${data?.ai_linguistic_pattern ? ` 
-        <div class="result__card ai-pattern-analysis">
+        <div class="result__card ai-pattern-analysis tie-${aiLinguisticTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">AI Linguistic Pattern</h3>
@@ -1335,7 +1335,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
       ` : ''}
         <!-- AI Linguistic Pattern ends here -->
      ${data?.ai_shadowban_risk ? `
-        <div class="result__card ai-shadowban-risk-card">
+        <div class="result__card ai-shadowban-risk-card tie-${shadowbanTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">AI Shadowban Risk</h3>
@@ -1429,7 +1429,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         ` : ''}
        ${data?.capitalization_ratio ? `
   
-        <div class="result__card caps-lock-card">
+        <div class="result__card caps-lock-card tie-${capitalizationRatioTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Caps Lock Check</h3>
@@ -1636,7 +1636,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         <!-- Caps Lock Check ends here -->
          ` : ''}
 
-        <div class="result__card complex-sentences-card tier-good">
+        <div class="result__card complex-sentences-card tie-${complexSentencesTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Complex Sentences</h3>
@@ -1810,7 +1810,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
         </div>
         <!-- Complex Sentences ends here -->
 ${data?.content_quality_score ? `
-        <div class="result__card content-quality-card">
+        <div class="result__card content-quality-card tie-${contentQualityTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Content Quality</h3>
@@ -1879,7 +1879,7 @@ ${data?.content_quality_score ? `
         <!-- Content Quality ends here -->
          ` : ''}
         ${data?.content_risk_score ? `
-            <div class="result__card content-risk-score-card ">
+            <div class="result__card content-risk-score-card tie-${spamAnalysisTier}">
               <div class="card__header">
                 <div class="card__header-row">
                   <h3 class="heading-style-h5">Spam Filter Analysis</h3>
@@ -1997,7 +1997,7 @@ ${data?.content_quality_score ? `
             <!-- Spam Filter Analysis ends here -->
         ` : ''}
         ${data?.excessive_punctuation ? `
-            <div class="result__card excessive-punctuation-card">
+            <div class="result__card excessive-punctuation-card tie-${puncuationTier}">
               <div class="card__header">
                 <div class="card__header-row">
                   <h3 class="heading-style-h5">Excessive Punctuation</h3>
@@ -2177,7 +2177,7 @@ ${data?.content_quality_score ? `
             <!-- Excessive Punctuation ends here -->
         ` : ''}
         ${data?.forbidden_keywords ? `
-            <div class="result__card forbidden-keywords-card tier-good">
+            <div class="result__card forbidden-keywords-card tie-${flaggedKeywordTier}">
               <div class="card__header">
                 <div class="card__header-row">
                   <h3 class="heading-style-h5">Potentially Flagged Keywords</h3>
@@ -2343,7 +2343,7 @@ ${data?.content_quality_score ? `
             <!-- Potentially Flagged Keywords ends here -->
            ` : ''}
 ${data?.passive_voice ? `
-        <div class="result__card passive-voice-card tier-good">
+        <div class="result__card passive-voice-card tie-${passiveVoiceTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Passive Voice</h3>
@@ -2507,7 +2507,7 @@ ${data?.passive_voice ? `
         <!-- Passive Voice ends here -->
   ` : ''}
 ${data?.readability ? `
-         <div class="result__card readability-card">
+         <div class="result__card readability-card tie-${readabilityTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Readability</h3>
@@ -2691,7 +2691,7 @@ ${data?.readability ? `
            ` : ''}
 
  ${data?.sentiment_compound_score ? `
-        <div class="result__card sentiment-compound-score-card ${data.sentiment_compound_score.tier}">
+        <div class="result__card sentiment-compound-score-card tie-${sentimentAnalysisTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Sentiment Analysis</h3>
