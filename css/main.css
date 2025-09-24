@@ -540,7 +540,7 @@ input:checked + .slider:before {
 }
 
 .hero__content-editor {
-    min-height: 240px;
+    height: 240px;
     padding: 24px;
     background-color: var(--grey-50);
     border-bottom-left-radius: 12px;
@@ -698,12 +698,13 @@ input:checked + .slider:before {
     border-left: 6px solid var(--danger-400);
     display: none;
 } 
-p.error-message__title {
+.error-message__title {
     font-size: 20px;
     line-height: 26px;
     margin-bottom: 16px;
     font-weight: 600;
     color: var(--danger-400);
+    display: block;
 }
 
 .loader {
@@ -1221,25 +1222,30 @@ p.error-message__title {
     color: #842029;            /* fallback for poor-text */
 }
 
+/*
 #summary-bar.summary-spam .not-spam-button {
-    background: #f00;          /* fallback for --color-tier-poor */
-    color: #fff;               /* fallback for --color-text-inverse */
+    background: #f00;          
+    color: #fff;              
     border: none;
-    padding: 4px 8px;          /* --space-sm, --space-md */
-    border-radius: 6px;        /* --border-radius-md */
-    font-size: 14px;           /* --font-size-body-sm */
-    font-weight: 500;          /* --font-weight-medium */
+    padding: 4px 8px;          
+    border-radius: 6px;        
+    font-size: 14px;           
+    font-weight: 500;          
     cursor: pointer;
-    transition: all 0.2s ease; /* --transition-all */
+    transition: all 0.2s ease; 
     touch-action: manipulation;
-    min-height: 32px;          /* --size-lg */
+    min-height: 32px;         
 }
+*/
 
+.not-spam-button {
+    margin-top: 15px;
+}
 #summary-bar.summary-spam {
 width: 100%;
 margin-top: 48px;
 border-radius: 10px;
-padding: 10px;
+padding: 16px;
 border-top-width: 3px;
 }
 

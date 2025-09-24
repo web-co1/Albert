@@ -71,9 +71,9 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
         // Create custom content for gibberish detection
         messageElement.innerHTML = `
             <div class="gibberish-content">
-                <strong>🤖 Gibberish Detected!</strong>
+                <strong class="error-message__title">🤖 Gibberish Detected!</strong>
                 <p>${data.message}</p>
-                <button id="not-spam-link" class="not-spam-button">
+                <button id="not-spam-link" class="not-spam-button btn btn-danger">
                     Click here if this isn't gibberish
                 </button>
             </div>

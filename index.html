@@ -291,13 +291,7 @@
                                     </div>
                                     <button id="analyze-button" class="btn btn-danger" disabled>Check</button>
 
-                                     <div id="summary-bar" class="card" role="alert" hidden>
-                                        <svg class="alert-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="12" cy="12" r="10" stroke="#F4A261" stroke-width="2"/>
-                                            <path d="M12 8v4M12 16h.01" stroke="#F4A261" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <div class="alert-message"></div>
-                                    </div>
+                                    
                                 </div>
                                 
                             </form>
@@ -307,7 +301,17 @@
                                 <p class="error-message__title">❌ Error</p>
                                 <p>Analysis failed: Server error: 429 TOO MANY REQUESTS. Please try again or contact support if the problem persists.</p>
                             </div>
+
+                             <div id="summary-bar" class="card" role="alert" hidden>
+                                <!--
+                                <svg class="alert-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="12" cy="12" r="10" stroke="#F4A261" stroke-width="2"/>
+                                    <path d="M12 8v4M12 16h.01" stroke="#F4A261" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg> -->
+                                <div class="alert-message"></div>
+                            </div>
                             <div class="loader"></div>
+
                             <div id="result"></div>
                         </div>
                     </div>
