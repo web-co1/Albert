@@ -26,6 +26,7 @@
     --grey-900: #3C3D3D;
 
     --success: #1A9F57;
+    --success-100: #EFFAF3;
     --success-300: rgba(189, 245, 213, 0.72);
     --success-700: #187F48;
     --warning: #DBB214;
@@ -547,6 +548,7 @@ input:checked + .slider:before {
     border-bottom-right-radius: 12px;
     box-shadow: 0px 1px 2px 0px var(--grey-300);
      position: relative;
+     overflow: auto;
 }
 .hero__content-editor:focus {
     outline-color: var(--grey-300) !important;
@@ -733,19 +735,7 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: space-between;
 }
-.tie-poor .card__header {
-    background-color: var(--danger--700);
-    color: var(--white);
-}
-.tie-good .card__header {
-    background-color: var(--success-700);
-    color: var(--white);
-}
 
-.tier-fair .card__header {
-    background-color: var(--warning);
-    color: var(--white);
-} 
 
 .result__card {
     border-radius: 12px;
@@ -841,7 +831,7 @@ input:checked + .slider:before {
 .card__controls {
     display: flex;
     align-items: center;
-    gap: 30px;
+    gap: 18px;
 }
 .card__icon {
     margin-left: 40px;
@@ -1089,6 +1079,7 @@ input:checked + .slider:before {
 .factors-list {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
 }
 .tag {
@@ -1181,24 +1172,66 @@ input:checked + .slider:before {
 
 
 /* states */
-.tier-good .card__result-message {
- background-color: var(--success-300);
- color: var(--success-700);
+.tie-good.evaluation-report-card .card__header {
+    background-color: var(--success);
+    color: var(--white);
 }
-
 .tie-fair.evaluation-report-card .card__header {
     background-color: var(--warning);
     color: var(--white);
 }
+
+.tie-good .card__header {
+    border-color: var(--success);
+}
+.tie-good .card__header .badge {
+    color: var(--success);
+    background-color: var(--success-300);
+}
+
+
 .tie-fair .card__header {
     border-color: var(--warning);
 }
-.tie-fair .card__header-badge {
+.tie-fair .card__header .badge {
     color: var(--warning);
-    background-color: var(--white);
+    background-color: var(--warning-300);
 }
 .tie-fair .evaluation-insight {
     background-color: var(--warning-300);
+}
+
+.low-risk .status-badge {
+    background-color: var(--success);
+}
+.low-risk .link-url {
+    background-color: var(--success-100);
+    color: var(--success);
+}
+.low-risk .link-analysis__factor-list {
+    color: var(--success);
+}
+
+.medium-risk .status-badge {
+    background-color: var(--warning);
+}
+.medium-risk .link-url {
+    background-color: var(--warnig-light);
+    color: var(--warning);
+}
+.medium-risk .link-analysis__factor-list {
+    color: var(--warning);
+}
+
+.high-risk .status-badge {
+    background-color: var(--danger-400);
+}
+.high-risk .link-url {
+    background-color: var(--danger-200);
+    color: var(--danger-400);
+}
+.high-risk .link-analysis__factor-list {
+    color: var(--danger-400);
 }
 
 

@@ -1050,16 +1050,16 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               <h4 class="heading-style-h5 weight-500">Detailed Link Analysis</h4>
               <div class="card__links-analysis">
                      ${linkAnalysis.map((link, index) => `
-                              <div class="analysis-metric">
+                              <div class="analysis-metric ${link.risk_level}-risk">
                                 <div class="link-analysis__head">
                                     <span class="link-num">${index + 1} Link</span>
                                      <div class="risk-indicator">
                                           <span class="status-badge"></span>
                                           <span>${link.risk_level} Risk</span>
                                      </div>
-                                      <div class="link-analysis__links">
-                                        <span class="link-url">${sanitizeHTML(link.domain)}</span>
-                                      </div>
+                                </div>
+                                <div class="link-analysis__links">
+                                  <span class="link-url">${sanitizeHTML(link.domain)}</span>
                                 </div>
                                 ${link.risk_factors && link.risk_factors.length > 0 ? `
                                       <div class="link-analysis__factor-list">
@@ -2911,7 +2911,7 @@ ${data?.readability ? `
           </div>
         </div>
         <!-- Sentiment Analysis ends here -->
-
+       
       </div>
     ` : ''}
     `;
