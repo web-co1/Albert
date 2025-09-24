@@ -30,6 +30,7 @@
     --success-700: #187F48;
     --warning: #DBB214;
     --warning-300: #FBF2C3;
+    --warning-700: #916000;
     --danger: #892B2B;
     --warnig-light: #FBF2C3;
 }
@@ -155,6 +156,8 @@ h1, h2, h3, h4, h5, h6 {
 .badge {
     padding: 4px 10px;
     border-radius: 60px;
+    font-size: 12px;
+    line-height: 16px;
 }
 
 .bg-success {
@@ -734,10 +737,14 @@ input:checked + .slider:before {
 .evaluation-report-card .card__header{
     border-left: none;
 }
+.evaluation-report-card .card__header h3 {
+    color: var(--white);
+}
 .card__header-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: var(--dark);
 }
 
 
@@ -836,6 +843,8 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     gap: 18px;
+    font-weight: 500;
+    color: var(--grey-800);
 }
 .card__icon {
     margin-left: 40px;
@@ -1093,6 +1102,14 @@ input:checked + .slider:before {
     display: inline-block;
     line-height: 14px;
 }
+.safe-domain.tag {
+    border-color: var(--success);
+    color: var(--success);
+}
+.risky-domain.tag {
+    border-color: var(--danger);
+    color: var(--danger);
+}
 .factor-positive {
     border-color: var(--success);
     color: var(--success);
@@ -1176,12 +1193,12 @@ input:checked + .slider:before {
 
 
 /* states */
-.tie-good.evaluation-report-card .card__header {
-    background-color: var(--success);
+.tie-poor.evaluation-report-card .card__header {
+    background-color: var(--danger);
     color: var(--white);
 }
-.tie-fair.evaluation-report-card .card__header {
-    background-color: var(--warning);
+.tie-good.evaluation-report-card .card__header {
+    background-color: var(--success);
     color: var(--white);
 }
 
@@ -1192,49 +1209,79 @@ input:checked + .slider:before {
     color: var(--success);
     background-color: var(--success-300);
 }
+.tie-good.ai-pattern-analysis .link-url {
+    color: var(--success);
+    background-color: var(--success-300);
+}
 
+.tie-fair.evaluation-report-card .card__header {
+    background-color: var(--warning);
+    color: var(--white);
+}
 
 .tie-fair .card__header {
     border-color: var(--warning);
 }
+
 .tie-fair .card__header .badge {
-    color: var(--warning);
+    color: var(--warning-700);
     background-color: var(--warning-300);
 }
 .tie-fair .evaluation-insight {
     background-color: var(--warning-300);
 }
+.tie-fair.ai-pattern-analysis .link-url {
+    color: var(--warning-700);
+    background-color: var(--warning-300);
+}
 
 .tie-poor .card__header {
-    border-color: var(--danger-400);
+    border-color: var(--danger);
 }
 .tie-poor .card__header .badge {
-    color: var(--danger-400);
+    color: var(--danger);
     background-color: var(--danger-300);
 }
 .tie-poor .evaluation-insight {
     background-color: var(--danger-300);
 }
-
+.tie-poor.ai-pattern-analysis .link-url {
+    color: var(--danger);
+    background-color: var(--danger-300);
+}
 .tie-poor .card__indicator-contenxt {
-    color: var(--danger-400)
+    color: var(--danger)
 }
 .tie-poor .quality-factors {
-    color: var(--danger-400);
+    color: var(--danger);
 }
 .tie-poor .instances__list-item {
-    border-color: var(--danger-400);
+    border-color: var(--danger);
+}
+.tie-poor .info-block__wrapper {
+    color: var(--danger);
+}
+.tie-poor .bar {
+    background-color: var(--danger);
 }
 
+
 .tie-fair .card__indicator-contenxt {
-    color: var(--warning)
+    color: var(--warning-700)
 }
 .tie-fair .quality-factors {
-    color: var(--warning);
+    color: var(--warning-700);
 }
 .tie-fair .instances__list-item {
     border-color: var(--warning);
 }
+.tie-fair .info-block__wrapper {
+    color: var(--warning-700);
+}
+.tie-fair .bar {
+    background-color: var(--warning);
+}
+
 
 .tie-good .card__indicator-contenxt {
     color: var(--success)
@@ -1244,6 +1291,50 @@ input:checked + .slider:before {
 }
 .tie-good .instances__list-item {
     border-color: var(--success);
+}
+.tie-good .info-block__wrapper {
+    color: var(--success);
+}
+.tie-good .bar {
+    background-color: var(--success);
+}
+
+.tie-good .card__result-message {
+    background-color: var(--success-300);
+}
+.tie-good .card__result-message h5 {
+    color: var(--success);
+}
+
+
+.excessive-punctuation-card .instance-text {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 14px;
+}
+
+.tie-good.excessive-punctuation-card .instance-text {
+    background-color: var(--success-300);
+    color: var(--success);
+}
+.tie-good.excessive-punctuation-card .instance-meta {
+    color: var(--success);
+}
+.tie-fair.excessive-punctuation-card .instance-text {
+    background-color: var(--warning-300);
+    color: var(--warning-700);
+}
+.tie-fair.excessive-punctuation-card .instance-meta {
+    color: var(--warning-700);
+}
+.tie-poor.excessive-punctuation-card .instance-text {
+    background-color: var(--danger-300);
+    color: var(--danger);
+}
+.tie-poor.excessive-punctuation-card .instance-meta {
+    color: var(--danger);
 }
 
 .low-risk .status-badge {
@@ -1262,25 +1353,58 @@ input:checked + .slider:before {
 }
 .medium-risk .link-url {
     background-color: var(--warnig-light);
-    color: var(--warning);
+    color: var(--warning-700);
 }
 .medium-risk .link-analysis__factor-list {
-    color: var(--warning);
+    color: var(--warning-700);
 }
 
 .high-risk .status-badge {
-    background-color: var(--danger-400);
+    background-color: var(--danger);
 }
 .high-risk .link-url {
     background-color: var(--danger-200);
-    color: var(--danger-400);
+    color: var(--danger);
 }
 .high-risk .link-analysis__factor-list {
-    color: var(--danger-400);
+    color: var(--danger);
+}
+
+
+.tie-poor.readability-card .status-badge {
+    background-color: var(--danger);
+}
+.tie-fair.readability-card .status-badge {
+    background-color: var(--warning);
+}
+.tie-good.readability-card .status-badge {
+    background-color: var(--success);
 }
 
 
 
+.tie-poor.readability-card .link-url {
+    background: var(--danger-200);
+    color: var(--danger);
+}
+.tie-fair.readability-card .link-url {
+    background: var(--warnig-light);
+    color: var(--warning-700);
+}
+.tie-good.readability-card .link-url {
+    background: var(--success-300);
+    color: var(--success);
+}
+
+.tie-poor.readability-card .spam-indicator {
+    color: var(--danger);
+}
+.tie-fair.readability-card .spam-indicator {
+    color: var(--warning-700);
+}
+.tie-good.readability-card .spam-indicator {
+    color: var(--success);
+}
 
 
 /* css animations  */
