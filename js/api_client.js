@@ -393,8 +393,8 @@ function createFactorsPreview(breakdown) {
         <div class="content-quality-factors-preview">
             <span class="factors-label">Breakdown:</span>
             <span class="factors-list">
-                ${positiveCount > 0 ? `<span class="factor-positive">✓ ${positiveCount}</span>` : ''}
-                ${negativeCount > 0 ? `<span class="factor-negative">⚠ ${negativeCount}</span>` : ''}
+                ${positiveCount > 0 ? `<span class="tag factor-positive">✓ ${positiveCount}</span>` : ''}
+                ${negativeCount > 0 ? `<span class="tag factor-negative">⚠ ${negativeCount}</span>` : ''}
             </span>
         </div>
     `;
@@ -1670,6 +1670,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
           </div>
 
           <div class="card__body">
+
+          <!--
             <div class="card__body-inner">
                 <div class="evaluation-insight">
                   <span class="insight-icon">📝</span>
@@ -1678,6 +1680,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
                 </div>
                 
             </div>
+            -->
             <div class="card_detail-block">
               <h4 class="heading-style-h5 weight-500">Sentence Analysis</h4>
               <div class="analysis-overview">
@@ -2753,7 +2756,7 @@ ${data?.readability ? `
 
                 <div class="analysis-metric">
                   <div class="metric-label">Platform</div>
-                  <div class="metric-count">${platformName}div>
+                  <div class="metric-count">${platformName}</div>
                 </div>
 
               </div>
@@ -2768,7 +2771,7 @@ ${data?.readability ? `
 
                     <div class="scale-item">
                       <div class="scale-header">
-                        <div class="status-badge"></div>
+                        <div class="status-badge bg-danger"></div>
                         <h5 class="heading-style-h5 weight-500">Very Negative</h5>
                       </div>
                       <div class="scale-body">
@@ -2780,7 +2783,7 @@ ${data?.readability ? `
 
                     <div class="scale-item">
                       <div class="scale-header">
-                        <div class="status-badge"></div>
+                        <div class="status-badge bg-light-danger"></div>
                         <h5 class="heading-style-h5 weight-500">Slightly Negative</h5>
                       </div>
                       <div class="scale-body">
@@ -2792,7 +2795,7 @@ ${data?.readability ? `
 
                     <div class="scale-item">
                       <div class="scale-header">
-                        <div class="status-badge"></div>
+                        <div class="status-badge bg-warning"></div>
                         <h5 class="heading-style-h5 weight-500">Balanced Positive</h5>
                       </div>
                       <div class="scale-body">
@@ -2804,7 +2807,7 @@ ${data?.readability ? `
 
                     <div class="scale-item">
                       <div class="scale-header">
-                        <div class="status-badge"></div>
+                        <div class="status-badge bg-light-success"></div>
                         <h5 class="heading-style-h5 weight-500">Very Positive</h5>
                       </div>
                       <div class="scale-body">
@@ -2816,7 +2819,7 @@ ${data?.readability ? `
 
                     <div class="scale-item">
                       <div class="scale-header">
-                        <div class="status-badge"></div>
+                        <div class="status-badge bg-success"></div>
                         <h5 class="heading-style-h5 weight-500">Extremely Positive</h5>
                       </div>
                       <div class="scale-body">
