@@ -635,6 +635,41 @@ function getAudienceAppeal(tier) {
     return appeals[tier] || 'Unknown';
 }
 
+function getActiveAlternative(passivePhrase) {
+    // Simple transformation suggestions
+    const alternatives = {
+        'are limited': 'we limit / constraints exist',
+        'was created': 'we created / someone created',
+        'were made': 'we made / someone made',
+        'is being': 'we are / someone is',
+        'have been': 'we have / someone has',
+        'will be': 'we will / someone will'
+    };
+
+    const lowerPhrase = passivePhrase.toLowerCase();
+    for (const [passive, active] of Object.entries(alternatives)) {
+        if (lowerPhrase.includes(passive)) {
+            return active;
+        }
+    }
+
+    return 'Consider rephrasing with clear subject + action';
+}
+
+function getStandardTierIcon(tier) {
+    const icons = {
+        good: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">\n' +
+            '                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 5.99984C11.3334 8.94536 8.94554 11.3332 6.00002 11.3332C3.0545 11.3332 0.666687 8.94536 0.666687 5.99984C0.666687 3.05432 3.0545 0.666504 6.00002 0.666504C8.94554 0.666504 11.3334 3.05432 11.3334 5.99984ZM8.14953 4.38366C8.30574 4.53987 8.30574 4.79314 8.14953 4.94935L5.48286 7.61601C5.32665 7.77222 5.07339 7.77222 4.91718 7.61601L3.85051 6.54935C3.6943 6.39314 3.6943 6.13987 3.85051 5.98366C4.00672 5.82745 4.25999 5.82745 4.4162 5.98366L5.20002 6.76748L6.39193 5.57557L7.58384 4.38366C7.74005 4.22745 7.99332 4.22745 8.14953 4.38366Z" fill="currentColor"/>\n' +
+            '                </svg>',
+        fair: ' <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">\n' +
+            '                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3334 8.00033C13.3334 5.05481 10.9455 2.66699 8.00002 2.66699C5.0545 2.66699 2.66669 5.05481 2.66669 8.00033C2.66669 10.9458 5.0545 13.3337 8.00002 13.3337C10.9455 13.3337 13.3334 10.9458 13.3334 8.00033ZM8.00002 4.93366C8.22093 4.93366 8.40002 5.11274 8.40002 5.33366V8.53366C8.40002 8.75457 8.22093 8.93366 8.00002 8.93366C7.77911 8.93366 7.60002 8.75457 7.60002 8.53366V5.33366C7.60002 5.11274 7.77911 4.93366 8.00002 4.93366ZM8.00002 10.667C8.29457 10.667 8.53335 10.4282 8.53335 10.1337C8.53335 9.83911 8.29457 9.60033 8.00002 9.60033C7.70547 9.60033 7.46669 9.83911 7.46669 10.1337C7.46669 10.4282 7.70547 10.667 8.00002 10.667Z" fill="currentColor"></path>\n' +
+            '                </svg>',
+        poor: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/></svg>'
+    };
+
+    return icons[tier] || '?';
+}
+
 function populateData(data){
     const tier = data?.evaluation_report?.tier;
     const qualitativeLabels = { good: 'Excellent', fair: 'Good', poor: 'Needs Improvement' };
@@ -789,6 +824,7 @@ const contentQualitAssessment = assessmentMap[contentQualityTier] || 'Unknown';
 const spamAnalysisData = data?.content_risk_score ?? {};
 const spamAnalysisValue = spamAnalysisData.value !== undefined ? spamAnalysisData.value : 0;
 const spamAnalysisTier = spamAnalysisValue <= 20 ? 'good' : spamAnalysisValue <= 50 ? 'fair' : 'poor';
+    const valueIcon = getStandardTierIcon(tier)
 const spamAnalysisDisplayData = spamAnalysisData.display_data || {};
 if (spamAnalysisData.breakdown) {
     data.content_risk_score_details = {
@@ -973,7 +1009,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
       <div class="result_detail">
       ${data?.advanced_link_analysis ? ` 
-        <div class="result__card advanced-link-analysis-card tie-${linkTier}">
+        <div class="result__card accordion_open advanced-link-analysis-card tie-${linkTier}">
           <div class="card__header">
             <div class="card__header-row">
               <h3 class="heading-style-h5">Advanced Link Analysis</h3>
@@ -1389,8 +1425,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
               <div class="card__platform-guidance margin-top-sm">
                 <div class="analysis-metric">
                   <div class="platform-guidance__head">
-                    <h5 class="heading-style-h5 weight-500">X</h5>
-                    <p class="platform-rule">X's algorithm favors authentic engagement - avoid repetitive patterns and excessive hashtags</p>
+                    <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                    <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                   </div>
                   <div class="platform-guidance__info">
                     <div>
@@ -1899,9 +1935,8 @@ ${data?.content_quality_score ? `
                 </div>
                 <div class="card_header-cap">
                   <div class="card__indicator-contenxt">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3334 6.00008C11.3334 8.9456 8.94554 11.3334 6.00002 11.3334C3.0545 11.3334 0.666687 8.9456 0.666687 6.00008C0.666687 3.05456 3.0545 0.666748 6.00002 0.666748C8.94554 0.666748 11.3334 3.05456 11.3334 6.00008ZM4.38382 4.38389C4.54003 4.22768 4.7933 4.22768 4.94951 4.38389L6 5.43439L7.05049 4.38391C7.2067 4.2277 7.45996 4.2277 7.61617 4.38391C7.77238 4.54012 7.77238 4.79338 7.61617 4.94959L6.56569 6.00008L7.61616 7.05055C7.77237 7.20676 7.77237 7.46003 7.61616 7.61624C7.45995 7.77245 7.20669 7.77245 7.05048 7.61624L6 6.56576L4.94952 7.61625C4.79331 7.77246 4.54004 7.77246 4.38383 7.61625C4.22762 7.46004 4.22762 7.20677 4.38383 7.05056L5.43432 6.00008L4.38382 4.94958C4.22761 4.79337 4.22761 4.5401 4.38382 4.38389Z" fill="currentColor"/>
-                    </svg>
+                  <!-- Show icon based on tier-->
+                    ${valueIcon}
                     <strong class="weight-700">${
                             spamAnalysisValue === 0 ? 'Your content is well-crafted' :
                             spamAnalysisValue <= 20 ? 'A few tweaks will help' :
@@ -2006,8 +2041,8 @@ ${data?.content_quality_score ? `
                     <div class="card__platform-guidance margin-top-sm">
                       <div class="analysis-metric">
                         <div class="platform-guidance__head">
-                          <h5 class="heading-style-h5 weight-500">X</h5>
-                          <p class="platform-rule">X automatically scans links for safety, but users remain cautious of shortened URLs</p>
+                            <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                            <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                         </div>
                         <div class="platform-guidance__info">
                           <div>
@@ -2161,8 +2196,8 @@ ${data?.content_quality_score ? `
                   <div class="card__platform-guidance margin-top-sm">
                     <div class="analysis-metric">
                       <div class="platform-guidance__head">
-                        <h5 class="heading-style-h5 weight-500">X</h5>
-                        <p class="platform-rule">X's algorithm flags posts with excessive punctuation as low-quality</p>
+                          <h5 class="heading-style-h5 weight-500">${platformName}</h5>
+                          <p class="platform-rule">${getPlatformGuideline(platform)}</p>
                       </div>
                       <div class="platform-guidance__info">
                         <div>
@@ -2393,6 +2428,7 @@ ${data?.content_quality_score ? `
             </div>
             <!-- Potentially Flagged Keywords ends here -->
            ` : ''}
+        <!-- Passive Voice starts here -->
 ${data?.passive_voice ? `
         <div class="result__card passive-voice-card tie-${passiveVoiceTier}">
           <div class="card__header">
@@ -2462,8 +2498,29 @@ ${data?.passive_voice ? `
                 </div>
               </div>
             </div>
-            
-            <div class="card_detail-block">
+            <!-- Passive voice breakdown panel: shows sentences flagged as passive with grammar details 
+            and suggested active alternatives) -->
+            ${passiveCount > 0 && passiveVoiceInstances.length > 0 ? `
+                <div class="details-section passive-breakdown-panel">
+                    <h4>Sentences to Make More Direct</h4>
+                    <div class="passive-instances-list">
+                        ${passiveVoiceInstances.map((instance, index) => `
+                            <div class="passive-instance">
+                                <div class="instance-header">
+                                    <span class="instance-number">#${index + 1}</span>
+                                    <code class="instance-text">${sanitizeHTML(instance.phrase)}</code>
+                                    <span class="grammar-breakdown">${sanitizeHTML(instance.auxiliary)} + ${sanitizeHTML(instance.participle)}</span>
+                                </div>
+                                <div class="active-alternative">
+                                    <span class="alternative-label">Try this instead:</span>
+                                    <span class="alternative-text">${getActiveAlternative(instance.phrase)}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : `
+               <div class="card_detail-block">
               <div class="card__result-message">
                 <div class="result-message__icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -2476,6 +2533,9 @@ ${data?.passive_voice ? `
                 </div>
               </div>
             </div>
+            `}
+            
+            
 
              <!-- information -->
             <div class="card_detail-block">
@@ -2988,4 +3048,5 @@ ${data?.readability ? `
     } else {
         summaryElement.innerHTML = summary;
     }
+    dropdownAccordion()
 }

@@ -92,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- utility classes --- */
 .container {
-    width: 1400px;
+    width: 1450px;
     max-width: 100%;
     padding: 0px 20px;
     margin: 0px auto;
@@ -727,7 +727,22 @@ input:checked + .slider:before {
     margin: 0px auto;
     display: none;
 }
+.result_detail .card__header {
+    cursor: pointer;
+}
+.result_detail .card_header-cap {
+    display: none;
+}
+.result_detail .card__body {
+    display: none !important;
+}
+.accordion_open .card__body {
+    display: flex !important;
+}
 
+.accordion_open .card_header-cap {
+    display: flex !important;
+}
 .card__header {
     padding: 14px 24px;
     font-size: 14px;

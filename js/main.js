@@ -188,3 +188,19 @@ analyzeButton.addEventListener("click", function(e){
     analyzeText(editorText, recaptchaSiteKey, plateform, false);
 
 })
+
+
+/* accordion open and close */
+
+function dropdownAccordion(){
+  document.querySelectorAll(".result_detail .card__header").forEach(function(header){
+      header.addEventListener("click", function(){
+          document.querySelectorAll(".result_detail .card__header").forEach(function(header){
+              header.parentElement.classList.remove("accordion_open")
+          });
+          header.parentElement.classList.add("accordion_open")
+      })
+      
+  })
+}
+
