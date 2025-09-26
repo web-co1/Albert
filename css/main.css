@@ -414,6 +414,12 @@ input[type="radio"]:checked::before {
     display: flex;
     gap: 40px;
 }
+.footer__brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--grey-900);
+}
 
 /* ----- layout ----- */
 
