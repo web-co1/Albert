@@ -46,7 +46,6 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
                 
                 // For other errors, throw as usual
                 const errorMessage = errorData.error || 'Request failed';
-                console.log("hello", errorMessage)
                 throw new Error(errorMessage);
             } catch (e) {
                 // If we couldn't parse JSON, it's a server error
@@ -59,7 +58,7 @@ async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = fals
         }
 
         const data = await response.json();
-        console.log("data is: ", data);
+        //console.log("data is: ", data);
       // Check for gibberish response
         if (data.status === 'gibberish') {
           const resultsGrid = document.getElementById('result');
@@ -142,7 +141,7 @@ function getComplexSentenceSummaryText(count, tier) {
 function sanitizeHTML(dirtyHTML) {
     // Ensure DOMPurify is available
     if (typeof DOMPurify === 'undefined') {
-        console.warn('DOMPurify not available. Falling back to text content only.');
+        //console.warn('DOMPurify not available. Falling back to text content only.');
         // Create a temporary element to extract text content as fallback
         const temp = document.createElement('div');
         temp.innerHTML = dirtyHTML;
@@ -981,8 +980,8 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
 
     resultContainer.innerHTML = `
       ${data?.evaluation_report ? ` 
-    <div class="result__card evaluation-report-card tie-${tier}"> 
-        <div class="card__header">
+    <div class="evaluation-report-card tie-${tier}"> 
+        <div class="evaluation-report-card__header">
           <div class="card__header-row">
             <h3 class="card__header-title heading-style-h3">Evaluation Report</h3>
             <div class="card__header-controls">
@@ -990,7 +989,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
             </div>
           </div>
         </div>
-        <div class="card__body">
+        <div class="evaluation-report-card__body">
             <div class="card__body-inner">
               <div class="evaluation-indicator-unified">
                 <h2 class="heading-style-h1">${data.evaluation_report.score}</h2>

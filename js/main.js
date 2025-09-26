@@ -117,7 +117,8 @@ document.getElementById("italic").addEventListener("click", (e) => {
 });
 
 // Insert Link
-document.getElementById("link").addEventListener("click", () => {
+document.getElementById("link").addEventListener("click", (e) => {
+    e.preventDefault();  // Prevent default navigation or other default behaviors
     const url = prompt("Enter URL (include https:// or http://):");
     if (!url) return;
     const sel = window.getSelection();
@@ -166,18 +167,27 @@ document.addEventListener("selectionchange", () => {
     }
 });
 
+
+
 /* get data from analyze button */
 
 editor.addEventListener("input", function(){
-    let text = editor.textContent.trim();
-    document.getElementById("char-counter").textContent = text.length;
-    if(text.length >= 70 ) {
-        document.querySelector(".char-counter").style.display = "none";
-        analyzeButton.disabled = false;
-    }else {
-        analyzeButton.disabled = true;
-        document.querySelector(".char-counter").style.display = "block";
-    }
+  let text = editor.textContent.trim();
+  document.getElementById("char-counter").textContent = `${text.length} / 70`;
+
+  if (text.length >= 1200) {
+      analyzeButton.disabled = true;
+      document.querySelector(".char-counter").style.display = "block";
+      document.getElementById("char-counter").textContent = `${text.length} / 1200`;
+      document.getElementById("char-counter").style.color = "red";
+  } else if (text.length >= 70) {
+      document.querySelector(".char-counter").style.display = "none";
+      analyzeButton.disabled = false;
+  } else {
+      analyzeButton.disabled = true;
+      document.querySelector(".char-counter").style.display = "block";
+      document.getElementById("char-counter").style.color = "#7f8383";
+  }
 })
 
 analyzeButton.addEventListener("click", function(e){
@@ -193,9 +203,9 @@ analyzeButton.addEventListener("click", function(e){
 /* accordion open and close */
 
 function dropdownAccordion(){
-  document.querySelectorAll(".result_detail .card__header").forEach(function(header){
+  document.querySelectorAll("#result .card__header").forEach(function(header){
       header.addEventListener("click", function(){
-          document.querySelectorAll(".result_detail .card__header").forEach(function(header){
+          document.querySelectorAll("#result .card__header").forEach(function(header){
               header.parentElement.classList.remove("accordion_open")
           });
           header.parentElement.classList.add("accordion_open")

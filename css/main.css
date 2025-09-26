@@ -36,6 +36,9 @@
 }
 
 /* --- typography --- */
+html {
+  scroll-behavior: smooth;
+}
 body {
     font-family: 'Satoshi';
     font-size: 16px;
@@ -574,6 +577,7 @@ input:checked + .slider:before {
     text-align: right;
     margin-top: -44px;
     padding: 10px 20px;
+    position: relative;
 }
 .hero__controls {
     margin-top: 16px;
@@ -727,18 +731,16 @@ input:checked + .slider:before {
     margin: 0px auto;
     display: none;
 }
-.result_detail .card__header {
+#result .card__header {
     cursor: pointer;
 }
-.result_detail .card_header-cap {
+#result .card_header-cap {
     display: none;
 }
-.result_detail .card-context-row  {
+#result .card-context-row  {
     display: none !important;
 }
-.result_detail .card__body {
-    display: none !important;
-}
+
 .accordion_open .card__body {
     display: flex !important;
 }
@@ -751,16 +753,16 @@ input:checked + .slider:before {
 .accordion_open .card-context-row  {
     display: block !important;
 }
-.card__header {
+.evaluation-report-card__header, .card__header {
     padding: 14px 24px;
     font-size: 14px;
     color: var(--grey-800);
     border-left: 8px solid;
 }
-.evaluation-report-card .card__header{
+.evaluation-report-card .evaluation-report-card__header{
     border-left: none;
 }
-.evaluation-report-card .card__header h3 {
+.evaluation-report-card .evaluation-report-card__header h3 {
     color: var(--white);
 }
 
@@ -772,7 +774,7 @@ input:checked + .slider:before {
 }
 
 
-.result__card {
+.result__card, .evaluation-report-card {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--grey-200);
@@ -801,11 +803,12 @@ input:checked + .slider:before {
     background-color: var(--white);
 }
 
-.evaluation-report-card .card__body {
+ .card__body {
     background-color: var(--grey-50);
     box-shadow: 0 1px 2px 0 rgba(12, 12, 12, 0.12);
+    display: none !important;
 }
-.card__body {
+.evaluation-report-card__body, .card__body{
     padding: 24px;
     background-color: var(--grey-600);
     display: flex;
@@ -859,8 +862,8 @@ input:checked + .slider:before {
 
 
 .result_detail {
-    background-color: var(--grey-50);
-    padding: 24px;
+    /*background-color: var(--grey-50);*/
+    /*padding: 24px;*/
     border-radius: 12px;
 }
 .card__controls {
@@ -1212,16 +1215,55 @@ input:checked + .slider:before {
     display: none;
 }
 
-
+.sentences-breakdown-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.sentences-breakdown-panel .sentences-instance {
+    padding: 15px 20px;
+    border-radius: 15px;
+    background-color: var(--danger-300);
+    margin-bottom: 12px;
+}
+.sentences-breakdown-panel .instance-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.sentences-breakdown-panel .instance-number {
+    padding: 3px 10px;
+    background: var(--danger-400);
+    border-radius: 6px;
+    color: var(--white);
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: 500;
+}
+.sentences-breakdown-panel .instance-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+.sentences-breakdown-panel .instance-meta span {
+    font-size: 12px;
+    line-height: 14px;
+    background-color: var(--danger-400);
+    color: var(--white);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
 
 
 
 /* states */
-.tie-poor.evaluation-report-card .card__header {
+.tie-poor.evaluation-report-card .evaluation-report-card__header {
     background-color: var(--danger);
     color: var(--white);
 }
-.tie-good.evaluation-report-card .card__header {
+.tie-good.evaluation-report-card .evaluation-report-card__header {
     background-color: var(--success);
     color: var(--white);
 }
@@ -1242,7 +1284,7 @@ input:checked + .slider:before {
     background-color: var(--success-300);
 }
 
-.tie-fair.evaluation-report-card .card__header {
+.tie-fair.evaluation-report-card .evaluation-report-card__header {
     background-color: var(--warning);
     color: var(--white);
 }
