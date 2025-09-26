@@ -733,6 +733,9 @@ input:checked + .slider:before {
 .result_detail .card_header-cap {
     display: none;
 }
+.result_detail .card-context-row  {
+    display: none !important;
+}
 .result_detail .card__body {
     display: none !important;
 }
@@ -740,8 +743,13 @@ input:checked + .slider:before {
     display: flex !important;
 }
 
+
 .accordion_open .card_header-cap {
     display: flex !important;
+}
+
+.accordion_open .card-context-row  {
+    display: block !important;
 }
 .card__header {
     padding: 14px 24px;
@@ -755,6 +763,7 @@ input:checked + .slider:before {
 .evaluation-report-card .card__header h3 {
     color: var(--white);
 }
+
 .card__header-row {
     display: flex;
     align-items: center;
@@ -1219,6 +1228,10 @@ input:checked + .slider:before {
 
 .tie-good .card__header {
     border-color: var(--success);
+    background-color: var(--success-300);
+}
+.accordion_open.tie-good .card__header {
+    background-color: var(--white);
 }
 .tie-good .card__header .badge {
     color: var(--success);
@@ -1236,6 +1249,10 @@ input:checked + .slider:before {
 
 .tie-fair .card__header {
     border-color: var(--warning);
+    background-color: var(--warnig-light);
+}
+.accordion_open.tie-fair .card__header {
+    background-color: var(--white);
 }
 
 .tie-fair .card__header .badge {
@@ -1252,6 +1269,10 @@ input:checked + .slider:before {
 
 .tie-poor .card__header {
     border-color: var(--danger);
+    background-color: var(--danger-300);
+}
+.accordion_open.tie-poor .card__header {
+    background-color: var(--white);
 }
 .tie-poor .card__header .badge {
     color: var(--danger);
