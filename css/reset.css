@@ -118,3 +118,9 @@ input {
 button {
     cursor: pointer;
 }
+b {
+    font-weight: 700;
+}
+strong {
+    font-weight: 600;
+}

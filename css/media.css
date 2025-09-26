@@ -307,8 +307,9 @@
     .accordion__body-inner {
         padding: 20px;
     }
-
-
+    .hero__content-editor {
+        height: 260px;
+    }
    .site-footer {
         padding-left: 20px;
         padding-right: 20px;

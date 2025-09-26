@@ -202,15 +202,18 @@ analyzeButton.addEventListener("click", function(e){
 
 /* accordion open and close */
 
-function dropdownAccordion(){
-  document.querySelectorAll("#result .card__header").forEach(function(header){
-      header.addEventListener("click", function(){
-          document.querySelectorAll("#result .card__header").forEach(function(header){
-              header.parentElement.classList.remove("accordion_open")
-          });
-          header.parentElement.classList.add("accordion_open")
-      })
-      
-  })
-}
+function dropdownAccordion() {
+  document.querySelectorAll("#result .card__header").forEach(function(header) {
+    header.addEventListener("click", function() {
+      const isOpen = header.parentElement.classList.contains("accordion_open");
 
+      document.querySelectorAll("#result .card__header").forEach(function(h) {
+        h.parentElement.classList.remove("accordion_open");
+      });
+
+      if (!isOpen) {
+        header.parentElement.classList.add("accordion_open");
+      }
+    });
+  });
+}

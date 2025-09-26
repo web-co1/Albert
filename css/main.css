@@ -551,7 +551,7 @@ input:checked + .slider:before {
 }
 
 .hero__content-editor {
-    height: 240px;
+    height: 340px;
     padding: 24px;
     background-color: var(--grey-50);
     border-bottom-left-radius: 12px;
@@ -741,6 +741,10 @@ input:checked + .slider:before {
     display: none !important;
 }
 
+.accordion_open .card__icon {
+    transform: rotate(180deg);
+}
+
 .accordion_open .card__body {
     display: flex !important;
 }
@@ -875,6 +879,7 @@ input:checked + .slider:before {
 }
 .card__icon {
     margin-left: 40px;
+    transition: all .4s ease;
 }
 
 .card_header-cap {
@@ -1256,7 +1261,20 @@ input:checked + .slider:before {
     padding: 4px 6px;
 }
 
-
+.legal {
+    padding: 60px 0px;
+}
+.legal__block {
+    margin-top: 40px;
+}
+.legal__desc {
+    margin-top: 15px;
+}
+.legal__list {
+    padding-left: 30px;
+    margin-top: 13px;
+    list-style: disc;
+}
 
 /* states */
 .tie-poor.evaluation-report-card .evaluation-report-card__header {
