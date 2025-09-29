@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
             accordion.classList.toggle('active');
         });
     });
+
 });
 /* -- navigation menu ends from here -- */
 
@@ -98,23 +99,41 @@ wrapSelection({ fontSize: e.target.value });
 });
 
 // Line height
-document.getElementById("lineHeight").addEventListener("change", (e) => {
-wrapSelection({ lineHeight: e.target.value });
+const lineHeightSelect = document.getElementById("lineHeight");
+// set default (from HTML <option selected>)
+editor.style.lineHeight = lineHeightSelect.value;
+
+lineHeightSelect.addEventListener("change", (e) => {
+    const value = e.target.value;
+
+    // 🔄 toggle back to default if same value selected again
+    if (editor.style.lineHeight === value) {
+        editor.style.lineHeight = ""; // clears inline style → fallback to CSS
+    } else {
+        editor.style.lineHeight = value;
+    }
+
+    editor.focus();
 });
 
 // Bold
 document.getElementById("bold").addEventListener("click", (e) => {
-  e.preventDefault();
-  editor.focus();
-  wrapSelection({ fontWeight: "bold" });
+    e.preventDefault();
+    editor.focus();
+    document.execCommand("bold", false, null);
 });
 
 // Italic
 document.getElementById("italic").addEventListener("click", (e) => {
-  e.preventDefault();
-  editor.focus();
-  wrapSelection({ fontStyle: "italic" });
+    e.preventDefault();
+    editor.focus();
+    document.execCommand("italic", false, null);
 });
+// document.getElementById("italic").addEventListener("click", (e) => {
+//   e.preventDefault();
+//   editor.focus();
+//   wrapSelection({ fontStyle: "italic" });
+// });
 
 // Insert Link
 document.getElementById("link").addEventListener("click", (e) => {

@@ -858,7 +858,7 @@ const punctuationInsight = puncuationDisplayData.quick_insight?.[contextMode] ||
     const flaggedKeyWordDetails = flaggedKeyWordData.details || {};
 
     // Extract keywords list from additional data following backend structure
-    const keywords = flaggedKeyWordData.forbidden_keywords_details || [];
+    const keywords = data.forbidden_keywords_details || [];
 
     // Use the actual value (count) from backend, not complex fallback logic
     const keywordCount = typeof flaggedKeyWordValue === 'number' ? flaggedKeyWordValue : keywords.length;
@@ -2320,20 +2320,55 @@ ${data?.content_quality_score ? `
                     </div>
                   </div>
                 </div>
-    
-                <div class="card_detail-block">
-                  <div class="card__result-message">
-                    <div class="result-message__icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6666 6.99992C13.6666 10.6818 10.6819 13.6666 6.99998 13.6666C3.31808 13.6666 0.333313 10.6818 0.333313 6.99992C0.333313 3.31802 3.31808 0.333252 6.99998 0.333252C10.6819 0.333252 13.6666 3.31802 13.6666 6.99992ZM9.68687 4.9797C9.88213 5.17496 9.88213 5.49154 9.68687 5.6868L6.35353 9.02014C6.15827 9.2154 5.84169 9.2154 5.64643 9.02014L4.31309 7.68681C4.11783 7.49154 4.11783 7.17496 4.31309 6.9797C4.50835 6.78444 4.82494 6.78444 5.0202 6.9797L5.99998 7.95948L7.48987 6.46959L8.97976 4.9797C9.17502 4.78444 9.4916 4.78444 9.68687 4.9797Z" fill="#187F48"/>
-                      </svg>
+                
+                 ${keywordCount > 0 ? `
+            <div class="details-section keywords-breakdown-panel">
+                <h4>${flaggedKeywordGlossaryData?.keyword_detection_intro || 'Potentially Flagged Keywords Found:'}</h4>
+                ${Array.isArray(keywords) && keywords.length > 0 ? `
+                    <div class="keywords-list">
+                        ${keywords.map((keyword, index) => {
+        // Safe access for alternatives with proper sanitization
+        const alternatives = flaggedKeywordGlossaryData?.alternative_suggestions?.[keyword.toLowerCase()];
+        return `
+                                <div class="keyword-item">
+                                    <div class="keyword-header">
+                                        <span class="keyword-number">#${index + 1}</span>
+                                        <code class="keyword-text">${sanitizeHTML(keyword)}</code>
+                                        <span class="filter-indicator">🚫 Filtered term</span>
+                                    </div>
+                                    ${alternatives ? `
+                                        <div class="keyword-alternatives">
+                                            <span class="alt-label">Try instead:</span>
+                                            <span class="alt-options">${sanitizeHTML(alternatives)}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+    }).join('')}
                     </div>
-                    <div>
-                      <h5 class="heading-style-h5 weight-500">${keywordCount} Potentially Flagged Keywords Detected</h5>
-                      <p class="result-message margin-top-sm">Your content contains ${keywordCount} terms that may trigger platform filters. Consider reviewing your content for promotional language, urgency phrases, or financial claims.</p>
+                ` : `
+                    <div class="keywords-count-only">
+                        <div class="count-display">
+                            <span class="alert-icon">⚠️</span>
+                            <div class="count-details">
+                                <h5>${keywordCount} Potentially Flagged Keywords Detected</h5>
+                                <p>Your content contains ${keywordCount} terms that may trigger platform filters. Consider reviewing your content for promotional language, urgency phrases, or financial claims.</p>
+                            </div>
+                        </div>
                     </div>
-                  </div>
+                `}
+            </div>
+        ` : `
+            <div class="details-section no-issues-found">
+                <div class="clean-keywords-message">
+                    <span class="clean-icon">✅</span>
+                    <div class="clean-text">
+                        <h4>No Potentially Flagged Keywords Detected</h4>
+                        <p>Your content avoids problematic terms and maintains good standing with platform filters.</p>
+                    </div>
                 </div>
+            </div>
+        `}
     
                  <!-- information -->
                 <div class="card_detail-block">

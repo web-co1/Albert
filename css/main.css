@@ -1558,3 +1558,9 @@ border-top-width: 3px;
 .insight__text {
     font-size: 14px;
 }
+
+
+.hero__content-editor i,
+.hero__content-editor em {
+    font-style: italic !important;
+}
