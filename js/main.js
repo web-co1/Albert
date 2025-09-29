@@ -195,6 +195,15 @@ analyzeButton.addEventListener("click", function(e){
     let editorText = editor.textContent.toString();
     let plateform = document.querySelector('[name="social_media"]:checked').value;
     let recaptchaSiteKey = "6LefJYcrAAAAAF7hmQfCgy73gHwy1HwSmW1bWZ_B";
+
+    // Reset old alerts
+    const summaryBar = document.getElementById('summary-bar');
+    summaryBar.classList.remove('summary-spam', 'summary-warning', 'summary-info');
+    const messageElement = summaryBar.querySelector('.alert-message');
+    if (messageElement) {
+        messageElement.innerHTML = '';
+    }
+
     analyzeText(editorText, recaptchaSiteKey, plateform, false);
 
 })
