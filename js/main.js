@@ -2,7 +2,7 @@
 const menuBtn = document.querySelector(".menu-btn");
 const analyzeButton = document.getElementById("analyze-button");
 const editor = document.getElementById("editor");
-const baseURL = "http://localhost:5000/";
+const baseURL = "https://textscore.io/";
 // global (or module-level) state
 let activeRequests = new Set();
 let lastCheckState = null;
