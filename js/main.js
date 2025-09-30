@@ -10,6 +10,7 @@ let lastCheckState = null;
 let requestCount = 0;
 let lastResetTime = Date.now();
 const codeErrorBanner = document.getElementById('code-error-banner');
+const loremErrorBanner = document.getElementById('lorem-error-banner');
 
 /* -- navigation menu starts from here -- */
 if(menuBtn){
@@ -26,6 +27,7 @@ if(menuBtn){
 }
 document.addEventListener('DOMContentLoaded', function () {
     codeErrorBanner.classList.add('hidden');
+    loremErrorBanner.classList.add('hidden');
     const accordions = document.querySelectorAll('.accordion');
     accordions.forEach((accordion) => {
         const head = accordion.querySelector('.accordion__head');
@@ -194,6 +196,7 @@ document.addEventListener("selectionchange", () => {
 
 editor.addEventListener("input", function(){
     codeErrorBanner.classList.add('hidden');
+    loremErrorBanner.classList.add('hidden');
   let text = editor.textContent.trim();
   document.getElementById("char-counter").textContent = `${text.length} / 70`;
 
@@ -221,6 +224,9 @@ editor.addEventListener("input", function(){
     if (validation.primaryIssue === 'code') {
         codeErrorBanner.classList.remove('hidden');
         editor.classList.add('code-detected-highlight');
+    }else if (validation.primaryIssue === 'lorem') {
+        loremErrorBanner.classList.remove('hidden');
+        editor.classList.add('lorem-detected-highlight');
     }
     analyzeButton.disabled = validation.shouldDisableButton;
 })
