@@ -11,6 +11,8 @@ let requestCount = 0;
 let lastResetTime = Date.now();
 const codeErrorBanner = document.getElementById('code-error-banner');
 const loremErrorBanner = document.getElementById('lorem-error-banner');
+const emojiErrorBanner = document.getElementById('emoji-error-banner');
+const emojiDetailsSpan = document.getElementById('emoji-details');
 
 /* -- navigation menu starts from here -- */
 if(menuBtn){
@@ -28,6 +30,7 @@ if(menuBtn){
 document.addEventListener('DOMContentLoaded', function () {
     codeErrorBanner.classList.add('hidden');
     loremErrorBanner.classList.add('hidden');
+    emojiErrorBanner.classList.add('hidden');
     const accordions = document.querySelectorAll('.accordion');
     accordions.forEach((accordion) => {
         const head = accordion.querySelector('.accordion__head');
@@ -197,6 +200,7 @@ document.addEventListener("selectionchange", () => {
 editor.addEventListener("input", function(){
     codeErrorBanner.classList.add('hidden');
     loremErrorBanner.classList.add('hidden');
+    emojiErrorBanner.classList.add('hidden');
   let text = editor.textContent.trim();
   document.getElementById("char-counter").textContent = `${text.length} / 70`;
 
@@ -227,6 +231,17 @@ editor.addEventListener("input", function(){
     }else if (validation.primaryIssue === 'lorem') {
         loremErrorBanner.classList.remove('hidden');
         editor.classList.add('lorem-detected-highlight');
+    }else if (validation.primaryIssue === 'emoji') {
+        emojiErrorBanner.classList.remove('hidden');
+        editor.classList.add('emoji-detected-highlight');
+
+        // Update emoji details
+        const details = validation.details.emojiResult.details;
+        const triggers = details.triggers.join(', ');
+        emojiDetailsSpan.textContent = `(${triggers})`;
+
+        // Highlight emoji runs in the editor
+        highlightEmojiRuns(validation.details.emojiResult.details.contiguousRuns, editor);
     }
     analyzeButton.disabled = validation.shouldDisableButton;
 })
@@ -262,6 +277,60 @@ function runInputValidation(textInput) {
         primaryIssue,
         shouldDisableButton
     };
+}
+
+function highlightEmojiRuns(contiguousRuns, textInput) {
+    if (!contiguousRuns || contiguousRuns.length === 0) return;
+
+    // Store current selection
+    const selection = window.getSelection();
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const cursorOffset = range ? range.startOffset : 0;
+
+    let content = textInput.textContent;
+    let offset = 0;
+
+    // Apply highlights to contiguous runs (work backwards to maintain indices)
+    contiguousRuns.slice().reverse().forEach(run => {
+        const beforeText = content.substring(0, run.start);
+        const emojiText = content.substring(run.start, run.end);
+        const afterText = content.substring(run.end);
+
+        content = beforeText +
+            `<span class="emoji-highlight" data-count="${run.count}">${emojiText}</span>` +
+            afterText;
+    });
+
+    // Update content if there are highlights to apply
+    if (contiguousRuns.length > 0) {
+        // Convert newlines back to <br> tags to preserve formatting
+        textInput.innerHTML = content.replace(/\n/g, '<br>');
+
+        // Try to restore cursor position
+        try {
+            const textNodes = [];
+            const walker = document.createTreeWalker(textInput, NodeFilter.SHOW_TEXT);
+            let node;
+            while (node = walker.nextNode()) {
+                textNodes.push(node);
+            }
+
+            let currentOffset = 0;
+            for (const textNode of textNodes) {
+                if (currentOffset + textNode.textContent.length >= cursorOffset) {
+                    const range = document.createRange();
+                    range.setStart(textNode, Math.min(cursorOffset - currentOffset, textNode.textContent.length));
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    break;
+                }
+                currentOffset += textNode.textContent.length;
+            }
+        } catch (error) {
+            console.warn('Could not restore cursor position:', error);
+        }
+    }
 }
 
 function checkForDuplicates(priority = 'normal', textInput) {

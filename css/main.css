@@ -1777,3 +1777,65 @@ border-top-width: 3px;
 .lorem-error-banner.hidden {
     display: none;
 }
+
+.emoji-error-banner.hidden {
+    display: none;
+}
+
+
+.emoji-error-banner {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 2px solid #fde68a;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: all 200ms ease;
+    color: #d97706;
+    position: relative;
+    overflow: hidden;
+}
+
+.emoji-error-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #f59e0b;
+    opacity: 0.3;
+}
+
+.emoji-error-banner .error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.emoji-error-banner .error-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f59e0b;
+    color: #FFFFFF;
+    border-radius: 50%;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.emoji-error-banner .error-text {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.emoji-error-banner .error-text p {
+    margin: 0;
+    color: #2B2B2B;
+    font-size: 14px;
+    line-height: 1.5;
+}
