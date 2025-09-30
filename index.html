@@ -146,6 +146,7 @@
                     <div class="hero__row">
                         <div class="hero__col hero__col--left">
                             <h1 class="heading-style-h1 mob-hide">Write Smarter. Publish Faster.</h1>
+
                             <form class="hero_editable-block">
                                 <div class="hero__toolbar">
                                     <div class="hero__toolbar-menu">
@@ -264,9 +265,24 @@
                                         </label>
                                     </div>
                                 </div>
+
                                 <div id="editor" class="hero__content-editor" contenteditable="true" spellcheck="true" data-placeholder="Paste or type your text here..."></div>
                                 <div class="char-counter"><span id="char-counter">0 / 70</span></div>
 
+                                <!-- Code Detection Error Banner -->
+                                <div id="code-error-banner" class="code-error-banner hidden">
+                                    <div class="error-content">
+                                        <div class="error-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10 2v20M14 2v20M4 7h16M4 17h16" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="error-text">
+                                            <strong>Code Detected</strong>
+                                            <p>TextScore is designed for analyzing written content, not source code. <a href="documentation/how_it_works.html#code-policy" target="_blank">Learn more</a></p>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="hero__controls">
                                     <div>
                                         <p class="weight-500">Platform for posting</p>
@@ -382,7 +398,8 @@
     <!-- ./footer ends here -->
 
     <!-- scripts starts from here -->
-       <script src="js/main.js"></script>
+        <script type="module" src="js/validation/validator.js"></script>
+        <script type="module" src="js/main.js"></script>
         <script src="js/statusMapper.js"></script>
        <script src="js/api_client.js"></script>
 </body>

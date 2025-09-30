@@ -1665,3 +1665,53 @@ border-top-width: 3px;
     padding-top: 8px;
     border-top: 1px solid #fde68a;
 }
+
+.code-error-banner.hidden {
+    display: none;
+}
+
+.code-error-banner{
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)  ;
+    border: 2px solid #fecaca  ;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06) ;
+    transition: all 200ms ease;
+    color: #dc2626;
+    position: relative;
+    overflow: hidden;
+}
+
+.code-error-banner .error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.code-error-banner .error-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: #FFFFFF;
+    border-radius: 50%;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.code-error-banner .error-text {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.code-error-banner .error-text p {
+    margin: 0;
+    color: #2B2B2B;
+    font-size: 14px;
+    line-height: 1.5;
+}

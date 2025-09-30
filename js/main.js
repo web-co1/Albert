@@ -1,3 +1,4 @@
+import { runValidation } from './validation/validator.js';
 // all variables
 const menuBtn = document.querySelector(".menu-btn");
 const analyzeButton = document.getElementById("analyze-button");
@@ -8,7 +9,7 @@ let activeRequests = new Set();
 let lastCheckState = null;
 let requestCount = 0;
 let lastResetTime = Date.now();
-
+const codeErrorBanner = document.getElementById('code-error-banner');
 
 /* -- navigation menu starts from here -- */
 if(menuBtn){
@@ -24,6 +25,7 @@ if(menuBtn){
   });
 }
 document.addEventListener('DOMContentLoaded', function () {
+    codeErrorBanner.classList.add('hidden');
     const accordions = document.querySelectorAll('.accordion');
     accordions.forEach((accordion) => {
         const head = accordion.querySelector('.accordion__head');
@@ -191,6 +193,7 @@ document.addEventListener("selectionchange", () => {
 /* get data from analyze button */
 
 editor.addEventListener("input", function(){
+    codeErrorBanner.classList.add('hidden');
   let text = editor.textContent.trim();
   document.getElementById("char-counter").textContent = `${text.length} / 70`;
 
@@ -212,8 +215,48 @@ editor.addEventListener("input", function(){
     if (duplicateInfo && duplicateInfo.is_duplicate) {
         showDuplicateWarning(duplicateInfo);
     }
+    const validation = runInputValidation(editor);
+    editor.classList.remove('code-detected-highlight');
 
+    if (validation.primaryIssue === 'code') {
+        codeErrorBanner.classList.remove('hidden');
+        editor.classList.add('code-detected-highlight');
+    }
+    analyzeButton.disabled = validation.shouldDisableButton;
 })
+
+function runInputValidation(textInput) {
+    const text = getTextContent(textInput);
+    const currentLength = text.length;
+
+    const validation = runValidation(text);
+
+    // Handle PII confirmation override
+    let shouldDisableButton = validation.shouldDisable;
+    let primaryIssue = validation.primaryIssue;
+
+    // PII special case - allow user to proceed if confirmed
+    if (validation.details.piiResult.hasPII && !appState.piiCheckConfirmed) {
+        primaryIssue = 'pii';
+        shouldDisableButton = true;
+    } else if (validation.details.piiResult.hasPII && appState.piiCheckConfirmed) {
+        // User confirmed PII, don't block for PII - check for other issues
+        if (validation.primaryIssue === 'pii') {
+            // PII was the primary issue, now find next issue or allow analysis
+            primaryIssue = null; // No blocking issues
+            shouldDisableButton = false;
+        } else {
+            // PII was not primary, respect other validation results
+            shouldDisableButton = validation.shouldDisable;
+        }
+    }
+
+    return {
+        ...validation,
+        primaryIssue,
+        shouldDisableButton
+    };
+}
 
 function checkForDuplicates(priority = 'normal', textInput) {
     const text = getTextContent(textInput);
