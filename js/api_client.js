@@ -1,4 +1,4 @@
-// const baseURL = "https://textscore.io/";
+const baseURL = "https://textscore.io/";
 
 const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");

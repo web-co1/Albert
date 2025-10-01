@@ -3,7 +3,7 @@ import { runValidation } from './validation/validator.js';
 const menuBtn = document.querySelector(".menu-btn");
 const analyzeButton = document.getElementById("analyze-button");
 const editor = document.getElementById("editor");
-const baseURL = "https://textscore.io/";
+const apiUrl = "https://textscore.io/";
 // global (or module-level) state
 let activeRequests = new Set();
 let lastCheckState = null;
@@ -412,7 +412,7 @@ async function checkForDuplicate(text, platform = 'general') {
         const textHash = await generateTextHash(text, platform);
         if (!textHash) return null;
 
-        const response = await fetch(`${baseURL}api/check_duplicate`, {
+        const response = await fetch(`${apiUrl}api/check_duplicate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text_hash: textHash })
