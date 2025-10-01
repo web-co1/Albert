@@ -1,11 +1,11 @@
 const baseURL = "https://textscore.io/";
-
+import {dropdownAccordion} from './main.js'
 const resultContainer = document.getElementById("result");
 const errorMsg = document.querySelector(".error-message");
 let loader = document.querySelector(".loader");
 
 
-async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = false){
+export async function analyzeText(text, recaptchaToken, plateform, forceAnalysis = false){
     const payload = {
         text: text,
         recaptcha_token: recaptchaToken,
@@ -698,7 +698,7 @@ function populateData(data){
             riskyLinks > 0 ? 'Some links detected security concerns.' : 'All links appear safe and trustworthy.');
 
     // AI Linguistic
-    ai_linguistic_pattern_data = data?.ai_linguistic_pattern;
+    const ai_linguistic_pattern_data = data?.ai_linguistic_pattern;
     const value = ai_linguistic_pattern_data?.value !== undefined ? ai_linguistic_pattern_data?.value : ai_linguistic_pattern_data;
     const scorePercentage = Math.round(value * 100);
     const aiLinguisticTier = ai_linguistic_pattern_data?.tier || (value <= 0.3 ? 'good' : value <= 0.7 ? 'fair' : 'poor');
@@ -712,7 +712,7 @@ function populateData(data){
             'Consider personalizing content to reduce AI detection signals');
 
     // AI Shadowban
-    ai_shadowban_risk_data = data?.ai_shadowban_risk;
+    const ai_shadowban_risk_data = data?.ai_shadowban_risk;
     const shadowbanValue = ai_shadowban_risk_data?.value !== undefined ? ai_shadowban_risk_data?.value : ai_shadowban_risk_data;
     const shadowbanVDetails = ai_shadowban_risk_data?.details || {};
     const shadowbanTier = ai_shadowban_risk_data?.tier || (value === 'low' ? 'good' : value === 'medium' ? 'fair' : 'poor');

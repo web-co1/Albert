@@ -1,4 +1,5 @@
 import { runValidation } from './validation/validator.js';
+import {analyzeText} from './api_client.js'
 // all variables
 const menuBtn = document.querySelector(".menu-btn");
 const analyzeButton = document.getElementById("analyze-button");
@@ -487,7 +488,7 @@ function showDuplicateWarning(duplicateInfo) {
         return;
     }
 
-    this.removeDuplicateWarning();
+    removeDuplicateWarning();
 
     // DOM safety checks
     const analyzeButton = document.getElementById('analyze-button');
@@ -574,7 +575,7 @@ analyzeButton.addEventListener("click", function(e){
 
 /* accordion open and close */
 
-function dropdownAccordion() {
+export function dropdownAccordion() {
   document.querySelectorAll("#result .card__header").forEach(function(header) {
     header.addEventListener("click", function() {
       const isOpen = header.parentElement.classList.contains("accordion_open");
