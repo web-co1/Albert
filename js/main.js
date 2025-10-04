@@ -567,11 +567,37 @@ analyzeButton.addEventListener("click", function(e){
     if (messageElement) {
         messageElement.innerHTML = '';
     }
-
-    analyzeText(editorText, recaptchaSiteKey, plateform, false);
+    const analysisResults = performAnalysisWithRecaptcha(editorText, plateform, recaptchaSiteKey, false);
+    // analyzeText(editorText, recaptchaSiteKey, plateform, false);
 
 })
 
+async function performAnalysisWithRecaptcha(text, selectedPlatform, recaptchaSiteKey,state) {
+    return new Promise((resolve, reject) => {
+        grecaptcha.ready(async () => {
+            try {
+                const token = await grecaptcha.execute(recaptchaSiteKey, { action: 'submit' });
+                const results = await analyzeText(text, token, selectedPlatform, state);;
+
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                const summaryBar = document.getElementById('summary-bar');
+                const messageElement = summaryBar.querySelector('.alert-message');
+                summaryBar.classList.remove('summary-good', 'summary-warning', 'summary-poor', 'summary-spam', 'summary-error');
+                summaryBar.classList.add('summary-error');
+                messageElement.innerHTML = `
+            <div class="error-content">
+                <strong>❌ Error</strong>
+                <p>${summary.message}</p>
+            </div>
+        `;
+                // Show the summary bar for errors
+                summaryBar.hidden = false;
+                reject(error);
+            }
+        });
+    });
+}
 
 /* accordion open and close */
 
