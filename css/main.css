@@ -1699,11 +1699,16 @@ border-top-width: 3px;
     min-width: 0;
 }
 
-.code-error-banner .error-text p {
+.error-banner .error-text p {
     margin: 0;
-    color: #2B2B2B;
+    color: var(--dark);
+}
+.error-banner .error-text a {
+    display: block;
+    color: var(--dark);
     font-size: 14px;
-    line-height: 1.5;
+    font-weight:800;
+    margin-top: 8px;
 }
 
 .lorem-error-banner {
