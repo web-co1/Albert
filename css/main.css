@@ -1686,6 +1686,9 @@ border-top-width: 3px;
     height: 40px;
     background-color: var(--warning-300);
     border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .code-error-banner .error-text {
@@ -1698,7 +1701,7 @@ border-top-width: 3px;
     color: var(--dark);
 }
 .error-banner .error-text a {
-    display: inline-block;
+    display: block;
     color: var(--dark);
     font-size: 14px;
     line-height: 15px;
@@ -1766,15 +1769,3 @@ border-top-width: 3px;
     gap: 12px;
 }
 
-
-.emoji-error-banner .error-text {
-    flex-grow: 1;
-    min-width: 0;
-}
-
-.emoji-error-banner .error-text p {
-    margin: 0;
-    color: #2B2B2B;
-    font-size: 14px;
-    line-height: 1.5;
-}
