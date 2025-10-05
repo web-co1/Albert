@@ -1704,12 +1704,13 @@ border-top-width: 3px;
     color: var(--dark);
 }
 .error-banner .error-text a {
-    display: block;
+    display: inline-block;
     color: var(--dark);
     font-size: 14px;
     line-height: 15px;
-    font-weight:700;
+    font-weight: 600;
     margin-top: 8px;
+    text-decoration: underline;
 }
 
 .lorem-error-banner {
