@@ -522,20 +522,25 @@ function showDuplicateWarning(duplicateInfo) {
 
     warningBanner.innerHTML = `
             <div class="warning-content">
-                <span class="warning-icon">🔄</span>
+                <span class="warning-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                   <path fill-rule="evenodd" clip-rule="evenodd" d="M9.24792 0C4.30929 0.366181 0.366181 4.30929 0 9.24792H2.98056C3.39592 9.24792 3.73264 9.58464 3.73264 10C3.73264 10.4154 3.39592 10.7521 2.98056 10.7521H0C0.366181 15.6907 4.30929 19.6338 9.24792 20V17.0194C9.24792 16.6041 9.58464 16.2674 10 16.2674C10.4154 16.2674 10.7521 16.6041 10.7521 17.0194V20C15.6907 19.6338 19.6338 15.6907 20 10.7521H17.0194C16.6041 10.7521 16.2674 10.4154 16.2674 10C16.2674 9.58463 16.6041 9.24792 17.0194 9.24792H20C19.6338 4.30929 15.6907 0.366181 10.7521 0V2.98056C10.7521 3.39592 10.4154 3.73264 10 3.73264C9.58464 3.73264 9.24792 3.39592 9.24792 2.98056V0ZM7.24236 10C7.24236 9.58464 7.57908 9.24792 7.99444 9.24792H9.24792V7.99444C9.24792 7.57908 9.58464 7.24236 10 7.24236C10.4154 7.24236 10.7521 7.57908 10.7521 7.99444V9.24792H12.0056C12.4209 9.24792 12.7576 9.58464 12.7576 10C12.7576 10.4154 12.4209 10.7521 12.0056 10.7521H10.7521V12.0056C10.7521 12.4209 10.4154 12.7576 10 12.7576C9.58464 12.7576 9.24792 12.4209 9.24792 12.0056V10.7521H7.99444C7.57908 10.7521 7.24236 10.4154 7.24236 10Z" fill="#916000"/>
+                  </svg>
+                </span>
                 <div class="warning-text">
                     <strong>Previously analyzed text detected</strong>
                     <p class="warning-details">
                         Last analysis: ${timeText} on ${duplicateInfo.platform}
                         <br><small class="text-preview">"${shortPreview}"</small>
                     </p>
+                     <div class="warning-actions">
+                        <small>The analysis will use cached results for faster response.</small>
+                    </div>
                 </div>
                 <button class="dismiss-warning" onclick="document.getElementById('duplicate-warning').remove()" 
                         aria-label="Dismiss warning">×</button>
             </div>
-            <div class="warning-actions">
-                <small>The analysis will use cached results for faster response.</small>
-            </div>
+           
         `;
 
     // Insert before the analyze button
