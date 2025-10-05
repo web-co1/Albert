@@ -1663,7 +1663,7 @@ border-top-width: 3px;
     overflow: hidden;
 }
 
-.code-error-banner .error-content {
+.error-banner .error-content {
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -1715,26 +1715,6 @@ border-top-width: 3px;
     overflow: hidden;
 }
 
-
-
-
-.lorem-error-banner .error-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.lorem-error-banner .error-text {
-    flex: 1;
-    min-width: 0;
-}
-
-.lorem-error-banner .error-text p {
-    margin: 0;
-    color: #6B7280;
-    line-height: 1.5;
-}
-
 .lorem-error-banner.hidden {
     display: none;
 }
@@ -1751,10 +1731,4 @@ border-top-width: 3px;
 }
 
 
-
-.emoji-error-banner .error-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
 
