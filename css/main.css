@@ -713,20 +713,9 @@ input:checked + .slider:before {
     padding-left: 40px;
 }
 .error-message {
-    border-radius: 10px;
-    padding: 16px;
-    background: var(--danger-300);
-    border-left: 6px solid var(--danger-400);
     display: none;
 } 
-.error-message__title {
-    font-size: 20px;
-    line-height: 26px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    color: var(--danger-400);
-    display: block;
-}
+
 
 .loader {
     width: 50px;
