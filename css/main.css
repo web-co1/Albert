@@ -1621,6 +1621,11 @@ margin-top: 48px;
     justify-content: center;
 }
 
+.gibberish-content p {
+    margin: 6px 0 0 0;
+    color: var(--dark);
+}
+
 .warning-details {
     margin: 8px 0 0 0;
     font-size: 16px;
