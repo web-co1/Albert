@@ -1587,6 +1587,12 @@ margin-top: 48px;
     transition: all 200ms ease;
     position: relative;
     overflow: hidden;
+    background: var(--warning-200);
+    border: 1px solid var(--warning-700);
+    color: var(--warning-700);
+    margin: 16px 0;
+    padding: 16px;
+    border-radius: 12px;
 }
 .duplicate-warning.visible {
     opacity: 1;
