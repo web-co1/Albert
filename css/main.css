@@ -1700,7 +1700,7 @@ border-top-width: 3px;
 }
 
 .error-banner .error-text p {
-    margin: 8px 0 0 0 ;
+    margin: 6px 0 0 0 ;
     color: var(--dark);
 }
 .error-banner .error-text a {
