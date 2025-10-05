@@ -352,9 +352,21 @@
                             </form>
                         </div>
                         <div class="hero__col result">
-                            <div class="error-message">
-                                <p class="error-message__title">❌ Error</p>
-                                <p>Analysis failed: Server error: 429 TOO MANY REQUESTS. Please try again or contact support if the problem persists.</p>
+                            <div class="error-message error-banner">
+                              <div class="error-content">
+                                   <div class="error-icon">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                         <path d="M11.75 1C11.75 0.585786 11.4142 0.25 11 0.25C10.5858 0.25 10.25 0.585786 10.25 1V4C10.25 4.41421 10.5858 4.75 11 4.75C11.4142 4.75 11.75 4.41421 11.75 4V1Z" fill="currentColor"/>
+                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M1 20.25H3V15C3 10.5817 6.58172 7 11 7C15.4183 7 19 10.5817 19 15V20.25H21C21.4142 20.25 21.75 20.5858 21.75 21C21.75 21.4142 21.4142 21.75 21 21.75H1C0.585786 21.75 0.25 21.4142 0.25 21C0.25 20.5858 0.585786 20.25 1 20.25ZM11.75 17.7993C12.1984 17.54 12.5 17.0552 12.5 16.5C12.5 15.6716 11.8284 15 11 15C10.1716 15 9.5 15.6716 9.5 16.5C9.5 17.0552 9.80165 17.54 10.25 17.7993V20.25H11.75V17.7993ZM12.5953 10.2186C12.7507 9.83464 13.188 9.64938 13.5719 9.8048C14.7629 10.2869 15.7129 11.2369 16.195 12.4278C16.3504 12.8118 16.1651 13.249 15.7812 13.4044C15.3972 13.5599 14.96 13.3746 14.8046 12.9907C14.4749 12.1762 13.8235 11.5249 13.0091 11.1952C12.6252 11.0398 12.4399 10.6025 12.5953 10.2186Z" fill="currentColor"/>
+                                         <path d="M20.5303 4.46967C20.8232 4.76256 20.8232 5.23744 20.5303 5.53033L19.0303 7.03033C18.7374 7.32322 18.2626 7.32322 17.9697 7.03033C17.6768 6.73744 17.6768 6.26256 17.9697 5.96967L19.4697 4.46967C19.7626 4.17678 20.2374 4.17678 20.5303 4.46967Z" fill="currentColor"/>
+                                         <path d="M2.53033 4.46967C2.23744 4.17678 1.76256 4.17678 1.46967 4.46967C1.17678 4.76256 1.17678 5.23744 1.46967 5.53033L2.96967 7.03033C3.26256 7.32322 3.73744 7.32322 4.03033 7.03033C4.32322 6.73744 4.32322 6.26256 4.03033 5.96967L2.53033 4.46967Z" fill="currentColor"/>
+                                       </svg>
+                                   </div>
+                                   <div class="error-text">
+                                        <strong>Error</strong>
+                                        <p>Analysis failed: Server error: 429 TOO MANY REQUESTS. Please try again or contact support if the problem persists.</p>
+                                   </div>
+                              </div>
                             </div>
 
                              <div id="summary-bar" class="card" role="alert" hidden>
