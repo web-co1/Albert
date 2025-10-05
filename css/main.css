@@ -1707,6 +1707,7 @@ border-top-width: 3px;
     display: block;
     color: var(--dark);
     font-size: 14px;
+    line-height: 15px;
     font-weight:800;
     margin-top: 8px;
 }
