@@ -1649,6 +1649,7 @@ border-top-width: 3px;
     font-size: 12px;
     font-weight: 500;
     margin-top: 12px;
+    display: block;
     padding: 8px;
     background: var(--warning-300);
     border-radius: 4px;
@@ -1657,7 +1658,7 @@ border-top-width: 3px;
 .warning-actions {
     margin-top: 20px;
     font-size: 16px;
-    line-height: 500;
+    font-weight: 500;
 }
 
 .code-error-banner.hidden {
